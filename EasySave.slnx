@@ -1,3 +1,7 @@
 <Solution>
-  <Project Path="EasySave/EasySave.csproj" />
+  <Folder Name="/src/">
+    <Project Path="Consoleview/ConsoleView.csproj" Id="f9a72858-0378-4531-85f4-91cff41c2238" />
+    <Project Path="EasySave/EasySave.core.csproj" />
+    <Project Path="GraphicalView/GraphicalView.csproj" Id="e0549a20-45d5-4d75-abc0-47e712bc2b41" />
+  </Folder>
 </Solution>
