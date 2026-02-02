@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="Consoleview/ConsoleView.csproj" Id="f9a72858-0378-4531-85f4-91cff41c2238" />
+    <Project Path="EasySave.Logger/EasySave.Logger.csproj" Id="d96d419e-f3bd-461f-8619-98d8995e64bb" />
     <Project Path="EasySave/EasySave.core.csproj" />
     <Project Path="GraphicalView/GraphicalView.csproj" Id="e0549a20-45d5-4d75-abc0-47e712bc2b41" />
   </Folder>
