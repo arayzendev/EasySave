@@ -2,12 +2,6 @@
 classDiagram
     direction TB
 
-    %% EasySave.Console - Entry Point
-    class Program {
-        +Main(args: string[])
-    }
-
-    %% EasySave.Core - Services
     class BackupManager {
     }
 
@@ -20,14 +14,12 @@ classDiagram
     class LanguageManager {
     }
 
-    %% EasySave.Core - Models
     class BackupJob {
     }
 
     class BackupProgress {
     }
 
-    %% EasySave.Core - Strategies
     class IBackupStrategy {
         <<interface>>
     }
@@ -38,11 +30,9 @@ classDiagram
     class DifferentialBackup {
     }
 
-    %% EasyLog - Separate DLL
     class Logger {
     }
 
-    %% Relationships
     Program --> BackupManager : uses
 
     BackupManager "1" --> "0..5" BackupJob : manages
