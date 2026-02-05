@@ -32,7 +32,7 @@ classDiagram
             private string targetPath
             private IBackupStrategy backupStrategy
             private BackupProgress backupProgress
-            public void Execute()
+            public void Execute(Action onProgressUpdate)
         }
 
         class BackupProgress {
@@ -59,15 +59,15 @@ classDiagram
 
         class IBackupStrategy {
             <<interface>>
-            public void Save(string sourcePath, string targetPath, BackupProgress backupProgress)
+            public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action onProgressUpdate)
         }
 
         class FullBackup {
-            public void Save(string sourcePath, string targetPath, BackupProgress backupProgress)
+            public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action onProgressUpdate)
         }
 
         class DifferentialBackup {
-            public void Save(string sourcePath, string targetPath, BackupProgress backupProgress)
+            public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action onProgressUpdate)
         }
 
     }
@@ -95,5 +95,5 @@ classDiagram
     BackupManager "1" --> "1" StateManager : uses
     BackupManager "1" --> "1" ConfigManager : uses
 
-    BackupJob ..> Logger : uses
+    IBackupStrategy ..> Logger : uses
 ```
