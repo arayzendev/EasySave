@@ -8,45 +8,51 @@ classDiagram
             private List<BackupJob> backupJobs
             private StateManager stateManager
             private ConfigManager configManager
-            public void CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
-            public void DeleteJob(int id)
-            public void ModifyJob(int id, string sourcePath, string targetPath)
-            public void ExecuteJob(int id)
+            public BackupManager()
+            public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
+            public void DeleteJob(int index)
+            public void ModifyJob(int index, string sourcePath, string targetPath)
+            public void ExecuteJob(int index)
             public List<BackupJob> ListJobs()
         }
 
         class StateManager {
             private string filePath
+            public StateManager()
             public void Write(List<BackupJob> backupJobs)
         }
 
         class ConfigManager {
             private string filePath
+            public ConfigManager()
             public List<BackupJob> Load()
             public void Save(List<BackupJob> backupJobs)
         }
 
         class BackupJob {
             private string name
-            private string sourcePath
-            private string targetPath
+            public string sourcePath
+            public string targetPath
             private IBackupStrategy backupStrategy
             private BackupProgress backupProgress
+            public BackupJob()
+            public BackupJob(string name, string sourcePath, string targetPath, IBackupStrategy backupStrategy)
             public void Execute(Action onProgressUpdate)
+            public void UpdatePaths(string sourcePath, string targetPath)
         }
 
         class BackupProgress {
-            private DateTime dateTime
-            private BackupState state
-            private int totalFiles
-            private long totalSize
-            private long fileSize
-            private float progress
-            private float transferTime
-            private int remainingFiles
-            private long remainingSize
-            private string sourceFilePath
-            private string targetFilePath
+            public DateTime dateTime
+            public BackupState state
+            public int totalFiles
+            public long totalSize
+            public long fileSize
+            public float progress
+            public float transferTime
+            public int remainingFiles
+            public long remainingSize
+            public string sourceFilePath
+            public string targetFilePath
         }
 
         class BackupState{
@@ -75,6 +81,7 @@ classDiagram
     namespace EasyLog.dll{
         class Logger {
             private string path
+            public Logger(string path)
             public void Write(Dictionary<string, object> data)
         }
     }
