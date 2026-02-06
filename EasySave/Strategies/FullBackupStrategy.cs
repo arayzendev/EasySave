@@ -3,6 +3,7 @@ using EasySave.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using EasyLog;
 
 namespace EasySave.Strategies
 {
@@ -63,7 +64,23 @@ namespace EasySave.Strategies
             }
             catch (Exception ex) 
             {
-               Console.WriteLine(ex.ToString());
+                // Affichage dans la console comme tu le faisais
+                Console.WriteLine(ex.ToString());
+
+                // Créer un logger pour écrire dans C:\Logs
+                Logger logger = new Logger(@"C:\Logs");
+
+                // Créer un LogEntry avec le message d'erreur
+                LogEntry entry = new LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Application = "EasySave",
+                    data = new Dictionary<string, object>
+                {
+                    { "SourceFile", sourcePath },
+                    { "TargetFile", targetPath }
+                }
+                };
             }
         }
     }

@@ -1,3 +1,5 @@
+using EasySave.Interfaces;
+using EasySave.Models;
 class BackupJob {
     private string name;
     public string sourcePath{get; private set;}

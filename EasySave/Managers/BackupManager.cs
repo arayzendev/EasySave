@@ -1,3 +1,5 @@
+using EasySave.Interfaces;
+using EasySave.Strategies;
 class BackupManager {
     private List<BackupJob>? backupJobs;
     private StateManager stateManager;
@@ -15,11 +17,11 @@ class BackupManager {
         switch (backupStrategy)
         {
             case "diff":
-                strategy = new DifferentialBackup();
+                strategy = new DifferentialBackupStrategy();
                 break;
 
             default:
-                strategy = new FullBackup();
+                strategy = new FullBackupStrategy();
                 break;
         }
         if (backupJobs.Count >= 5)
