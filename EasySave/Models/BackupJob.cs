@@ -3,6 +3,7 @@ using EasySave.Models;
 using System;
 
 class BackupJob {
+
     private string name;
     public string sourcePath{get; private set;}
     public string targetPath{get; private set;}

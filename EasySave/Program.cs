@@ -54,7 +54,23 @@ namespace EasySave
                     Console.WriteLine(LanguageManager.Instance.GetText("Question_Type"));
                     Console.WriteLine("1" + LanguageManager.Instance.GetText("Type_Complet"));
                     Console.WriteLine("2" + LanguageManager.Instance.GetText("Type_Diff"));
-                    string choixType = Console.ReadLine();
+
+                    string choix = Console.ReadLine();
+                    string choixType;
+
+                    switch (choix)
+                    {
+                        case "1":
+                            choixType = "default";
+                            break;
+                        case "2":
+                            choixType = "diff";
+                            break;
+                        default:
+                            Console.WriteLine("Choix invalide");
+                            choixType = "";
+                            break;
+                    }
 
 
 
