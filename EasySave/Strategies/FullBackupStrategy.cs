@@ -98,14 +98,14 @@ namespace EasySave.Strategies
             catch (Exception ex) 
             {
                 //Log d'erreur
-                Logger log = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"°);
+                Logger log = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
                 log.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     Application = "EasySave",
                     data = new Dictionary<string, object>
                             {
-                                { "Error FullBackup", ex.Message.ToString()},
+                                { "Error DifferentialBackup", ex.Message.ToString()},
                             }
                 });
             }
