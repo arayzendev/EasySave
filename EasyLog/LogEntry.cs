@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace EasyLog
 {
-    public class Class1
+    public class LogEntry
     {
+        public DateTime? Timestamp;
+        public string Application;
+        public Dictionary<string, object> data;
     }
 }

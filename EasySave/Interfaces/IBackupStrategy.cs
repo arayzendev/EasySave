@@ -7,6 +7,6 @@ namespace EasySave.Interfaces
 {
     internal interface IBackupStrategy
     {
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate) { }
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate);
     }
 }
