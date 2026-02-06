@@ -14,7 +14,7 @@ namespace EasySave.Factory
         public BackupStrategyFactory() { }
 
         /// <summary>
-        /// Créationn d'une stratégie de sauvegarde
+        /// Crï¿½ationn d'une stratï¿½gie de sauvegarde
         /// </summary>
         /// <param name="BackupStrategy"></param>
         /// <returns></returns>
@@ -25,7 +25,7 @@ namespace EasySave.Factory
             if (BackupStrategy == null) 
                 throw new ArgumentNullException("BackupStrategy cannot be null or empty.");
 
-            //Choix de création de stratégie entre différentiel et complète
+            //Choix de crï¿½ation de stratï¿½gie entre diffï¿½rentiel et complï¿½te
             switch (BackupStrategy.ToLower())
             {
                 case "full":

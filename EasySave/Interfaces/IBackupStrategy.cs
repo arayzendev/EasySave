@@ -8,7 +8,7 @@ namespace EasySave.Interfaces
     public interface IBackupStrategy
     {
         /// <summary>
-        /// Méthode de sauvegarde
+        /// Mï¿½thode de sauvegarde
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>
