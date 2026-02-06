@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using EasySave.Interfaces;
 using EasySave.Strategies;
+
 class BackupManager {
     private List<BackupJob>? backupJobs;
     private StateManager stateManager;
