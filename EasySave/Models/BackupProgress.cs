@@ -7,16 +7,16 @@ namespace EasySave.Models
 {
     internal class BackupProgress
     {
-        public DateTime? _dateTime { get; private set; }
-        public BackupState _state { get; private set; }
-        public int _totalFiles { get; private set; }
-        public long _totalSize { get; private set; }
-        public long _fileSize { get; private set; }
-        public float _progress { get; private set; }
-        public float _transferTime { get; private set; }
-        public int _remainingFiles { get; private set; }
-        public long _remainingSize { get; private set; }
-        public string sourceFilePath { get; private set; }
-        public string targetFilePath { get; private set; }
+        public DateTime? DateTime { get; set; }
+        public BackupState State { get; set; }
+        public int TotalFiles { get; set; }
+        public long TotalSize { get; set; }
+        public long FileSize { get; set; }
+        public float Progress { get; set; }
+        public float TransferTime { get; set; }
+        public int RemainingFiles { get; set; }
+        public long RemainingSize { get; set; }
+        public string SourceFilePath { get; set; }
+        public string TargetFilePath { get; set; }
     }
 }
