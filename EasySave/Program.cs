@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using EasySave.Models;
 
@@ -69,11 +70,18 @@ namespace EasySave
             Console.WriteLine(LanguageManager.Instance.GetText("Fin_Prog"));
         }
 
+        /// <summary>
+        /// Création d'un travailleur 
+        /// </summary>
+        /// <param name="backupManager"></param>
         static void CreateJob(BackupManager backupManager)
         {
+
+            //récupère le nom du travailleur
             Console.Write(LanguageManager.Instance.GetText("Saisie_Nom"));
             string nom = Console.ReadLine();
 
+            //Récupère la source du chemin
             Console.Write(LanguageManager.Instance.GetText("Saisie_Source"));
             string source = Console.ReadLine();
 
@@ -83,9 +91,11 @@ namespace EasySave
                 return;
             }
 
+            //Récupère la cible du chemin
             Console.Write(LanguageManager.Instance.GetText("Saisie_Dest"));
             string dest = Console.ReadLine();
 
+            //Récupère le type de travailleur
             Console.WriteLine(LanguageManager.Instance.GetText("Question_Type"));
             Console.WriteLine(LanguageManager.Instance.GetText("Type_Complet"));
             Console.WriteLine(LanguageManager.Instance.GetText("Type_Diff"));
@@ -93,6 +103,7 @@ namespace EasySave
             string typeChoix = Console.ReadLine();
             string backupStrategy;
 
+            //Choix type de travailleur
             switch (typeChoix)
             {
                 case "1":
@@ -106,6 +117,7 @@ namespace EasySave
                     return;
             }
 
+            //Crée et retourne si le travailleur a été créé ou non 
             bool success = backupManager.CreateJob(nom, source, dest, backupStrategy);
 
             if (success)
@@ -118,6 +130,10 @@ namespace EasySave
             }
         }
 
+        /// <summary>
+        /// retourne les travailleurs existants et sa configuration
+        /// </summary>
+        /// <param name="backupManager"></param>
         static void ListJobs(BackupManager backupManager)
         {
             var jobs = backupManager.ListJobs();
@@ -138,6 +154,10 @@ namespace EasySave
             }
         }
 
+        /// <summary>
+        /// Execute un seul travailleur
+        /// </summary>
+        /// <param name="backupManager"></param>
         static void ExecuteSingleJob(BackupManager backupManager)
         {
             var jobs = backupManager.ListJobs();
@@ -170,6 +190,11 @@ namespace EasySave
             }
         }
 
+
+        /// <summary>
+        /// Execute tous les travailleurs
+        /// </summary>
+        /// <param name="backupManager"></param>
         static void ExecuteAllJobs(BackupManager backupManager)
         {
             var jobs = backupManager.ListJobs();
@@ -195,6 +220,10 @@ namespace EasySave
             }
         }
 
+        /// <summary>
+        /// Supprime un travailleur
+        /// </summary>
+        /// <param name="backupManager"></param>
         static void DeleteJob(BackupManager backupManager)
         {
             var jobs = backupManager.ListJobs();
@@ -219,6 +248,11 @@ namespace EasySave
             }
         }
 
+        /// <summary>
+        /// Exucution CLI
+        /// </summary>
+        /// <param name="backupManager"></param>
+        /// <param name="arg"></param>
         static void ExecuteFromArgs(BackupManager backupManager, string arg)
         {
             var jobs = backupManager.ListJobs();

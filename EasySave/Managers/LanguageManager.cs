@@ -32,6 +32,10 @@ namespace EasySave.Models
             }
         }
 
+        /// <summary>
+        /// Méthode de définition de langues
+        /// </summary>
+        /// <param name="langue"></param>
         public void SetLanguage(string langue)
         {
             CurrentLanguage = langue.ToUpper();
@@ -114,6 +118,11 @@ namespace EasySave.Models
             }
         }
 
+        /// <summary>
+        /// Récupère le texte
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public string GetText(string key)
         {
             return _translations.ContainsKey(key) ? _translations[key] : key;

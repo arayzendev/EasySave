@@ -3,23 +3,36 @@ using EasySave.Interfaces;
 using EasySave.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace EasySave.Strategies
 {
     internal class DifferentialBackupStrategy : IBackupStrategy
     {
+        /// <summary>
+        /// Constructeur
+        /// </summary>
         public DifferentialBackupStrategy() { }
+
+        /// <summary>
+        /// Méthode de sauvegarde différencielle
+        /// </summary>
+        /// <param name="sourcePath"></param>
+        /// <param name="targetPath"></param>
+        /// <param name="backupProgress"></param>
+        /// <param name="OnProgressupdate"></param>
         public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate)
         {
             try
-            {
+            {   //Vérifie si un chemin source et cible existe
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
-                    Directory.CreateDirectory(targetPath);
+                    //Création d'un dossier et tableau qui stocke les récupération des fichiers
+                    Directory.CreateDirectory(targetPath); 
                     string[] allFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
 
-                    // Build list of files to copy (newer or missing in target)
+                    //Sauvegarde ce qui est nouveau
                     List<string> files = new List<string>();
                     foreach (string file in allFiles)
                     {
@@ -29,6 +42,7 @@ namespace EasySave.Strategies
                             files.Add(file);
                     }
 
+                    //Met à jour le model backupProgress
                     backupProgress.TotalFiles = files.Count;
                     backupProgress.RemainingFiles = files.Count;
                     backupProgress.State = BackupState.Active;
@@ -43,6 +57,7 @@ namespace EasySave.Strategies
                     int copiedFiles = 0;
                     long copiedSize = 0;
 
+                    //Boucle qui ajoute les fichiers du chemin source aux chemin cible
                     foreach (string file in files)
                     {
                         string relativePath = Path.GetRelativePath(sourcePath, file);
@@ -67,6 +82,8 @@ namespace EasySave.Strategies
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
                         OnProgressupdate?.Invoke();
 
+
+                        //Ecriture des logs
                         Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
                         logger.Write(new LogEntry
                         {
@@ -86,14 +103,25 @@ namespace EasySave.Strategies
                 {
                     throw new ArgumentException("Source or target path cannot be null or empty.");
                 }
-
+               
+                //Réussite du programme
                 backupProgress.State = BackupState.Ended;
                 backupProgress.Progress = 100;
                 OnProgressupdate?.Invoke();
             }
             catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
+            {   
+                //Log d'erreur
+                Logger log = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"°);
+                log.Write(new LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Application = "EasySave",
+                    data = new Dictionary<string, object>
+                            {
+                                { "Error DifferentialBackup", ex.Message.ToString()},
+                            }
+                });
             }
         }
     }

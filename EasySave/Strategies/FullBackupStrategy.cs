@@ -9,16 +9,28 @@ namespace EasySave.Strategies
 {
     internal class FullBackupStrategy : IBackupStrategy
     {
-
+        /// <summary>
+        /// Constructeur
+        /// </summary>
         public FullBackupStrategy() { }
+        /// <summary>
+        /// Sauvegarde complète
+        /// </summary>
+        /// <param name="sourcePath"></param>
+        /// <param name="targetPath"></param>
+        /// <param name="backupProgress"></param>
+        /// <param name="OnProgressupdate"></param>
         public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate)
         {
             try
-            {
+            {   //Vérifie si un chemin source et cible existe
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
+                    //Créer un dossier dans path et stocke les fichiers de la source
                     Directory.CreateDirectory(targetPath);
                     string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+
+                    //Met à jour le progrès et l'état
                     backupProgress.TotalFiles = files.Length;
                     backupProgress.RemainingFiles = files.Length;
                     backupProgress.State = BackupState.Active;
@@ -33,6 +45,7 @@ namespace EasySave.Strategies
                     int copiedFiles = 0;
                     long copiedSize = 0;
 
+                    //Boucle pour copier tous les fichiers vers le chemin cible
                     foreach (string file in files)
                     {
                         string relativePath = Path.GetRelativePath(sourcePath, file);
@@ -57,6 +70,7 @@ namespace EasySave.Strategies
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
                         OnProgressupdate?.Invoke();
 
+                        //Ecrit les logs 
                         Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
                         logger.Write(new LogEntry
                         {
@@ -76,15 +90,24 @@ namespace EasySave.Strategies
                 {
                     throw new ArgumentException("Source or target path cannot be null or empty.");
                 }
-
+                //Réussite de la sauvegarde
                 backupProgress.State = BackupState.Ended;
                 backupProgress.Progress = 100;
                 OnProgressupdate?.Invoke();
             }
             catch (Exception ex) 
             {
-                // Affichage dans la console comme tu le faisais
-                Console.WriteLine(ex.ToString());
+                //Log d'erreur
+                Logger log = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"°);
+                log.Write(new LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Application = "EasySave",
+                    data = new Dictionary<string, object>
+                            {
+                                { "Error FullBackup", ex.Message.ToString()},
+                            }
+                });
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace EasySave.Models
 {
+    //Progrès du backup
     public class BackupProgress
     {
         public DateTime? DateTime { get; set; }

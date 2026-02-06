@@ -8,12 +8,24 @@ namespace EasySave.Factory
 {
     internal class BackupStrategyFactory
     {
+        /// <summary>
+        /// Constructeur
+        /// </summary>
         public BackupStrategyFactory() { }
+
+        /// <summary>
+        /// Créationn d'une stratégie de sauvegarde
+        /// </summary>
+        /// <param name="BackupStrategy"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         public IBackupStrategy Create(string BackupStrategy)
         {
             if (BackupStrategy == null) 
                 throw new ArgumentNullException("BackupStrategy cannot be null or empty.");
 
+            //Choix de création de stratégie entre différentiel et complète
             switch (BackupStrategy.ToLower())
             {
                 case "full":

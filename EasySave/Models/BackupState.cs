@@ -4,6 +4,7 @@ using System.Text;
 
 namespace EasySave.Models
 {
+    //Etat du backup
     public enum BackupState
     {
         Active,
