@@ -9,7 +9,7 @@ class StateManager {
 
     public StateManager()
     {
-        string easySaveFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EasySave");
+        string easySaveFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EasySaveData");
 
         if (!Directory.Exists(easySaveFolder))
         {
@@ -20,6 +20,6 @@ class StateManager {
     }
     public void Write(List<BackupJob> backupJobs)
     {
-        File.WriteAllText(filePath, JsonSerializer.Serialize(backupJobs, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(filePath, JsonSerializer.Serialize(backupJobs, new JsonSerializerOptions { WriteIndented = true, Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() } }));
     }
 }

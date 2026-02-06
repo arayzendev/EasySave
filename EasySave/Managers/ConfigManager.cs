@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using EasySave.Factory;
 
 class ConfigManager
 {
@@ -9,7 +10,7 @@ class ConfigManager
 
     public ConfigManager()
     {
-        string easySaveFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EasySave");
+        string easySaveFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EasySaveData");
 
         if (!Directory.Exists(easySaveFolder))
         {
@@ -33,7 +34,15 @@ class ConfigManager
         }
 
         List<BackupJob>? backupJobs = JsonSerializer.Deserialize<List<BackupJob>>(json);
-        return backupJobs ?? new List<BackupJob>();
+        if (backupJobs == null) return new List<BackupJob>();
+
+        BackupStrategyFactory factory = new BackupStrategyFactory();
+        foreach (var job in backupJobs)
+        {
+            job.backupStrategy = factory.Create(job.strategyType);
+        }
+
+        return backupJobs;
     }
     public void Save(List<BackupJob> backupJobs)
     {

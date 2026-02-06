@@ -13,10 +13,10 @@ namespace EasySave.Models
         private Dictionary<string, string> _translations = new Dictionary<string, string>();
         public string CurrentLanguage { get; private set; }
 
-        // 3. CONSTRUCTEUR PRIVÉ : Empêche l'utilisation de "new LanguageManager()" à l'extérieur
+        // 3. CONSTRUCTEUR PRIVï¿½ : Empï¿½che l'utilisation de "new LanguageManager()" ï¿½ l'extï¿½rieur
         private LanguageManager() { }
 
-        // 4. PROPRIÉTÉ D'ACCÈS : Le point d'entrée unique
+        // 4. PROPRIï¿½Tï¿½ D'ACCï¿½S : Le point d'entrï¿½e unique
         public static LanguageManager Instance
         {
             get
@@ -39,39 +39,79 @@ namespace EasySave.Models
 
             if (CurrentLanguage == "FR")
             {
-                _translations.Add("Menu_Titre", "--- Paramétrage du Travail ---");
-                _translations.Add("Travail_Numero", "Travail n°");
+                _translations.Add("Menu_Titre", "--- Menu Principal ---");
+                _translations.Add("Travail_Numero", "Travail nï¿½");
                 _translations.Add("Saisie_Nom", "Nom du travail : ");
-                _translations.Add("Saisie_Source", "Répertoire Source : ");
-                _translations.Add("Saisie_Dest", "Répertoire Destination : ");
+                _translations.Add("Saisie_Source", "Rï¿½pertoire Source : ");
+                _translations.Add("Saisie_Dest", "Rï¿½pertoire Destination : ");
                 _translations.Add("Question_NbTravaux", "Combien de travaux voulez-vous faire ?");
                 _translations.Add("Question_Type", "Choisissez le type de sauvegarde :");
-                _translations.Add("Type_Complet", "Sauvegarde Complète");
-                _translations.Add("Type_Diff", "Sauvegarde Différentielle");
+                _translations.Add("Type_Complet", "1. Sauvegarde Complï¿½te");
+                _translations.Add("Type_Diff", "2. Sauvegarde Diffï¿½rentielle");
                 _translations.Add("Msg_Execution", "Sauvegarde en cours...");
-                _translations.Add("Msg_Succes", "Le travail a été sauvegardé avec succès");
+                _translations.Add("Msg_Succes", "Le travail a ï¿½tï¿½ sauvegardï¿½ avec succï¿½s");
                 _translations.Add("Err_Quota_Ou_Chemin", "ERREUR : Chemin invalide ou quota de 5 travaux atteint.");
-                _translations.Add("Question_NouvelleSession", "Voulez-vous créer une nouvelle session de sauvegarde ? (O/N)");
-                _translations.Add("Fin_Prog", "Fin du programme. Appuyez sur une touche pour quitter.");
-                // ... les autres traductions FR
+                _translations.Add("Question_NouvelleSession", "Voulez-vous crï¿½er une nouvelle session de sauvegarde ? (O/N)");
+                _translations.Add("Fin_Prog", "Fin du programme.");
+                _translations.Add("Lang_Choice", "Choisir la Langue (FR/EN) : ");
+                _translations.Add("Menu_Create", "1. Crï¿½er un travail de sauvegarde");
+                _translations.Add("Menu_List", "2. Lister les travaux");
+                _translations.Add("Menu_Execute", "3. Exï¿½cuter un travail");
+                _translations.Add("Menu_ExecuteAll", "4. Exï¿½cuter tous les travaux");
+                _translations.Add("Menu_Delete", "5. Supprimer un travail");
+                _translations.Add("Menu_Quit", "6. Quitter");
+                _translations.Add("Menu_Choice", "Votre choix : ");
+                _translations.Add("Menu_Invalid", "Choix invalide.");
+                _translations.Add("Msg_Execute_Succes", "Sauvegarde terminï¿½e avec succï¿½s");
+                _translations.Add("Msg_Execute_Fail", "Erreur lors de la sauvegarde : ");
+                _translations.Add("Msg_Deleted", "Travail supprimï¿½ avec succï¿½s.");
+                _translations.Add("Err_Chemin", "ERREUR : Le rï¿½pertoire source n'existe pas.");
+                _translations.Add("Err_Quota", "ERREUR : Le quota de 5 travaux est atteint.");
+                _translations.Add("Err_Index", "ERREUR : Numï¿½ro de travail invalide.");
+                _translations.Add("Err_NoJobs", "Aucun travail de sauvegarde.");
+                _translations.Add("List_Header", "--- Liste des travaux ---");
+                _translations.Add("List_Name", "Nom : ");
+                _translations.Add("List_Source", "Source : ");
+                _translations.Add("List_Target", "Destination : ");
+                _translations.Add("Prompt_JobNumber", "Numï¿½ro du travail : ");
             }
             else
             {
-                _translations.Add("Menu_Titre", "--- Job Configuration ---");
-                _translations.Add("Travail_Numero", "Job n°");
+                _translations.Add("Menu_Titre", "--- Main Menu ---");
+                _translations.Add("Travail_Numero", "Job nï¿½");
                 _translations.Add("Saisie_Nom", "Job Name: ");
                 _translations.Add("Saisie_Source", "Source Directory: ");
                 _translations.Add("Saisie_Dest", "Destination Directory: ");
                 _translations.Add("Question_NbTravaux", "How many jobs do you want to create?");
                 _translations.Add("Question_Type", "Choose the backup type:");
-                _translations.Add("Type_Complet", "Full Backup");
-                _translations.Add("Type_Diff", "Differential Backup");
+                _translations.Add("Type_Complet", "1. Full Backup");
+                _translations.Add("Type_Diff", "2. Differential Backup");
                 _translations.Add("Msg_Execution", "Backup in progress...");
                 _translations.Add("Msg_Succes", "The job has been successfully saved");
                 _translations.Add("Err_Quota_Ou_Chemin", "ERROR: Invalid path or job quota (5) reached.");
                 _translations.Add("Question_NouvelleSession", "Do you want to create a new backup session? (Y/N)");
-                _translations.Add("Fin_Prog", "End of program. Press any key to exit.");
-                // ... les autres traductions EN
+                _translations.Add("Fin_Prog", "End of program.");
+                _translations.Add("Lang_Choice", "Choose Language (FR/EN): ");
+                _translations.Add("Menu_Create", "1. Create a backup job");
+                _translations.Add("Menu_List", "2. List backup jobs");
+                _translations.Add("Menu_Execute", "3. Execute a backup job");
+                _translations.Add("Menu_ExecuteAll", "4. Execute all backup jobs");
+                _translations.Add("Menu_Delete", "5. Delete a backup job");
+                _translations.Add("Menu_Quit", "6. Quit");
+                _translations.Add("Menu_Choice", "Your choice: ");
+                _translations.Add("Menu_Invalid", "Invalid choice.");
+                _translations.Add("Msg_Execute_Succes", "Backup completed successfully");
+                _translations.Add("Msg_Execute_Fail", "Error during backup: ");
+                _translations.Add("Msg_Deleted", "Job deleted successfully.");
+                _translations.Add("Err_Chemin", "ERROR: Source directory does not exist.");
+                _translations.Add("Err_Quota", "ERROR: Job quota (5) reached.");
+                _translations.Add("Err_Index", "ERROR: Invalid job number.");
+                _translations.Add("Err_NoJobs", "No backup jobs found.");
+                _translations.Add("List_Header", "--- Backup Jobs ---");
+                _translations.Add("List_Name", "Name: ");
+                _translations.Add("List_Source", "Source: ");
+                _translations.Add("List_Target", "Destination: ");
+                _translations.Add("Prompt_JobNumber", "Job number: ");
             }
         }
 

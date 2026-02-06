@@ -18,7 +18,7 @@ namespace EasySave.Strategies
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
                     Directory.CreateDirectory(targetPath);
-                    string[] files = Directory.GetFiles(sourcePath);
+                    string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
                     backupProgress.TotalFiles = files.Length;
                     backupProgress.RemainingFiles = files.Length;
                     backupProgress.State = BackupState.Active;
@@ -35,9 +35,13 @@ namespace EasySave.Strategies
 
                     foreach (string file in files)
                     {
-                        var sourceFile = Path.GetFileName(file);
-                        var destPath = Path.Combine(targetPath, sourceFile);
+                        string relativePath = Path.GetRelativePath(sourcePath, file);
+                        var destPath = Path.Combine(targetPath, relativePath);
+                        Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                         File.Copy(file, destPath, true);
+                        stopwatch.Stop();
 
                         // Mise à jour du backupProgress
                         long fileSize = new FileInfo(file).Length;
@@ -45,12 +49,27 @@ namespace EasySave.Strategies
                         copiedSize += fileSize;
 
                         backupProgress.FileSize = fileSize;
+                        backupProgress.TransferTime = (float)stopwatch.ElapsedMilliseconds;
                         backupProgress.SourceFilePath = file;
                         backupProgress.TargetFilePath = destPath;
                         backupProgress.Progress = (float)copiedSize / backupProgress.TotalSize * 100;
                         backupProgress.RemainingFiles = backupProgress.TotalFiles - copiedFiles;
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
                         OnProgressupdate?.Invoke();
+
+                        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
+                        logger.Write(new LogEntry
+                        {
+                            Timestamp = DateTime.Now,
+                            Application = "EasySave",
+                            data = new Dictionary<string, object>
+                            {
+                                { "SourceFile", file },
+                                { "TargetFile", destPath },
+                                { "FileSize", fileSize },
+                                { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                            }
+                        });
                     }
                 }
                 else
@@ -66,21 +85,6 @@ namespace EasySave.Strategies
             {
                 // Affichage dans la console comme tu le faisais
                 Console.WriteLine(ex.ToString());
-
-                // Créer un logger pour écrire dans C:\Logs
-                Logger logger = new Logger(@"C:\Logs");
-
-                // Créer un LogEntry avec le message d'erreur
-                LogEntry entry = new LogEntry
-                {
-                    Timestamp = DateTime.Now,
-                    Application = "EasySave",
-                    data = new Dictionary<string, object>
-                {
-                    { "SourceFile", sourcePath },
-                    { "TargetFile", targetPath }
-                }
-                };
             }
         }
     }

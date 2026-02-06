@@ -1,11 +1,11 @@
-﻿using EasySave.Models;
+using EasySave.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace EasySave.Interfaces
 {
-    internal interface IBackupStrategy
+    public interface IBackupStrategy
     {
         public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate);
     }

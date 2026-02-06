@@ -1,4 +1,4 @@
-﻿using EasySave.Interfaces;
+using EasySave.Interfaces;
 using EasySave.Strategies;
 using System;
 using System.Collections.Generic;
@@ -8,8 +8,8 @@ namespace EasySave.Factory
 {
     internal class BackupStrategyFactory
     {
-        BackupStrategyFactory() { }
-        public static IBackupStrategy Create(string BackupStrategy)
+        public BackupStrategyFactory() { }
+        public IBackupStrategy Create(string BackupStrategy)
         {
             if (BackupStrategy == null) 
                 throw new ArgumentNullException("BackupStrategy cannot be null or empty.");
