@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace EasySave.Models
 {
-    internal enum BackupState
+    //Etat du backup
+    public enum BackupState
     {
         Active,
         inactive,

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace EasyLog
 {
+    // Format Log
     public class LogEntry
     {
         public DateTime? Timestamp;
