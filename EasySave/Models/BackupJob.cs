@@ -1,25 +1,30 @@
 using EasySave.Interfaces;
 using EasySave.Models;
 using System;
+using System.Text.Json.Serialization;
 
 class BackupJob {
 
-    private string name;
-    public string sourcePath{get; private set;}
-    public string targetPath{get; private set;}
-    private IBackupStrategy backupStrategy;
-    private BackupProgress backupProgress;
+    public string name{get; set;}
+    public string sourcePath{get; set;}
+    public string targetPath{get; set;}
+    public string strategyType{get; set;}
+    [JsonIgnore]
+    public IBackupStrategy backupStrategy{get; set;}
+    public BackupProgress backupProgress{get; set;}
 
     public BackupJob()
     {
+        strategyType = "full";
         backupProgress = new BackupProgress();
     }
-    public BackupJob(string name, string sourcePath, string targetPath, IBackupStrategy backupStrategy)
+    public BackupJob(string name, string sourcePath, string targetPath, IBackupStrategy backupStrategy, string strategyType)
     {
         this.name=name;
         this.sourcePath=sourcePath;
         this.targetPath=targetPath;
         this.backupStrategy=backupStrategy;
+        this.strategyType=strategyType;
         backupProgress = new BackupProgress();
     }
     public void Execute(Action onProgressUpdate)

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace EasySave.Models
 {
-    internal class BackupProgress
+    public class BackupProgress
     {
         public DateTime? DateTime { get; set; }
         public BackupState State { get; set; }

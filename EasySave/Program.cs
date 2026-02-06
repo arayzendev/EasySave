@@ -12,97 +12,273 @@ namespace EasySave
         static void Main(string[] args)
         {
             //GESTIONNAIRE DE LANGUE
-            Console.WriteLine("Choisir la Langue (FR/EN) : ");
+            Console.Write("Choisir la Langue (FR/EN) :");
             string langChoice = Console.ReadLine();
             LanguageManager.Instance.SetLanguage(langChoice);
 
-            bool sessionActive = true;
-            while (sessionActive)
+            BackupManager backupManager = new BackupManager();
+
+            // CLI argument mode
+            if (args.Length > 0)
             {
-                //Choix du Nombre de travaux
-                Console.WriteLine($"\n{LanguageManager.Instance.GetText("Question_NbTravaux")} (1-5) :");
-                if (!int.TryParse(Console.ReadLine(), out int totalASaisir) || totalASaisir < 1 || totalASaisir > 5)
+                ExecuteFromArgs(backupManager, args[0]);
+                return;
+            }
+
+            // Interactive menu mode
+            bool running = true;
+            while (running)
+            {
+                Console.WriteLine($"\n{LanguageManager.Instance.GetText("Menu_Titre")}");
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_Create"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_List"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_Execute"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_ExecuteAll"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_Delete"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_Quit"));
+                Console.Write(LanguageManager.Instance.GetText("Menu_Choice"));
+
+                string choix = Console.ReadLine();
+
+                switch (choix)
                 {
-                    totalASaisir = 1; // Valeur par défaut si erreur
+                    case "1":
+                        CreateJob(backupManager);
+                        break;
+                    case "2":
+                        ListJobs(backupManager);
+                        break;
+                    case "3":
+                        ExecuteSingleJob(backupManager);
+                        break;
+                    case "4":
+                        ExecuteAllJobs(backupManager);
+                        break;
+                    case "5":
+                        DeleteJob(backupManager);
+                        break;
+                    case "6":
+                        running = false;
+                        break;
+                    default:
+                        Console.WriteLine(LanguageManager.Instance.GetText("Menu_Invalid"));
+                        break;
                 }
-
-
-                //Configurer les travaux
-                for (int i = 1; i <= totalASaisir; i++)
-                {
-                    Console.WriteLine($"\n--- {LanguageManager.Instance.GetText("Travail_Numero")} {i}/{totalASaisir} ---");
-
-                    // Saisie des infos de base
-                    Console.Write(LanguageManager.Instance.GetText("Saisie_Nom"));
-                    string nom = Console.ReadLine();
-
-                    Console.Write(LanguageManager.Instance.GetText("Saisie_Source"));
-                    string source = Console.ReadLine();
-
-                    Console.Write(LanguageManager.Instance.GetText("Saisie_Dest"));
-                    string dest = Console.ReadLine();
-
-                    // Validation du chemin source 
-                    if (!System.IO.Directory.Exists(source))
-                    {
-                        Console.WriteLine(LanguageManager.Instance.GetText("Err_Chemin"));
-                        i--; // On recommence la saisie pour ce travail
-                        continue;
-                    }
-
-                    //Choix du type de sauvegarde
-                    Console.WriteLine(LanguageManager.Instance.GetText("Question_Type"));
-                    Console.WriteLine("1" + LanguageManager.Instance.GetText("Type_Complet"));
-                    Console.WriteLine("2" + LanguageManager.Instance.GetText("Type_Diff"));
-
-                    string choix = Console.ReadLine();
-                    string choixType;
-
-                    switch (choix)
-                    {
-                        case "1":
-                            choixType = "default";
-                            break;
-                        case "2":
-                            choixType = "diff";
-                            break;
-                        default:
-                            Console.WriteLine("Choix invalide");
-                            choixType = "";
-                            break;
-                    }
-
-
-
-                    //Sauvegarde 
-                    BackupManager backupManager = new BackupManager();
-
-
-                    bool success = backupManager.CreateJob(nom, source, dest, choixType);
-
-                    if (success)
-                    {
-                        int lastIndex = backupManager.ListJobs().Count - 1;
-                        Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execution"));
-                        Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Succes")} : {nom}");
-                    }
-                    else
-                    {
-                        Console.WriteLine(LanguageManager.Instance.GetText("Err_Quota_Ou_Chemin"));
-                        i--;
-                    }
-                }
-
-                //Nouvelle session
-                Console.WriteLine($"\n{LanguageManager.Instance.GetText("Question_NouvelleSession")}");
-                string rep = Console.ReadLine()?.ToUpper();
-                sessionActive = (rep == "O" || rep == "Y");
             }
 
             Console.WriteLine(LanguageManager.Instance.GetText("Fin_Prog"));
-            Console.ReadKey();
+        }
+
+        static void CreateJob(BackupManager backupManager)
+        {
+            Console.Write(LanguageManager.Instance.GetText("Saisie_Nom"));
+            string nom = Console.ReadLine();
+
+            Console.Write(LanguageManager.Instance.GetText("Saisie_Source"));
+            string source = Console.ReadLine();
+
+            if (!System.IO.Directory.Exists(source))
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Chemin"));
+                return;
+            }
+
+            Console.Write(LanguageManager.Instance.GetText("Saisie_Dest"));
+            string dest = Console.ReadLine();
+
+            Console.WriteLine(LanguageManager.Instance.GetText("Question_Type"));
+            Console.WriteLine(LanguageManager.Instance.GetText("Type_Complet"));
+            Console.WriteLine(LanguageManager.Instance.GetText("Type_Diff"));
+
+            string typeChoix = Console.ReadLine();
+            string backupStrategy;
+
+            switch (typeChoix)
+            {
+                case "1":
+                    backupStrategy = "full";
+                    break;
+                case "2":
+                    backupStrategy = "differential";
+                    break;
+                default:
+                    Console.WriteLine(LanguageManager.Instance.GetText("Menu_Invalid"));
+                    return;
+            }
+
+            bool success = backupManager.CreateJob(nom, source, dest, backupStrategy);
+
+            if (success)
+            {
+                Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Succes")} : {nom}");
+            }
+            else
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Quota"));
+            }
+        }
+
+        static void ListJobs(BackupManager backupManager)
+        {
+            var jobs = backupManager.ListJobs();
+
+            if (jobs.Count == 0)
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
+                return;
+            }
+
+            Console.WriteLine(LanguageManager.Instance.GetText("List_Header"));
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                Console.WriteLine($"\n[{i + 1}]");
+                Console.WriteLine($"  {LanguageManager.Instance.GetText("List_Name")}{jobs[i].name}");
+                Console.WriteLine($"  {LanguageManager.Instance.GetText("List_Source")}{jobs[i].sourcePath}");
+                Console.WriteLine($"  {LanguageManager.Instance.GetText("List_Target")}{jobs[i].targetPath}");
+            }
+        }
+
+        static void ExecuteSingleJob(BackupManager backupManager)
+        {
+            var jobs = backupManager.ListJobs();
+
+            if (jobs.Count == 0)
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
+                return;
+            }
+
+            ListJobs(backupManager);
+            Console.Write(LanguageManager.Instance.GetText("Prompt_JobNumber"));
+
+            if (int.TryParse(Console.ReadLine(), out int index) && index >= 1 && index <= jobs.Count)
+            {
+                try
+                {
+                    Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execution"));
+                    backupManager.ExecuteJob(index - 1);
+                    Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[index - 1].name}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execute_Fail") + ex.Message);
+                }
+            }
+            else
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Index"));
+            }
+        }
+
+        static void ExecuteAllJobs(BackupManager backupManager)
+        {
+            var jobs = backupManager.ListJobs();
+
+            if (jobs.Count == 0)
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
+                return;
+            }
+
+            for (int i = 0; i < jobs.Count; i++)
+            {
+                try
+                {
+                    Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execution")} {jobs[i].name}");
+                    backupManager.ExecuteJob(i);
+                    Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[i].name}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execute_Fail") + ex.Message);
+                }
+            }
+        }
+
+        static void DeleteJob(BackupManager backupManager)
+        {
+            var jobs = backupManager.ListJobs();
+
+            if (jobs.Count == 0)
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
+                return;
+            }
+
+            ListJobs(backupManager);
+            Console.Write(LanguageManager.Instance.GetText("Prompt_JobNumber"));
+
+            if (int.TryParse(Console.ReadLine(), out int index) && index >= 1 && index <= jobs.Count)
+            {
+                backupManager.DeleteJob(index - 1);
+                Console.WriteLine(LanguageManager.Instance.GetText("Msg_Deleted"));
+            }
+            else
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Index"));
+            }
+        }
+
+        static void ExecuteFromArgs(BackupManager backupManager, string arg)
+        {
+            var jobs = backupManager.ListJobs();
+
+            if (jobs.Count == 0)
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
+                return;
+            }
+
+            List<int> indices = new List<int>();
+
+            // Range format: "1-3"
+            if (arg.Contains("-"))
+            {
+                string[] parts = arg.Split('-');
+                if (int.TryParse(parts[0], out int start) && int.TryParse(parts[1], out int end))
+                {
+                    for (int i = start; i <= end; i++)
+                        indices.Add(i);
+                }
+            }
+            // List format: "1;3"
+            else if (arg.Contains(";"))
+            {
+                string[] parts = arg.Split(';');
+                foreach (string part in parts)
+                {
+                    if (int.TryParse(part, out int idx))
+                        indices.Add(idx);
+                }
+            }
+            // Single format: "2"
+            else
+            {
+                if (int.TryParse(arg, out int idx))
+                    indices.Add(idx);
+            }
+
+            foreach (int i in indices)
+            {
+                if (i >= 1 && i <= jobs.Count)
+                {
+                    try
+                    {
+                        Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execution")} {jobs[i - 1].name}");
+                        backupManager.ExecuteJob(i - 1);
+                        Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[i - 1].name}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execute_Fail") + ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(LanguageManager.Instance.GetText("Err_Index"));
+                }
+            }
         }
 
     }
 }
-

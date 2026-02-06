@@ -1,3 +1,4 @@
+using EasySave.Factory;
 using EasySave.Interfaces;
 using EasySave.Models;
 using EasySave.Strategies;
@@ -11,51 +12,25 @@ class BackupManager {
     private List<BackupJob>? backupJobs;
     private StateManager stateManager;
     private ConfigManager configManager;
+    private BackupStrategyFactory backupStrategyFactory;
 
     public BackupManager()
     {
         configManager = new ConfigManager();
         stateManager = new StateManager();
+        backupStrategyFactory = new BackupStrategyFactory();
         backupJobs = configManager.Load();
     }
     public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
     {
-        IBackupStrategy strategy;
-        BackupProgress progress = new BackupProgress();
-        Action progressUpdate = () =>
+        if (backupJobs.Count >= 5)
         {
-            Console.WriteLine($"Progression: {progress.Progress:F2}% ({progress.RemainingFiles} fichiers restants)");
-        };
-
-        switch (backupStrategy)
-        {
-            case "diff":
-                strategy = new DifferentialBackupStrategy();
-                break;
-
-            default:
-                strategy = new FullBackupStrategy();
-                break;
-        }
-
-        //if (backupJobs.Count >= 5)
-        //{
-        //    return false;
-        //}
-        backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy));
-        configManager.Save(backupJobs);
-
-        try
-        {
-            strategy.Save(sourcePath, targetPath, progress, progressUpdate);
-            Console.WriteLine("Backup terminé !");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Erreur lors du backup : " + ex.Message);
             return false;
         }
+
+        IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
+        backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy,backupStrategy));
+        configManager.Save(backupJobs);
         return true;
     }
     public void DeleteJob(int index)
