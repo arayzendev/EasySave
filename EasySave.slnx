@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="EasyLog/EasyLog.csproj" Id="482367eb-1242-4843-ace8-896cd6def232" />
+    <Project Path="EasyLog/EasyLog.csproj" Id="da2cce97-5fcf-4c55-91cb-e32b800b49e5" />
     <Project Path="EasySave/EasySave.csproj" Id="66138140-d374-4f9c-a1be-1d79c4a8bfde" />
   </Folder>
 </Solution>
