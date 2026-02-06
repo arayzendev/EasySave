@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace EasyLog
 {
@@ -22,12 +22,11 @@ namespace EasyLog
 
             entry.Timestamp = DateTime.Now;
 
-            string json = JsonSerializer.Serialize(
+            // Sérialisation avec Newtonsoft.Json
+            string json = JsonConvert.SerializeObject(
                 entry,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
+                Formatting.Indented // Équivalent de WriteIndented
+            );
 
             File.AppendAllText(filePath, json + Environment.NewLine);
         }
