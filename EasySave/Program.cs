@@ -12,7 +12,7 @@ namespace EasySave
         static void Main(string[] args)
         {
             //GESTIONNAIRE DE LANGUE
-            Console.Write(LanguageManager.Instance.GetText("Lang_Choice"));
+            Console.Write("Choisir la Langue (FR/EN) :");
             string langChoice = Console.ReadLine();
             LanguageManager.Instance.SetLanguage(langChoice);
 
