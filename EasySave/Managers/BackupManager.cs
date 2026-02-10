@@ -1,3 +1,4 @@
+using EasyLog;
 using EasySave.Factory;
 using EasySave.Interfaces;
 using EasySave.Models;
@@ -15,6 +16,7 @@ class BackupManager {
     private StateManager stateManager;
     private ConfigManager configManager;
     private BackupStrategyFactory backupStrategyFactory;
+    private Logger logger;
 
     /// <summary>
     /// Constructeur
@@ -26,6 +28,14 @@ class BackupManager {
         backupStrategyFactory = new BackupStrategyFactory();
         config = configManager.Load();
         LanguageManager.Instance.SetLanguage(config.language.ToString());
+        InitializeLogger();
+    }
+
+    private void InitializeLogger()
+    {
+        string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs");
+        ILogFormatter formatter = LogFormatterFactory.Create(config.logType.ToString());
+        logger = new Logger(logDirectory, formatter);
     }
 
     public void SetLanguage(string language)
@@ -55,6 +65,7 @@ class BackupManager {
                 break;
         }
         configManager.Save(config);
+        InitializeLogger();
     }
 
     /// <summary>
@@ -110,7 +121,7 @@ class BackupManager {
     /// <param name="index"></param>
     public void ExecuteJob(int index)
     {
-        config.backupJobs[index].Execute(OnProgressUpdate);
+        config.backupJobs[index].Execute(OnProgressUpdate, logger);
     }
 
     /// <summary>
