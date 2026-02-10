@@ -15,16 +15,9 @@ enum LogType
 
 class Config
 {
-    public List<BackupJob> backupJobs;
-    public Language language;
-    public LogType logType;
-
-    public Config()
-    {
-        this.backupJobs=new List<BackupJob>();
-        this.language=Language.EN;
-        this.logType=LogType.JSON;
-    }
+    public List<BackupJob> backupJobs { get; set; } = new List<BackupJob>();
+    public Language language { get; set; } = Language.EN;
+    public LogType logType { get; set; } = LogType.JSON;
 }
 
 class ConfigManager
