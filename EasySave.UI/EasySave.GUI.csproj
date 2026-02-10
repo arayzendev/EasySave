@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EasySave.Core\EasySave.Core.csproj" />
     <ProjectReference Include="..\EasySave\EasySave.Core.csproj" />
   </ItemGroup>
 </Project>
