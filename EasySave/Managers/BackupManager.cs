@@ -43,6 +43,20 @@ class BackupManager {
         configManager.Save(config);
     }
 
+    public void SetLog(string logType)
+    {
+        switch (logType.ToLower())
+        {
+            case "xml":
+                config.logType=LogType.XML;
+                break;
+            default:
+                config.logType=LogType.JSON;
+                break;
+        }
+        configManager.Save(config);
+    }
+
     /// <summary>
     /// Cr�ation d'un travailleur de sauvegarde
     /// </summary>

@@ -19,6 +19,11 @@ namespace EasySave
             string langChoice = Console.ReadLine();
             backupManager.SetLanguage(langChoice);
 
+            //GESTIONNAIRE DE logs
+            Console.Write("Choisir le type de logs (JSON/XML) :");
+            string logChoice = Console.ReadLine();
+            backupManager.SetLog(logChoice);
+
             // CLI argument mode
             if (args.Length > 0)
             {
