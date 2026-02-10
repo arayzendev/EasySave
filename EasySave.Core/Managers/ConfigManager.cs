@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using EasySave.Factory;
+using EasySave.Core.Factory;
 
 class ConfigManager
 {

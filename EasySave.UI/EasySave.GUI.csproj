@@ -8,8 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="core.services\**" />
+    <Compile Remove="core.services\**" />
+    <EmbeddedResource Remove="core.services\**" />
+    <None Remove="core.services\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,5 +29,9 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EasySave\EasySave.Core.csproj" />
   </ItemGroup>
 </Project>

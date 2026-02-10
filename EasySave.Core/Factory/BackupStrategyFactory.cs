@@ -1,10 +1,10 @@
-using EasySave.Interfaces;
-using EasySave.Strategies;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Strategies;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EasySave.Factory
+namespace EasySave.Core.Factory
 {
     internal class BackupStrategyFactory
     {

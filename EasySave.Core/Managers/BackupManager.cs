@@ -1,14 +1,15 @@
-using EasySave.Factory;
-using EasySave.Interfaces;
-using EasySave.Models;
-using EasySave.Strategies;
+using EasyLog;
+using EasySave.Core.Factory;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Models;
+using EasySave.Core.Strategies;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-class BackupManager {
+public class BackupManager {
 
     //Attributs paramètre des sauvegardes
     private List<BackupJob>? backupJobs;
@@ -36,7 +37,8 @@ class BackupManager {
     /// <param name="backupStrategy"></param>
     /// <returns></returns>
     public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
-    {   
+    {
+        var stopwatch = Stopwatch.StartNew();
         //Vérifie si on dépasse pas les 5 travailleurs
         if (backupJobs.Count >= 5)
         {
@@ -49,6 +51,20 @@ class BackupManager {
 
         //Sauvegarde de la configuration du travailleur
         configManager.Save(backupJobs);
+        //Ecrit les logs 
+        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
+        logger.Write(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Application = "EasySave",
+            data = new Dictionary<string, object>
+                            {
+                                { "SourceFile", sourcePath },
+                                { "TargetFile", targetPath },
+                                { "CreateTimeMs", stopwatch.ElapsedMilliseconds },
+                                { "Backup travailleur Créé", name}
+                            }
+        });
         return true;
     }
 
@@ -58,8 +74,21 @@ class BackupManager {
     /// <param name="index"></param>
     public void DeleteJob(int index)
     {
+        var stopwatch = Stopwatch.StartNew();
         backupJobs.RemoveAt(index);
         configManager.Save(backupJobs);
+        //Ecrit les logs 
+        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
+        logger.Write(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Application = "EasySave",
+            data = new Dictionary<string, object>
+                            {
+                                { "Index du Backup travailleur Supprimé", index },
+                                { "DeleteTimeMs ", stopwatch.ElapsedMilliseconds }
+            }
+        });
     }
 
     /// <summary>
@@ -70,8 +99,22 @@ class BackupManager {
     /// <param name="targetPath"></param>
     public void ModifyJob(int index, string sourcePath, string targetPath)
     {
+        var stopwatch = Stopwatch.StartNew();
         backupJobs[index].UpdatePaths(sourcePath,targetPath);
         configManager.Save(backupJobs);
+        //Ecrit les logs 
+        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
+        logger.Write(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Application = "EasySave",
+            data = new Dictionary<string, object>
+                            {
+                                { "Chemin source modifié", sourcePath },
+                                { "Chemin cible modifié", targetPath },
+                                { "DeleteTimeMs ", stopwatch.ElapsedMilliseconds }
+            }
+        });
     }
 
     /// <summary>

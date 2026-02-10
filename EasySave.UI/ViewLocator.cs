@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using EasySave.UI.ViewModels;
+using EasySave.UI.core.services.ViewModels;
 
 namespace EasySave.UI;
 

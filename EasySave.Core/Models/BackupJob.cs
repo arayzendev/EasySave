@@ -1,9 +1,9 @@
-using EasySave.Interfaces;
-using EasySave.Models;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Models;
 using System;
 using System.Text.Json.Serialization;
 
-class BackupJob {
+public class BackupJob {
 
     //Attributs du BackupJKob
     public string name{get; set;}
