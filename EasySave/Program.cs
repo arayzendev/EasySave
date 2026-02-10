@@ -12,12 +12,12 @@ namespace EasySave
     {
         static void Main(string[] args)
         {
+            BackupManager backupManager = new BackupManager();
+
             //GESTIONNAIRE DE LANGUE
             Console.Write("Choisir la Langue (FR/EN) :");
             string langChoice = Console.ReadLine();
-            LanguageManager.Instance.SetLanguage(langChoice);
-
-            BackupManager backupManager = new BackupManager();
+            backupManager.SetLanguage(langChoice);
 
             // CLI argument mode
             if (args.Length > 0)

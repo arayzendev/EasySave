@@ -25,6 +25,22 @@ class BackupManager {
         stateManager = new StateManager();
         backupStrategyFactory = new BackupStrategyFactory();
         config = configManager.Load();
+        LanguageManager.Instance.SetLanguage(config.language.ToString());
+    }
+
+    public void SetLanguage(string language)
+    {
+        switch (language.ToLower())
+        {
+            case "fr":
+                config.language=Language.FR;
+                break;
+            default:
+                config.language=Language.EN;
+                break;
+        }
+        LanguageManager.Instance.SetLanguage(language);
+        configManager.Save(config);
     }
 
     /// <summary>
