@@ -10,8 +10,8 @@ using System.Text.Json;
 
 class BackupManager {
 
-    //Attributs paramètre des sauvegardes
-    private List<BackupJob>? backupJobs;
+    //Attributs paramï¿½tre des sauvegardes
+    private Config config;
     private StateManager stateManager;
     private ConfigManager configManager;
     private BackupStrategyFactory backupStrategyFactory;
@@ -24,11 +24,11 @@ class BackupManager {
         configManager = new ConfigManager();
         stateManager = new StateManager();
         backupStrategyFactory = new BackupStrategyFactory();
-        backupJobs = configManager.Load();
+        config = configManager.Load();
     }
 
     /// <summary>
-    /// Création d'un travailleur de sauvegarde
+    /// Crï¿½ation d'un travailleur de sauvegarde
     /// </summary>
     /// <param name="name"></param>
     /// <param name="sourcePath"></param>
@@ -37,18 +37,18 @@ class BackupManager {
     /// <returns></returns>
     public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
     {   
-        //Vérifie si on dépasse pas les 5 travailleurs
-        if (backupJobs.Count >= 5)
+        //Vï¿½rifie si on dï¿½passe pas les 5 travailleurs
+        if (config.backupJobs.Count >= 5)
         {
             return false;
         }
 
-        //Création du travailleur
+        //Crï¿½ation du travailleur
         IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
-        backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy,backupStrategy));
+        config.backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy,backupStrategy));
 
         //Sauvegarde de la configuration du travailleur
-        configManager.Save(backupJobs);
+        configManager.Save(config);
         return true;
     }
 
@@ -58,8 +58,8 @@ class BackupManager {
     /// <param name="index"></param>
     public void DeleteJob(int index)
     {
-        backupJobs.RemoveAt(index);
-        configManager.Save(backupJobs);
+        config.backupJobs.RemoveAt(index);
+        configManager.Save(config);
     }
 
     /// <summary>
@@ -70,17 +70,17 @@ class BackupManager {
     /// <param name="targetPath"></param>
     public void ModifyJob(int index, string sourcePath, string targetPath)
     {
-        backupJobs[index].UpdatePaths(sourcePath,targetPath);
-        configManager.Save(backupJobs);
+        config.backupJobs[index].UpdatePaths(sourcePath,targetPath);
+        configManager.Save(config);
     }
 
     /// <summary>
-    /// Choix du travailleur à executer
+    /// Choix du travailleur ï¿½ executer
     /// </summary>
     /// <param name="index"></param>
     public void ExecuteJob(int index)
     {
-        backupJobs[index].Execute(OnProgressUpdate);
+        config.backupJobs[index].Execute(OnProgressUpdate);
     }
 
     /// <summary>
@@ -89,14 +89,14 @@ class BackupManager {
     /// <returns></returns>
     public List<BackupJob> ListJobs()
     {
-        return backupJobs;
+        return config.backupJobs;
     }
 
     /// <summary>
-    /// Mise à jour de l'état du travailleur
+    /// Mise ï¿½ jour de l'ï¿½tat du travailleur
     /// </summary>
     private void OnProgressUpdate()
     {
-        stateManager.Write(backupJobs);   
+        stateManager.Write(config.backupJobs);   
     }
 }
