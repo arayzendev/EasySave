@@ -1,4 +1,4 @@
-namespace EasyLog
+namespace EasyLog.Interfaces
 {
     public interface ILogFormatter
     {
