@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using EasySave.Models;
+using EasySave.Core.Models;
 
-namespace EasySave.Managers
+namespace EasySave.Core.Managers
 {
     class StateManager
     {
