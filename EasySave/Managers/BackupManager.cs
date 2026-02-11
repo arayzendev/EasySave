@@ -1,15 +1,10 @@
 using EasyLog;
 using EasyLog.Factory;
 using EasyLog.Interfaces;
+using EasyLog.Models;
 using EasySave.Factory;
 using EasySave.Interfaces;
 using EasySave.Models;
-using EasySave.Strategies;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
 
 namespace EasySave.Managers
 {
