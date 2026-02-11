@@ -21,6 +21,7 @@ namespace EasySave.Managers
         private ConfigManager configManager;
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
+        private ProcessMonitor processMonitor;
 
         /// <summary>
         /// Constructeur
@@ -30,6 +31,7 @@ namespace EasySave.Managers
             configManager = new ConfigManager();
             stateManager = new StateManager();
             backupStrategyFactory = new BackupStrategyFactory();
+            processMonitor = new ProcessMonitor();
             config = configManager.Load();
             LanguageManager.Instance.SetLanguage(config.language.ToString());
             InitializeLogger();
@@ -120,11 +122,56 @@ namespace EasySave.Managers
         }
 
         /// <summary>
+        /// Configure le nom du logiciel métier
+        /// </summary>
+        /// <param name="softwareName"></param>
+        public void SetForbiddenSoftware(string softwareName)
+        {
+            config.forbiddenSoftwareName = softwareName;
+            configManager.Save(config);
+        }
+
+        /// <summary>
+        /// Recupere le nom du logiciel métier
+        /// </summary>
+        /// <returns></returns>
+        public string GetForbiddenSoftware()
+        {
+            return config.forbiddenSoftwareName;
+        }
+
+        /// <summary>
+        /// Verifie si le logiciel métier est en cours d'execution
+        /// </summary>
+        /// <returns></returns>
+        public bool IsForbiddenSoftwareRunning()
+        {
+            return processMonitor.IsRunning(config.forbiddenSoftwareName);
+        }
+
+        /// <summary>
         /// Choix du travailleur à executer
         /// </summary>
         /// <param name="index"></param>
         public void ExecuteJob(int index)
         {
+            // Vérification du logiciel métier
+            if (IsForbiddenSoftwareRunning())
+            {
+                string message = $"{LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareBlocked")}{config.forbiddenSoftwareName}";
+                logger.Write(new EasyLog.LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Application = config.backupJobs[index].name,
+                    data = new Dictionary<string, object>
+                    {
+                        { "Status", "Blocked" },
+                        { "Reason", "Forbidden software running" },
+                        { "SoftwareName", config.forbiddenSoftwareName }
+                    }
+                });
+                throw new Exception(message);
+            }
             config.backupJobs[index].Execute(OnProgressUpdate, logger);
         }
 

@@ -77,6 +77,10 @@ namespace EasySave.Managers
                 _translations.Add("List_Source", "Source : ");
                 _translations.Add("List_Target", "Destination : ");
                 _translations.Add("Prompt_JobNumber", "Num�ro du travail : ");
+                _translations.Add("Menu_ForbiddenSoftware", "7. Configurer le logiciel metier");
+                _translations.Add("Prompt_ForbiddenSoftware", "Nom du logiciel metier (ex: Calculator) : ");
+                _translations.Add("Msg_ForbiddenSoftwareBlocked", "Sauvegarde bloquee - logiciel metier en cours d'execution : ");
+                _translations.Add("Msg_ForbiddenSoftwareSet", "Logiciel metier configure avec succes.");
             }
             else
             {
@@ -115,6 +119,10 @@ namespace EasySave.Managers
                 _translations.Add("List_Source", "Source: ");
                 _translations.Add("List_Target", "Destination: ");
                 _translations.Add("Prompt_JobNumber", "Job number: ");
+                _translations.Add("Menu_ForbiddenSoftware", "7. Configure forbidden software");
+                _translations.Add("Prompt_ForbiddenSoftware", "Forbidden software name (e.g. Calculator): ");
+                _translations.Add("Msg_ForbiddenSoftwareBlocked", "Backup blocked - forbidden software running: ");
+                _translations.Add("Msg_ForbiddenSoftwareSet", "Forbidden software configured successfully.");
             }
         }
 

@@ -21,6 +21,7 @@ namespace EasySave.Managers
         public List<BackupJob> backupJobs { get; set; } = new List<BackupJob>();
         public Language language { get; set; } = Language.EN;
         public LogType logType { get; set; } = LogType.JSON;
+        public string forbiddenSoftwareName { get; set; } = "notepad";
     }
 
     class ConfigManager
