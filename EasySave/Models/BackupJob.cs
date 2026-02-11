@@ -16,7 +16,7 @@ class BackupJob {
     public BackupProgress backupProgress{get; set;}
 
     /// <summary>
-    /// Constructeur par d�faut
+    /// Constructeur par défaut
     /// </summary>
     public BackupJob()
     {
@@ -24,7 +24,7 @@ class BackupJob {
         backupProgress = new BackupProgress();
     }
     /// <summary>
-    /// Constructeur param�tr�
+    /// Constructeur paramétré
     /// </summary>
     /// <param name="name"></param>
     /// <param name="sourcePath"></param>
@@ -52,7 +52,7 @@ class BackupJob {
     }
 
     /// <summary>
-    /// Mise � jour des chemins
+    /// Mise ï¿½ jour des chemins
     /// </summary>
     /// <param name="sourcePath"></param>
     /// <param name="targetPath"></param>

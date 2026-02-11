@@ -22,22 +22,22 @@ class Config
 
 class ConfigManager
 {
-    //Attribut du chemin d'acc�s
+    //Attribut du chemin d'accï¿½s
     private string filePath;
 
     /// <summary>
-    ///Cr�er le dossier de configuration avec son fichier de config
+    ///Crï¿½er le dossier de configuration avec son fichier de config
     /// </summary>
     public ConfigManager()
     {
         string easySaveFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EasySaveData");
 
-        //V�rifie l'existence du dossier sinon il le cr�e
+        //Vérifie l'existence du dossier sinon il le crée
         if (!Directory.Exists(easySaveFolder))
         {
             Directory.CreateDirectory(easySaveFolder);
         }
-        //Cr�er le fichier config
+        //Créer le fichier config
         this.filePath = Path.Combine(easySaveFolder, "config.json");
     }
 
@@ -47,7 +47,7 @@ class ConfigManager
     /// <returns></returns>
     public Config Load()
     {
-        //V�rifie si un fichier existe
+        //Vï¿½rifie si un fichier existe
         if (!File.Exists(filePath))
         {
             return new Config();
@@ -55,17 +55,17 @@ class ConfigManager
 
         string json = File.ReadAllText(filePath);
 
-        //V�rifie si un json est vide
+        //Vï¿½rifie si un json est vide
         if (string.IsNullOrWhiteSpace(json))
         {
             return new Config();
         }
 
-        //D�s�rialisation du fichier
+        //Dï¿½sï¿½rialisation du fichier
         Config? config = JsonSerializer.Deserialize<Config>(json);
         if (config == null) return new Config();
 
-        //Cr�er une strat�gie pour chaque job existant
+        //Crï¿½er une stratï¿½gie pour chaque job existant
         BackupStrategyFactory factory = new BackupStrategyFactory();
         foreach (var job in config.backupJobs)
         {
