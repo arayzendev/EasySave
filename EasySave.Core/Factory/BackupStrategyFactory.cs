@@ -1,8 +1,5 @@
 using EasySave.Core.Interfaces;
 using EasySave.Core.Strategies;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EasySave.Core.Factory
 {

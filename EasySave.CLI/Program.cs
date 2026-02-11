@@ -87,7 +87,7 @@ namespace EasySave
             Console.Write(LanguageManager.Instance.GetText("Saisie_Source"));
             string source = Console.ReadLine();
 
-            if (!System.IO.Directory.Exists(source))
+            if (!Directory.Exists(source))
             {
                 Console.WriteLine(LanguageManager.Instance.GetText("Err_Chemin"));
                 return;

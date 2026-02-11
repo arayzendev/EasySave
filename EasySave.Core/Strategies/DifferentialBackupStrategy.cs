@@ -1,12 +1,8 @@
 using EasyLog;
-using EasySave.Interfaces;
-using EasySave.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Models;
 
-namespace EasySave.Strategies
+namespace EasySave.Core.Strategies
 {
     internal class DifferentialBackupStrategy : IBackupStrategy
     {
@@ -30,7 +26,7 @@ namespace EasySave.Strategies
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
                     //Création d'un dossier et tableau qui stocke les récupération des fichiers
-                    Directory.CreateDirectory(targetPath); 
+                    Directory.CreateDirectory(targetPath);
                     string[] allFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
 
                     //Sauvegarde ce qui est nouveau
@@ -76,8 +72,6 @@ namespace EasySave.Strategies
 
                         backupProgress.FileSize = fileSize;
                         backupProgress.TransferTime = (float)stopwatch.ElapsedMilliseconds;
-                        backupProgress.SourceFilePath = file;
-                        backupProgress.TargetFilePath = destPath;
                         backupProgress.Progress = totalSize > 0 ? (float)copiedSize / totalSize * 100 : 100;
                         backupProgress.RemainingFiles = backupProgress.TotalFiles - copiedFiles;
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
@@ -103,14 +97,14 @@ namespace EasySave.Strategies
                 {
                     throw new ArgumentException("Source or target path cannot be null or empty.");
                 }
-               
+
                 //Réussite du programme
                 backupProgress.State = BackupState.Ended;
                 backupProgress.Progress = 100;
                 OnProgressupdate?.Invoke();
             }
             catch (Exception ex)
-            {   
+            {
                 //Log d'erreur
                 logger.Write(new LogEntry
                 {

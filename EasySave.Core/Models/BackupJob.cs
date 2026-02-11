@@ -44,9 +44,10 @@ public class BackupJob {
     /// Execution d'une strategie de sauvegarde
     /// </summary>
     /// <param name="onProgressUpdate"></param>
-    public void Execute(Action onProgressUpdate)
+    public void Execute(Action onProgressUpdate, EasyLog.Logger logger)
     {
-        backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate);
+        backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger);
+
     }
 
     /// <summary>

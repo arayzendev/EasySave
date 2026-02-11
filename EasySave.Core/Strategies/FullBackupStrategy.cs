@@ -1,11 +1,8 @@
 using EasyLog;
-using EasySave.Interfaces;
-using EasySave.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Models;
 
-namespace EasySave.Strategies
+namespace EasySave.Core.Strategies
 {
     internal class FullBackupStrategy : IBackupStrategy
     {
@@ -30,7 +27,7 @@ namespace EasySave.Strategies
                     //Créer un dossier dans path et stocke les fichiers de la source
                     Directory.CreateDirectory(targetPath);
                     string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
-
+                    
                     //Met à jour le progrès et l'état
                     backupProgress.TotalFiles = files.Length;
                     backupProgress.RemainingFiles = files.Length;
@@ -64,8 +61,6 @@ namespace EasySave.Strategies
 
                         backupProgress.FileSize = fileSize;
                         backupProgress.TransferTime = (float)stopwatch.ElapsedMilliseconds;
-                        backupProgress.SourceFilePath = file;
-                        backupProgress.TargetFilePath = destPath;
                         backupProgress.Progress = (float)copiedSize / backupProgress.TotalSize * 100;
                         backupProgress.RemainingFiles = backupProgress.TotalFiles - copiedFiles;
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
@@ -95,7 +90,7 @@ namespace EasySave.Strategies
                 backupProgress.Progress = 100;
                 OnProgressupdate?.Invoke();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 //Log d'erreur
                 logger.Write(new LogEntry

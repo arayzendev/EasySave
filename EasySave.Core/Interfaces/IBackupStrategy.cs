@@ -1,19 +1,18 @@
+using EasyLog;
 using EasySave.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EasySave.Core.Interfaces
 {
     public interface IBackupStrategy
     {
         /// <summary>
-        /// Méthode de sauvegarde
+        /// M?thode de sauvegarde
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate);
+        /// <param name="logger"></param>
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger);
     }
 }
