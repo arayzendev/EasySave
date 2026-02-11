@@ -19,17 +19,9 @@ namespace EasySave.Managers
             Process[] processes = Process.GetProcesses();
             foreach (Process process in processes)
             {
-                try
+                if (process.ProcessName.ToLower()==processName.ToLower())
                 {
-                    if (process.ProcessName.Equals(processName, System.StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-                }
-                catch
-                {
-                    // Ignore les processus auxquels on ne peut pas acceder
-                    continue;
+                    return true;
                 }
             }
             return false;
