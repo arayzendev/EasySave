@@ -1,4 +1,5 @@
-﻿using EasySave.Interfaces;
+using EasyLog;
+using EasySave.Interfaces;
 using EasySave.Models;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,8 @@ namespace EasySave.Strategies
         /// <param name="targetPath"></param>
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate)
+        /// <param name="logger"></param>
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger)
         {
             try
             {   //Vérifie si un chemin source et cible existe
@@ -71,7 +73,6 @@ namespace EasySave.Strategies
                         OnProgressupdate?.Invoke();
 
                         //Ecrit les logs 
-                        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
                         logger.Write(new LogEntry
                         {
                             Timestamp = DateTime.Now,
@@ -98,14 +99,13 @@ namespace EasySave.Strategies
             catch (Exception ex) 
             {
                 //Log d'erreur
-                Logger log = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
-                log.Write(new LogEntry
+                logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     Application = "EasySave",
                     data = new Dictionary<string, object>
                             {
-                                { "Error DifferentialBackup", ex.Message.ToString()},
+                                { "Error FullBackup", ex.Message.ToString()},
                             }
                 });
             }

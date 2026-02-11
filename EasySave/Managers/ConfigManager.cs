@@ -1,27 +1,43 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using EasySave.Factory;
 
+enum Language
+{
+    FR,
+    EN
+}
+
+enum LogType
+{
+    JSON,
+    XML
+}
+
+class Config
+{
+    public List<BackupJob> backupJobs { get; set; } = new List<BackupJob>();
+    public Language language { get; set; } = Language.EN;
+    public LogType logType { get; set; } = LogType.JSON;
+}
+
 class ConfigManager
 {
-    //Attribut du chemin d'acc�s
+    //Attribut du chemin d'accï¿½s
     private string filePath;
 
     /// <summary>
-    ///Cr�er le dossier de configuration avec son fichier de config
+    ///Crï¿½er le dossier de configuration avec son fichier de config
     /// </summary>
     public ConfigManager()
     {
         string easySaveFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EasySaveData");
 
-        //V�rifie l'existence du dossier sinon il le cr�e
+        //Vérifie l'existence du dossier sinon il le crée
         if (!Directory.Exists(easySaveFolder))
         {
             Directory.CreateDirectory(easySaveFolder);
         }
-        //Cr�er le fichier config
+        //Créer le fichier config
         this.filePath = Path.Combine(easySaveFolder, "config.json");
     }
 
@@ -29,42 +45,42 @@ class ConfigManager
     /// Charge les backups existants
     /// </summary>
     /// <returns></returns>
-    public List<BackupJob> Load()
+    public Config Load()
     {
-        //V�rifie si un fichier existe
+        //Vï¿½rifie si un fichier existe
         if (!File.Exists(filePath))
         {
-            return new List<BackupJob>();
+            return new Config();
         }
 
         string json = File.ReadAllText(filePath);
 
-        //V�rifie si un json est vide
+        //Vï¿½rifie si un json est vide
         if (string.IsNullOrWhiteSpace(json))
         {
-            return new List<BackupJob>();
+            return new Config();
         }
 
-        //D�s�rialisation du fichier
-        List<BackupJob>? backupJobs = JsonSerializer.Deserialize<List<BackupJob>>(json);
-        if (backupJobs == null) return new List<BackupJob>();
+        //Dï¿½sï¿½rialisation du fichier
+        Config? config = JsonSerializer.Deserialize<Config>(json);
+        if (config == null) return new Config();
 
-        //Cr�er une strat�gie pour chaque job existant
+        //Crï¿½er une stratï¿½gie pour chaque job existant
         BackupStrategyFactory factory = new BackupStrategyFactory();
-        foreach (var job in backupJobs)
+        foreach (var job in config.backupJobs)
         {
             job.backupStrategy = factory.Create(job.strategyType);
         }
 
-        return backupJobs;
+        return config;
     }
 
     /// <summary>
     /// Sauvegarde la configuration
     /// </summary>
     /// <param name="backupJobs"></param>
-    public void Save(List<BackupJob> backupJobs)
+    public void Save(Config config)
     {
-        File.WriteAllText(filePath, JsonSerializer.Serialize(backupJobs, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(filePath, JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
