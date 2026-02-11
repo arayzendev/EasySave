@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EasySave.Models
+namespace EasySave.Managers
 {
     public class LanguageManager
     {
