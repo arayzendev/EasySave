@@ -11,7 +11,7 @@ using System.Text.Json;
 
 class BackupManager {
 
-    //Attributs param�tre des sauvegardes
+    //Attributs paramï¿½tre des sauvegardes
     private Config config;
     private StateManager stateManager;
     private ConfigManager configManager;
@@ -69,7 +69,7 @@ class BackupManager {
     }
 
     /// <summary>
-    /// Cr�ation d'un travailleur de sauvegarde
+    /// Crï¿½ation d'un travailleur de sauvegarde
     /// </summary>
     /// <param name="name"></param>
     /// <param name="sourcePath"></param>
@@ -78,13 +78,13 @@ class BackupManager {
     /// <returns></returns>
     public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
     {   
-        //V�rifie si on d�passe pas les 5 travailleurs
+        //Vï¿½rifie si on dï¿½passe pas les 5 travailleurs
         if (config.backupJobs.Count >= 5)
         {
             return false;
         }
 
-        //Cr�ation du travailleur
+        //Crï¿½ation du travailleur
         IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
         config.backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy,backupStrategy));
 
@@ -116,7 +116,7 @@ class BackupManager {
     }
 
     /// <summary>
-    /// Choix du travailleur � executer
+    /// Choix du travailleur ï¿½ executer
     /// </summary>
     /// <param name="index"></param>
     public void ExecuteJob(int index)
@@ -134,7 +134,7 @@ class BackupManager {
     }
 
     /// <summary>
-    /// Mise � jour de l'�tat du travailleur
+    /// Mise ï¿½ jour de l'ï¿½tat du travailleur
     /// </summary>
     private void OnProgressUpdate()
     {
