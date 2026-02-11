@@ -1,4 +1,6 @@
 using EasyLog;
+using EasyLog.Factory;
+using EasyLog.Interfaces;
 using EasySave.Factory;
 using EasySave.Interfaces;
 using EasySave.Models;

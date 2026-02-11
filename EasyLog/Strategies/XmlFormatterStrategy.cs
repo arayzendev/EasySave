@@ -1,8 +1,9 @@
+using EasyLog.Interfaces;
 using System.Xml.Linq;
 
 namespace EasyLog
 {
-    public class XmlFormatter : ILogFormatter
+    public class XmlFormatterStrategy : ILogFormatter
     {
         public string FileExtension => "xml";
 

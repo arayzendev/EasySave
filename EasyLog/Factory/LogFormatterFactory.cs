@@ -1,4 +1,6 @@
-namespace EasyLog
+using EasyLog.Interfaces;
+
+namespace EasyLog.Factory
 {
     public static class LogFormatterFactory
     {
@@ -7,10 +9,10 @@ namespace EasyLog
             switch (formatType.ToUpper())
             {
                 case "XML":
-                    return new XmlFormatter();
+                    return new XmlFormatterStrategy();
                 case "JSON":
                 default:
-                    return new JsonFormatter();
+                    return new JsonFormatterStrategy();
             }
         }
     }

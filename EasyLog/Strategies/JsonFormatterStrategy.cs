@@ -1,8 +1,9 @@
+using EasyLog.Interfaces;
 using Newtonsoft.Json;
 
 namespace EasyLog
 {
-    public class JsonFormatter : ILogFormatter
+    public class JsonFormatterStrategy : ILogFormatter
     {
         public string FileExtension => "json";
 
