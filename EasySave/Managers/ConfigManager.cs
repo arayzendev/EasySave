@@ -1,5 +1,15 @@
 using System.Text.Json;
 using EasySave.Factory;
+using EasySave.Models;
+using EasyLog.Models;
+
+class Config
+{
+
+    public List<BackupJob> backupJobs { get; set; } = new List<BackupJob>();
+    public Language language { get; set; } = Language.EN;
+    public LogType logType { get; set; } = LogType.JSON;
+}
 
 enum Language
 {
