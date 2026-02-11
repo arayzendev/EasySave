@@ -1,6 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
-using EasySave.Core.Models;
+
+using EasySave.Managers;
+using EasySave.Models;
+
+
 
 
 namespace EasySave
@@ -10,16 +14,43 @@ namespace EasySave
         static void Main(string[] args)
         {
             BackupManager backupManager = new BackupManager();
+            bool langue = true;
+            bool logActive = true;
 
             //GESTIONNAIRE DE LANGUE
-            Console.Write("Choisir la Langue (FR/EN) :");
-            string langChoice = Console.ReadLine();
-            backupManager.SetLanguage(langChoice);
+            while (langue == true)
+            {
+                Console.Write("Choisir la Langue (FR/EN) :");
+                string langChoice = Console.ReadLine().ToUpper();
+
+                if (langChoice == "FR" || langChoice == "EN")
+                {
+                    backupManager.SetLanguage(langChoice);
+                    langue = false;
+                }
+                else
+                {
+                    Console.WriteLine("Veuillez Réessayez.");
+                }
+            }
 
             //GESTIONNAIRE DE logs
-            Console.Write("Choisir le type de logs (JSON/XML) :");
-            string logChoice = Console.ReadLine();
-            backupManager.SetLog(logChoice);
+            while (logActive == true)
+            {
+                Console.Write("Choisir le type de logs (JSON/XML) :");
+                string logChoice = Console.ReadLine().ToUpper();
+
+                if (logChoice == "JSON" || logChoice == "XML")
+                {
+                    backupManager.SetLog(logChoice);
+                    logActive = false;
+                }
+                else
+                {
+                    Console.WriteLine("Veuillez Réessayez.");
+                }
+
+            }
 
             // CLI argument mode
             if (args.Length > 0)
@@ -37,6 +68,7 @@ namespace EasySave
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_List"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Execute"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_ExecuteAll"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_Modify"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Delete"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Quit"));
                 Console.Write(LanguageManager.Instance.GetText("Menu_Choice"));
@@ -58,9 +90,12 @@ namespace EasySave
                         ExecuteAllJobs(backupManager);
                         break;
                     case "5":
-                        DeleteJob(backupManager);
+                        Modify(backupManager);
                         break;
                     case "6":
+                        DeleteJob(backupManager);
+                        break;
+                    case "7":
                         running = false;
                         break;
                     default:
@@ -87,7 +122,7 @@ namespace EasySave
             Console.Write(LanguageManager.Instance.GetText("Saisie_Source"));
             string source = Console.ReadLine();
 
-            if (!Directory.Exists(source))
+            if (!System.IO.Directory.Exists(source))
             {
                 Console.WriteLine(LanguageManager.Instance.GetText("Err_Chemin"));
                 return;
@@ -219,6 +254,38 @@ namespace EasySave
                 {
                     Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execute_Fail") + ex.Message);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Modification des chemins du trvailleur
+        /// </summary>
+        /// <param name="backupManager"></param>
+        static void Modify(BackupManager backupManager)
+        {
+            var jobs = backupManager.ListJobs();
+
+            if (jobs.Count == 0)
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
+                return;
+            }
+
+            ListJobs(backupManager);
+            Console.Write(LanguageManager.Instance.GetText("Prompt_JobNumber"));
+
+            if (int.TryParse(Console.ReadLine(), out int index) && index >= 1 && index <= jobs.Count)
+            {
+                Console.Write(LanguageManager.Instance.GetText("Saisie_Source"));
+                string sourcePath = Console.ReadLine();
+                Console.Write(LanguageManager.Instance.GetText("Saisie_Dest"));
+                string targetPath = Console.ReadLine();
+                backupManager.ModifyJob(index - 1, sourcePath, targetPath);
+                Console.WriteLine(LanguageManager.Instance.GetText("Msg_Modify"));
+            }
+            else
+            {
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Index"));
             }
         }
 

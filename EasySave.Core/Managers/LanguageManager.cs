@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EasySave.Core.Models
+namespace EasySave.Managers
 {
     public class LanguageManager
     {
@@ -61,12 +61,14 @@ namespace EasySave.Core.Models
                 _translations.Add("Menu_List", "2. Lister les travaux");
                 _translations.Add("Menu_Execute", "3. Ex�cuter un travail");
                 _translations.Add("Menu_ExecuteAll", "4. Ex�cuter tous les travaux");
-                _translations.Add("Menu_Delete", "5. Supprimer un travail");
-                _translations.Add("Menu_Quit", "6. Quitter");
+                _translations.Add("Menu_Modify", "5. Modifier un travail");
+                _translations.Add("Menu_Delete", "6. Supprimer un travail");
+                _translations.Add("Menu_Quit", "7. Quitter");
                 _translations.Add("Menu_Choice", "Votre choix : ");
                 _translations.Add("Menu_Invalid", "Choix invalide.");
                 _translations.Add("Msg_Execute_Succes", "Sauvegarde termin�e avec succ�s");
                 _translations.Add("Msg_Execute_Fail", "Erreur lors de la sauvegarde : ");
+                _translations.Add("Msg_Modify", "Travail modifié avec succ�s.");
                 _translations.Add("Msg_Deleted", "Travail supprim� avec succ�s.");
                 _translations.Add("Err_Chemin", "ERREUR : Le r�pertoire source n'existe pas.");
                 _translations.Add("Err_Quota", "ERREUR : Le quota de 5 travaux est atteint.");
@@ -99,12 +101,14 @@ namespace EasySave.Core.Models
                 _translations.Add("Menu_List", "2. List backup jobs");
                 _translations.Add("Menu_Execute", "3. Execute a backup job");
                 _translations.Add("Menu_ExecuteAll", "4. Execute all backup jobs");
-                _translations.Add("Menu_Delete", "5. Delete a backup job");
-                _translations.Add("Menu_Quit", "6. Quit");
+                _translations.Add("Menu_Modify", "5. Modify a backup job");
+                _translations.Add("Menu_Delete", "6. Delete a backup job");
+                _translations.Add("Menu_Quit", "7. Quit");
                 _translations.Add("Menu_Choice", "Your choice: ");
                 _translations.Add("Menu_Invalid", "Invalid choice.");
                 _translations.Add("Msg_Execute_Succes", "Backup completed successfully");
                 _translations.Add("Msg_Execute_Fail", "Error during backup: ");
+                _translations.Add("Msg_Modify", "Job modified successfully.");
                 _translations.Add("Msg_Deleted", "Job deleted successfully.");
                 _translations.Add("Err_Chemin", "ERROR: Source directory does not exist.");
                 _translations.Add("Err_Quota", "ERROR: Job quota (5) reached.");
