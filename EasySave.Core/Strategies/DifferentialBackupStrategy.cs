@@ -1,12 +1,12 @@
-﻿using EasyLog;
-using EasySave.Core.Interfaces;
-using EasySave.Core.Models;
+using EasyLog;
+using EasySave.Interfaces;
+using EasySave.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace EasySave.Core.Strategies
+namespace EasySave.Strategies
 {
     internal class DifferentialBackupStrategy : IBackupStrategy
     {
@@ -22,7 +22,8 @@ namespace EasySave.Core.Strategies
         /// <param name="targetPath"></param>
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate)
+        /// <param name="logger"></param>
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger)
         {
             try
             {   //Vérifie si un chemin source et cible existe
@@ -75,6 +76,8 @@ namespace EasySave.Core.Strategies
 
                         backupProgress.FileSize = fileSize;
                         backupProgress.TransferTime = (float)stopwatch.ElapsedMilliseconds;
+                        backupProgress.SourceFilePath = file;
+                        backupProgress.TargetFilePath = destPath;
                         backupProgress.Progress = totalSize > 0 ? (float)copiedSize / totalSize * 100 : 100;
                         backupProgress.RemainingFiles = backupProgress.TotalFiles - copiedFiles;
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
@@ -82,7 +85,6 @@ namespace EasySave.Core.Strategies
 
 
                         //Ecriture des logs
-                        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
                         logger.Write(new LogEntry
                         {
                             Timestamp = DateTime.Now,
@@ -110,8 +112,7 @@ namespace EasySave.Core.Strategies
             catch (Exception ex)
             {   
                 //Log d'erreur
-                Logger log = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
-                log.Write(new LogEntry
+                logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     Application = "EasySave",

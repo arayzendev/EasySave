@@ -1,21 +1,24 @@
 using EasyLog;
-using EasySave.Core.Factory;
-using EasySave.Core.Interfaces;
-using EasySave.Core.Models;
-using EasySave.Core.Strategies;
+using EasyLog.Factory;
+using EasyLog.Interfaces;
+using EasySave.Factory;
+using EasySave.Interfaces;
+using EasySave.Models;
+using EasySave.Strategies;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-public class BackupManager {
+class BackupManager {
 
-    //Attributs paramètre des sauvegardes
-    private List<BackupJob>? backupJobs;
+    //Attributs paramÃ¯Â¿Â½tre des sauvegardes
+    private Config config;
     private StateManager stateManager;
     private ConfigManager configManager;
     private BackupStrategyFactory backupStrategyFactory;
+    private Logger logger;
 
     /// <summary>
     /// Constructeur
@@ -25,11 +28,50 @@ public class BackupManager {
         configManager = new ConfigManager();
         stateManager = new StateManager();
         backupStrategyFactory = new BackupStrategyFactory();
-        backupJobs = configManager.Load();
+        config = configManager.Load();
+        LanguageManager.Instance.SetLanguage(config.language.ToString());
+        InitializeLogger();
+    }
+
+    private void InitializeLogger()
+    {
+        string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs");
+        ILogFormatter formatter = LogFormatterFactory.Create(config.logType.ToString());
+        logger = new Logger(logDirectory, formatter);
+    }
+
+    public void SetLanguage(string language)
+    {
+        switch (language.ToLower())
+        {
+            case "fr":
+                config.language=Language.FR;
+                break;
+            default:
+                config.language=Language.EN;
+                break;
+        }
+        LanguageManager.Instance.SetLanguage(language);
+        configManager.Save(config);
+    }
+
+    public void SetLog(string logType)
+    {
+        switch (logType.ToLower())
+        {
+            case "xml":
+                config.logType=LogType.XML;
+                break;
+            default:
+                config.logType=LogType.JSON;
+                break;
+        }
+        configManager.Save(config);
+        InitializeLogger();
     }
 
     /// <summary>
-    /// Création d'un travailleur de sauvegarde
+    /// CrÃ¯Â¿Â½ation d'un travailleur de sauvegarde
     /// </summary>
     /// <param name="name"></param>
     /// <param name="sourcePath"></param>
@@ -37,34 +79,19 @@ public class BackupManager {
     /// <param name="backupStrategy"></param>
     /// <returns></returns>
     public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        //Vérifie si on dépasse pas les 5 travailleurs
-        if (backupJobs.Count >= 5)
+    {   
+        //VÃ¯Â¿Â½rifie si on dÃ¯Â¿Â½passe pas les 5 travailleurs
+        if (config.backupJobs.Count >= 5)
         {
             return false;
         }
 
-        //Création du travailleur
+        //CrÃ¯Â¿Â½ation du travailleur
         IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
-        backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy,backupStrategy));
+        config.backupJobs.Add(new BackupJob(name,sourcePath,targetPath,strategy,backupStrategy));
 
         //Sauvegarde de la configuration du travailleur
-        configManager.Save(backupJobs);
-        //Ecrit les logs 
-        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
-        logger.Write(new LogEntry
-        {
-            Timestamp = DateTime.Now,
-            Application = "EasySave",
-            data = new Dictionary<string, object>
-                            {
-                                { "SourceFile", sourcePath },
-                                { "TargetFile", targetPath },
-                                { "CreateTimeMs", stopwatch.ElapsedMilliseconds },
-                                { "Backup travailleur Créé", name}
-                            }
-        });
+        configManager.Save(config);
         return true;
     }
 
@@ -74,21 +101,8 @@ public class BackupManager {
     /// <param name="index"></param>
     public void DeleteJob(int index)
     {
-        var stopwatch = Stopwatch.StartNew();
-        backupJobs.RemoveAt(index);
-        configManager.Save(backupJobs);
-        //Ecrit les logs 
-        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
-        logger.Write(new LogEntry
-        {
-            Timestamp = DateTime.Now,
-            Application = "EasySave",
-            data = new Dictionary<string, object>
-                            {
-                                { "Index du Backup travailleur Supprimé", index },
-                                { "DeleteTimeMs ", stopwatch.ElapsedMilliseconds }
-            }
-        });
+        config.backupJobs.RemoveAt(index);
+        configManager.Save(config);
     }
 
     /// <summary>
@@ -99,31 +113,17 @@ public class BackupManager {
     /// <param name="targetPath"></param>
     public void ModifyJob(int index, string sourcePath, string targetPath)
     {
-        var stopwatch = Stopwatch.StartNew();
-        backupJobs[index].UpdatePaths(sourcePath,targetPath);
-        configManager.Save(backupJobs);
-        //Ecrit les logs 
-        Logger logger = new Logger(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs"));
-        logger.Write(new LogEntry
-        {
-            Timestamp = DateTime.Now,
-            Application = "EasySave",
-            data = new Dictionary<string, object>
-                            {
-                                { "Chemin source modifié", sourcePath },
-                                { "Chemin cible modifié", targetPath },
-                                { "DeleteTimeMs ", stopwatch.ElapsedMilliseconds }
-            }
-        });
+        config.backupJobs[index].UpdatePaths(sourcePath,targetPath);
+        configManager.Save(config);
     }
 
     /// <summary>
-    /// Choix du travailleur à executer
+    /// Choix du travailleur Ã¯Â¿Â½ executer
     /// </summary>
     /// <param name="index"></param>
     public void ExecuteJob(int index)
     {
-        backupJobs[index].Execute(OnProgressUpdate);
+        config.backupJobs[index].Execute(OnProgressUpdate, logger);
     }
 
     /// <summary>
@@ -132,14 +132,14 @@ public class BackupManager {
     /// <returns></returns>
     public List<BackupJob> ListJobs()
     {
-        return backupJobs;
+        return config.backupJobs;
     }
 
     /// <summary>
-    /// Mise à jour de l'état du travailleur
+    /// Mise Ã¯Â¿Â½ jour de l'Ã¯Â¿Â½tat du travailleur
     /// </summary>
     private void OnProgressUpdate()
     {
-        stateManager.Write(backupJobs);   
+        stateManager.Write(config.backupJobs);   
     }
 }
