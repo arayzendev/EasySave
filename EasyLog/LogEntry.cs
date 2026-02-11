@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +9,8 @@ namespace EasyLog
     // Format Log
     public class LogEntry
     {
-        public DateTime? Timestamp;
-        public string Application;
-        public Dictionary<string, object> data;
+        public DateTime? Timestamp { get; set; }
+        public string Application { get; set; }
+        public Dictionary<string, object> data { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using EasyLog;
 using EasySave.Models;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace EasySave.Interfaces
         /// <param name="targetPath"></param>
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate);
+        /// <param name="logger"></param>
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger);
     }
 }
