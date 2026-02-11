@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 
+using EasySave.Managers;
 using EasySave.Models;
 
 
