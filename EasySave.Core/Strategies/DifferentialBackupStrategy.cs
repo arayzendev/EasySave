@@ -22,7 +22,13 @@ namespace EasySave.Core.Strategies
         public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger)
         {
             try
-            {   //Vérifie si un chemin source et cible existe
+            {
+                var options = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = 4
+                };
+
+                //Vérifie si un chemin source et cible existe
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
                     //Création d'un dossier et tableau qui stocke les récupération des fichiers
@@ -31,13 +37,13 @@ namespace EasySave.Core.Strategies
 
                     //Sauvegarde ce qui est nouveau
                     List<string> files = new List<string>();
-                    foreach (string file in allFiles)
+                    Parallel.ForEach(allFiles, options, file =>
                     {
                         string rel = Path.GetRelativePath(sourcePath, file);
                         string dest = Path.Combine(targetPath, rel);
                         if (!File.Exists(dest) || File.GetLastWriteTime(file) > File.GetLastWriteTime(dest))
                             files.Add(file);
-                    }
+                    });
 
                     //Met à jour le model backupProgress
                     backupProgress.TotalFiles = files.Count;
@@ -46,10 +52,12 @@ namespace EasySave.Core.Strategies
                     backupProgress.DateTime = DateTime.Now;
 
                     long totalSize = 0;
-                    foreach (var file in files)
+                    Parallel.ForEach(files, options, file =>
+                    {
                         totalSize += new FileInfo(file).Length;
-                    backupProgress.TotalSize = totalSize;
-                    backupProgress.RemainingSize = totalSize;
+                        backupProgress.TotalSize = totalSize;
+                        backupProgress.RemainingSize = totalSize;
+                    });
 
                     int copiedFiles = 0;
                     long copiedSize = 0;

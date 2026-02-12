@@ -1,9 +1,4 @@
-using System;
-using System.IO;
 using EasySave.Core.Managers;
-
-
-
 
 namespace EasySave
 {
@@ -161,7 +156,7 @@ namespace EasySave
             }
             else
             {
-                Console.WriteLine(LanguageManager.Instance.GetText("Err_Quota"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Create"));
             }
         }
 
@@ -233,6 +228,10 @@ namespace EasySave
         static void ExecuteAllJobs(BackupManager backupManager)
         {
             var jobs = backupManager.ListJobs();
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = 4
+            };
 
             if (jobs.Count == 0)
             {
@@ -240,7 +239,7 @@ namespace EasySave
                 return;
             }
 
-            for (int i = 0; i < jobs.Count; i++)
+            Parallel.For(0, jobs.Count, options, i =>
             {
                 try
                 {
@@ -252,7 +251,7 @@ namespace EasySave
                 {
                     Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execute_Fail") + ex.Message);
                 }
-            }
+            });
         }
 
         /// <summary>
