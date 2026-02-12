@@ -1,13 +1,11 @@
-using EasyLog;
-using EasySave.Interfaces;
-using EasySave.Models;
-using System;
+using EasySave.Core.Interfaces;
 using System.Text.Json.Serialization;
 
-namespace EasySave.Models
+namespace EasySave.Core.Models
 {
-    class BackupJob
+    public class BackupJob
     {
+
         //Attributs du BackupJKob
         public string name { get; set; }
         public string sourcePath { get; set; }
@@ -18,7 +16,7 @@ namespace EasySave.Models
         public BackupProgress backupProgress { get; set; }
 
         /// <summary>
-        /// Constructeur par dÃ©faut
+        /// Constructeur par défaut
         /// </summary>
         public BackupJob()
         {
@@ -26,7 +24,7 @@ namespace EasySave.Models
             backupProgress = new BackupProgress();
         }
         /// <summary>
-        /// Constructeur paramÃ©trÃ©
+        /// Constructeur paramétré
         /// </summary>
         /// <param name="name"></param>
         /// <param name="sourcePath"></param>
@@ -47,14 +45,14 @@ namespace EasySave.Models
         /// Execution d'une strategie de sauvegarde
         /// </summary>
         /// <param name="onProgressUpdate"></param>
-        /// <param name="logger"></param>
-        public void Execute(Action onProgressUpdate, Logger logger)
+        public void Execute(Action onProgressUpdate, EasyLog.Logger logger)
         {
             backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger);
+
         }
 
         /// <summary>
-        /// Mise Ã  jour des chemins
+        /// Mise à jour des chemins
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>
@@ -63,5 +61,5 @@ namespace EasySave.Models
             this.sourcePath = sourcePath;
             this.targetPath = targetPath;
         }
-    }
+    } 
 }

@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-
-using EasySave.Managers;
-using EasySave.Models;
+using EasySave.Core.Managers;
 
 
 

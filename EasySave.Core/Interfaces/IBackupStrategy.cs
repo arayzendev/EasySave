@@ -1,15 +1,12 @@
 using EasyLog;
-using EasySave.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using EasySave.Core.Models;
 
-namespace EasySave.Interfaces
+namespace EasySave.Core.Interfaces
 {
     public interface IBackupStrategy
     {
         /// <summary>
-        /// M�thode de sauvegarde
+        /// M?thode de sauvegarde
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>

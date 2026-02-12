@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace EasySave.Managers
+namespace EasySave.Core.Managers
 {
     public class LanguageManager
     {
