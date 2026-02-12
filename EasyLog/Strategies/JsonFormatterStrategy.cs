@@ -1,7 +1,7 @@
 using EasyLog.Interfaces;
 using Newtonsoft.Json;
 
-namespace EasyLog
+namespace EasyLog.Strategies
 {
     public class JsonFormatterStrategy : ILogFormatter
     {

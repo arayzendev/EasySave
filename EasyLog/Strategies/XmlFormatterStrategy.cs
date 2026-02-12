@@ -1,7 +1,7 @@
 using EasyLog.Interfaces;
 using System.Xml.Linq;
 
-namespace EasyLog
+namespace EasyLog.Strategies
 {
     public class XmlFormatterStrategy : ILogFormatter
     {
