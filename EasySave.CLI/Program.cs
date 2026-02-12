@@ -68,6 +68,7 @@ namespace EasySave
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_ExecuteAll"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Modify"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Delete"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_ForbiddenSoftware"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Quit"));
                 Console.Write(LanguageManager.Instance.GetText("Menu_Choice"));
 
@@ -92,6 +93,9 @@ namespace EasySave
                         break;
                     case "6":
                         DeleteJob(backupManager);
+                        break;
+                    case "6":
+                        ConfigureForbiddenSoftware(backupManager);
                         break;
                     case "7":
                         running = false;
@@ -312,6 +316,22 @@ namespace EasySave
             else
             {
                 Console.WriteLine(LanguageManager.Instance.GetText("Err_Index"));
+            }
+        }
+
+        /// <summary>
+        /// Configure le logiciel métier
+        /// </summary>
+        /// <param name="backupManager"></param>
+        static void ConfigureForbiddenSoftware(BackupManager backupManager)
+        {
+            Console.WriteLine($"\n{LanguageManager.Instance.GetText("Prompt_ForbiddenSoftware")} ({backupManager.GetForbiddenSoftware()}): ");
+            string softwareName = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(softwareName))
+            {
+                backupManager.SetForbiddenSoftware(softwareName);
+                Console.WriteLine(LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareSet"));
             }
         }
 

@@ -18,6 +18,7 @@ namespace EasySave.Core.Managers
         private ConfigManager configManager;
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
+        private ProcessMonitor processMonitor;
 
         /// <summary>
         /// Constructeur
@@ -27,6 +28,7 @@ namespace EasySave.Core.Managers
             configManager = new ConfigManager();
             stateManager = new StateManager();
             backupStrategyFactory = new BackupStrategyFactory();
+            processMonitor = new ProcessMonitor();
             config = configManager.Load();
             LanguageManager.Instance.SetLanguage(config.language.ToString());
             InitializeLogger();
@@ -163,12 +165,39 @@ namespace EasySave.Core.Managers
         }
 
         /// <summary>
+        /// Configure le nom du logiciel métier
+        /// </summary>
+        /// <param name="softwareName"></param>
+        public void SetForbiddenSoftware(string softwareName)
+        {
+            config.forbiddenSoftwareName = softwareName;
+            configManager.Save(config);
+        }
+
+        /// <summary>
+        /// Recupere le nom du logiciel métier
+        /// </summary>
+        /// <returns></returns>
+        public string GetForbiddenSoftware()
+        {
+            return config.forbiddenSoftwareName;
+        }
+
+        /// <summary>
+        /// Verifie si le logiciel métier est en cours d'execution
+        /// </summary>
+        /// <returns></returns>
+        public bool IsForbiddenSoftwareRunning()
+        {
+            return processMonitor.IsRunning(config.forbiddenSoftwareName);
+        }
+
+        /// <summary>
         /// Choix du travailleur ï¿½ executer
         /// </summary>
         /// <param name="index"></param>
         public void ExecuteJob(int index)
         {
-            var stopwatch = Stopwatch.StartNew();
             config.backupJobs[index].Execute(OnProgressUpdate, logger);
             stopwatch.Stop();
 
