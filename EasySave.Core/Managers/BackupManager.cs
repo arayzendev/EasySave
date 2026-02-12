@@ -1,21 +1,18 @@
 using EasyLog;
 using EasyLog.Factory;
 using EasyLog.Interfaces;
-using EasySave.Factory;
-using EasySave.Interfaces;
-using EasySave.Models;
-using EasySave.Strategies;
-using System;
-using System.Collections.Generic;
+using EasyLog.Models;
+using EasySave.Core.Factory;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Models;
 using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
 
-namespace EasySave.Managers
-{
-    class BackupManager
+namespace EasySave.Core.Managers
+{ 
+    public class BackupManager
     {
-        //Attributs paramètre des sauvegardes
+
+        //Attributs paramï¿½tre des sauvegardes
         private Config config;
         private StateManager stateManager;
         private ConfigManager configManager;
@@ -75,7 +72,7 @@ namespace EasySave.Managers
         }
 
         /// <summary>
-        /// Création d'un travailleur de sauvegarde
+        /// Crï¿½ation d'un travailleur de sauvegarde
         /// </summary>
         /// <param name="name"></param>
         /// <param name="sourcePath"></param>
@@ -84,18 +81,35 @@ namespace EasySave.Managers
         /// <returns></returns>
         public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
         {
-            //Vérifie si on dépasse pas les 5 travailleurs
+            //Vï¿½rifie si on dï¿½passe pas les 5 travailleurs
             if (config.backupJobs.Count >= 5)
             {
                 return false;
             }
+            var stopwatch = Stopwatch.StartNew();
 
-            //Création du travailleur
+            //Crï¿½ation du travailleur
             IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
             config.backupJobs.Add(new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy));
 
             //Sauvegarde de la configuration du travailleur
             configManager.Save(config);
+            stopwatch.Stop();
+
+            //Ecrit les logs 
+            logger.Write(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Application = "EasySave",
+                data = new Dictionary<string, object>
+                                {
+                                    { "CreateBackupName", name },
+                                    { "SourceFile", sourcePath },
+                                    { "TargetFile", targetPath },
+                                    { "CreationTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
+            });
+
             return true;
         }
 
@@ -105,8 +119,22 @@ namespace EasySave.Managers
         /// <param name="index"></param>
         public void DeleteJob(int index)
         {
+            var stopwatch = Stopwatch.StartNew();
             config.backupJobs.RemoveAt(index);
             configManager.Save(config);
+            stopwatch.Stop();
+
+            //Ecrit les logs 
+            logger.Write(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Application = "EasySave",
+                data = new Dictionary<string, object>
+                                {
+                                    { "DeletedBackupIndex", index },
+                                    { "DeleteTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
+            });
         }
 
         /// <summary>
@@ -117,8 +145,23 @@ namespace EasySave.Managers
         /// <param name="targetPath"></param>
         public void ModifyJob(int index, string sourcePath, string targetPath)
         {
+            var stopwatch = Stopwatch.StartNew();
             config.backupJobs[index].UpdatePaths(sourcePath, targetPath);
             configManager.Save(config);
+            stopwatch.Stop();
+            //Ecrit les logs 
+            logger.Write(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Application = "EasySave",
+                data = new Dictionary<string, object>
+                                {
+                                    { "ModifiedBackupIndex", index },
+                                    { "SourceFile", sourcePath },
+                                    { "TargetFile", targetPath },
+                                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
+            });
         }
 
         /// <summary>
@@ -150,29 +193,25 @@ namespace EasySave.Managers
         }
 
         /// <summary>
-        /// Choix du travailleur à executer
+        /// Choix du travailleur ï¿½ executer
         /// </summary>
         /// <param name="index"></param>
         public void ExecuteJob(int index)
         {
-            // Vérification du logiciel métier
-            if (IsForbiddenSoftwareRunning())
-            {
-                string message = $"{LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareBlocked")}{config.forbiddenSoftwareName}";
-                logger.Write(new EasyLog.LogEntry
-                {
-                    Timestamp = DateTime.Now,
-                    Application = config.backupJobs[index].name,
-                    data = new Dictionary<string, object>
-                    {
-                        { "Status", "Blocked" },
-                        { "Reason", "Forbidden software running" },
-                        { "SoftwareName", config.forbiddenSoftwareName }
-                    }
-                });
-                throw new Exception(message);
-            }
             config.backupJobs[index].Execute(OnProgressUpdate, logger);
+            stopwatch.Stop();
+
+            //Ecrit les logs 
+            logger.Write(new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Application = "EasySave",
+                data = new Dictionary<string, object>
+                                {
+                                    { "ExecutedBackupIndex", index },
+                                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
+            });
         }
 
         /// <summary>
@@ -185,7 +224,7 @@ namespace EasySave.Managers
         }
 
         /// <summary>
-        /// Mise à jour de l'état du travailleur
+        /// Mise ï¿½ jour de l'ï¿½tat du travailleur
         /// </summary>
         private void OnProgressUpdate()
         {

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace EasySave.Models
+namespace EasySave.Core.Models
 {
     //Progr�s du backup
     public class BackupProgress
@@ -17,7 +12,5 @@ namespace EasySave.Models
         public float TransferTime { get; set; }
         public int RemainingFiles { get; set; }
         public long RemainingSize { get; set; }
-        public string SourceFilePath { get; set; }
-        public string TargetFilePath { get; set; }
     }
 }

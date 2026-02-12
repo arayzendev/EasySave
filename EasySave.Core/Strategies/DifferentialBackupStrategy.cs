@@ -1,20 +1,18 @@
 using EasyLog;
-using EasySave.Interfaces;
-using EasySave.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Models;
 
-namespace EasySave.Strategies
+namespace EasySave.Core.Strategies
 {
-    internal class FullBackupStrategy : IBackupStrategy
+    internal class DifferentialBackupStrategy : IBackupStrategy
     {
         /// <summary>
         /// Constructeur
         /// </summary>
-        public FullBackupStrategy() { }
+        public DifferentialBackupStrategy() { }
+
         /// <summary>
-        /// Sauvegarde complète
+        /// Méthode de sauvegarde différencielle
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>
@@ -27,13 +25,23 @@ namespace EasySave.Strategies
             {   //Vérifie si un chemin source et cible existe
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
-                    //Créer un dossier dans path et stocke les fichiers de la source
+                    //Création d'un dossier et tableau qui stocke les récupération des fichiers
                     Directory.CreateDirectory(targetPath);
-                    string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+                    string[] allFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
 
-                    //Met à jour le progrès et l'état
-                    backupProgress.TotalFiles = files.Length;
-                    backupProgress.RemainingFiles = files.Length;
+                    //Sauvegarde ce qui est nouveau
+                    List<string> files = new List<string>();
+                    foreach (string file in allFiles)
+                    {
+                        string rel = Path.GetRelativePath(sourcePath, file);
+                        string dest = Path.Combine(targetPath, rel);
+                        if (!File.Exists(dest) || File.GetLastWriteTime(file) > File.GetLastWriteTime(dest))
+                            files.Add(file);
+                    }
+
+                    //Met à jour le model backupProgress
+                    backupProgress.TotalFiles = files.Count;
+                    backupProgress.RemainingFiles = files.Count;
                     backupProgress.State = BackupState.Active;
                     backupProgress.DateTime = DateTime.Now;
 
@@ -46,7 +54,7 @@ namespace EasySave.Strategies
                     int copiedFiles = 0;
                     long copiedSize = 0;
 
-                    //Boucle pour copier tous les fichiers vers le chemin cible
+                    //Boucle qui ajoute les fichiers du chemin source aux chemin cible
                     foreach (string file in files)
                     {
                         string relativePath = Path.GetRelativePath(sourcePath, file);
@@ -64,14 +72,13 @@ namespace EasySave.Strategies
 
                         backupProgress.FileSize = fileSize;
                         backupProgress.TransferTime = (float)stopwatch.ElapsedMilliseconds;
-                        backupProgress.SourceFilePath = file;
-                        backupProgress.TargetFilePath = destPath;
-                        backupProgress.Progress = (float)copiedSize / backupProgress.TotalSize * 100;
+                        backupProgress.Progress = totalSize > 0 ? (float)copiedSize / totalSize * 100 : 100;
                         backupProgress.RemainingFiles = backupProgress.TotalFiles - copiedFiles;
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
                         OnProgressupdate?.Invoke();
 
-                        //Ecrit les logs 
+
+                        //Ecriture des logs
                         logger.Write(new LogEntry
                         {
                             Timestamp = DateTime.Now,
@@ -90,12 +97,13 @@ namespace EasySave.Strategies
                 {
                     throw new ArgumentException("Source or target path cannot be null or empty.");
                 }
-                //Réussite de la sauvegarde
+
+                //Réussite du programme
                 backupProgress.State = BackupState.Ended;
                 backupProgress.Progress = 100;
                 OnProgressupdate?.Invoke();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 //Log d'erreur
                 logger.Write(new LogEntry
@@ -104,7 +112,7 @@ namespace EasySave.Strategies
                     Application = "EasySave",
                     data = new Dictionary<string, object>
                             {
-                                { "Error FullBackup", ex.Message.ToString()},
+                                { "Error DifferentialBackup", ex.Message.ToString()},
                             }
                 });
             }
