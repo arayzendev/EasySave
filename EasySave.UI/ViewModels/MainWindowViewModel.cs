@@ -1,6 +1,30 @@
-﻿namespace EasySave.GUI.ViewModels;
+﻿using EasySave.GUI.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+namespace EasySave.GUI.ViewModels
 {
-    public string Greeting { get; } = "Welcome to Avalonia!";
+    public class MainWindowViewModel : ViewModelBase
+    {
+        private ViewModelBase _currentPage;
+
+        public ViewModelBase CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                _currentPage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public MainWindowViewModel()
+        {
+            // On démarre sur la page d'accueil
+            _currentPage = new HomeViewModel(this);
+        }
+
+        public void NavigateToDashboard()
+        {
+            // Logique de navigation future
+        }
+    }
 }
