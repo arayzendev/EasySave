@@ -1,5 +1,3 @@
-
-
 namespace EasySave.Core.Managers
 {
     public class LanguageManager

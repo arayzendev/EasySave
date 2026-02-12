@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EasyLog.Models
+﻿namespace EasyLog.Models
 {
     public enum LogType
     {

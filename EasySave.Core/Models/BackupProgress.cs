@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-
 namespace EasySave.Core.Models
 {
     //Progr�s du backup

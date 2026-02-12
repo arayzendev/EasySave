@@ -1,6 +1,4 @@
-﻿
-
-namespace EasySave.Core.Models
+﻿namespace EasySave.Core.Models
 {
     internal enum Language
     {
