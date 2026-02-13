@@ -51,7 +51,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Type_Diff", "2. Sauvegarde Diff�rentielle");
                 _translations.Add("Msg_Execution", "Sauvegarde en cours...");
                 _translations.Add("Msg_Succes", "Le travail a été sauvegardé avec succès");
-                _translations.Add("Err_Quota_Ou_Chemin", "ERREUR : Chemin invalide ou quota de 5 travaux atteint.");
+                _translations.Add("Err_Job_Ou_Chemin", "ERREUR : Chemin invalide ou travail.");
                 _translations.Add("Question_NouvelleSession", "Voulez-vous cr�er une nouvelle session de sauvegarde ? (O/N)");
                 _translations.Add("Fin_Prog", "Fin du programme.");
                 _translations.Add("Menu_Create", "1. Cr�er un travail de sauvegarde");
@@ -68,7 +68,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Msg_Modify", "Travail modifié avec succ�s.");
                 _translations.Add("Msg_Deleted", "Travail supprim� avec succ�s.");
                 _translations.Add("Err_Chemin", "ERREUR : Le r�pertoire source n'existe pas.");
-                _translations.Add("Err_Quota", "ERREUR : Le quota de 5 travaux est atteint.");
+                _translations.Add("Err_Create", "ERREUR : Le travail n'a pas pu etre cree");
                 _translations.Add("Err_Index", "ERREUR : Num�ro de travail invalide.");
                 _translations.Add("Err_NoJobs", "Aucun travail de sauvegarde.");
                 _translations.Add("List_Header", "--- Liste des travaux ---");
@@ -94,7 +94,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Type_Diff", "2. Differential Backup");
                 _translations.Add("Msg_Execution", "Backup in progress...");
                 _translations.Add("Msg_Succes", "The job has been successfully saved");
-                _translations.Add("Err_Quota_Ou_Chemin", "ERROR: Invalid path or job quota (5) reached.");
+                _translations.Add("Err_Quota_Ou_Chemin", "ERROR: Invalid path or The job could not be created.");
                 _translations.Add("Question_NouvelleSession", "Do you want to create a new backup session? (Y/N)");
                 _translations.Add("Fin_Prog", "End of program.");
                 _translations.Add("Lang_Choice", "Choose Language (FR/EN): ");
@@ -112,7 +112,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Msg_Modify", "Job modified successfully.");
                 _translations.Add("Msg_Deleted", "Job deleted successfully.");
                 _translations.Add("Err_Chemin", "ERROR: Source directory does not exist.");
-                _translations.Add("Err_Quota", "ERROR: Job quota (5) reached.");
+                _translations.Add("Err_Create", "ERROR: The job could not be created.");
                 _translations.Add("Err_Index", "ERROR: Invalid job number.");
                 _translations.Add("Err_NoJobs", "No backup jobs found.");
                 _translations.Add("List_Header", "--- Backup Jobs ---");

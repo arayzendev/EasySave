@@ -81,11 +81,7 @@ namespace EasySave.Core.Managers
         /// <returns></returns>
         public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
         {
-            //Vï¿½rifie si on dï¿½passe pas les 5 travailleurs
-            if (config.backupJobs.Count >= 5)
-            {
-                return false;
-            }
+
             var stopwatch = Stopwatch.StartNew();
 
             //Crï¿½ation du travailleur
