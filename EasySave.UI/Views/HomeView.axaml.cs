@@ -10,7 +10,7 @@ namespace EasySave.GUI.Views
             InitializeComponent();
         }
 
-        // Cette méthode doit rester simple
+        
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);

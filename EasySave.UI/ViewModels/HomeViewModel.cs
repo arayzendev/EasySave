@@ -9,14 +9,14 @@ namespace EasySave.GUI.ViewModels
         private readonly MainWindowViewModel _navigation;
         private readonly LanguageManager _lang;
 
-        // --- Propriétés pour l'interface (Bindings) ---
+        // Propriétés pour l'interface (Bindings)
 
-        // On récupère les traductions via les clés exactes de ton manager
+        
         public string StartButtonText => _lang.GetText("Btn_Start");
         public string FrenchLabel => _lang.GetText("lang_FR");
         public string EnglishLabel => _lang.GetText("lang_EN");
 
-        // Cette propriété PUBLIQUE règle l'erreur AVLN2
+    
         public ICommand StartCommand { get; }
 
         private bool _isFrenchSelected = true;
@@ -66,7 +66,7 @@ namespace EasySave.GUI.ViewModels
             _lang.SetLanguage("FR");
         }
 
-        // Cette méthode dit à Avalonia : "Relis ces propriétés, elles ont changé !"
+        
         private void RefreshTexts()
         {
             OnPropertyChanged(nameof(StartButtonText));
