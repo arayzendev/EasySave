@@ -89,10 +89,10 @@ namespace EasySave
                     case "6":
                         DeleteJob(backupManager);
                         break;
-                    case "6":
+                    case "7":
                         ConfigureForbiddenSoftware(backupManager);
                         break;
-                    case "7":
+                    case "8":
                         running = false;
                         break;
                     default:

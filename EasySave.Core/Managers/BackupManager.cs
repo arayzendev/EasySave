@@ -5,6 +5,7 @@ using EasyLog.Models;
 using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
+using EasySave.Managers;
 using System.Diagnostics;
 
 namespace EasySave.Core.Managers
@@ -194,6 +195,24 @@ namespace EasySave.Core.Managers
         /// <param name="index"></param>
         public void ExecuteJob(int index)
         {
+            var stopwatch = Stopwatch.StartNew();
+            // Vérification du logiciel métier
+            if (IsForbiddenSoftwareRunning())
+            {
+                string message = $"{LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareBlocked")}{config.forbiddenSoftwareName}";
+                logger.Write(new EasyLog.LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Application = config.backupJobs[index].name,
+                    data = new Dictionary<string, object>
+                    {
+                        { "Status", "Blocked" },
+                        { "Reason", "Forbidden software running" },
+                        { "SoftwareName", config.forbiddenSoftwareName }
+                    }
+                });
+                throw new Exception(message);
+            }
             config.backupJobs[index].Execute(OnProgressUpdate, logger);
             stopwatch.Stop();
 

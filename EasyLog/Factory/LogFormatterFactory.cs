@@ -1,4 +1,6 @@
 using EasyLog.Interfaces;
+using EasyLog.Strategies;
+
 
 namespace EasyLog.Factory
 {
