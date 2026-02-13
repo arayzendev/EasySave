@@ -24,7 +24,7 @@ namespace EasySave.GUI.ViewModels
 
         public void NavigateToDashboard()
         {
-            // Logique de navigation future
+            CurrentPage = new MainMenuViewModel(this);
         }
     }
 }

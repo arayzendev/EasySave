@@ -57,7 +57,10 @@ namespace EasySave.GUI.ViewModels
             _lang = LanguageManager.Instance;
 
             // On initialise la commande
-            StartCommand = new RelayCommand(() => _navigation.NavigateToDashboard());
+            StartCommand = new RelayCommand(() =>
+            {
+                _navigation.CurrentPage = new MainMenuViewModel(_navigation);
+            });
 
             // Langue par défaut
             _lang.SetLanguage("FR");

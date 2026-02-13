@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
+             x:Class="EasySave.GUI.Views.ListJobsView"
+             x:DataType="vm:ListJobsViewModel"
+             Name="RootList">
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#1a2a44" Offset="0.0" />
+                <GradientStop Color="#2c1a45" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <DockPanel Margin="30">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="20" Margin="0,0,0,30">
+                <Button Command="{Binding BackCommand}" Content="←" Background="Transparent" Foreground="White" FontSize="20"/>
+                <TextBlock Text="{Binding TitleText}" FontSize="32" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Jobs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#22ffffff" CornerRadius="12" Margin="0,0,0,15" Padding="20" BorderBrush="#33ffffff" BorderThickness="1">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <TextBlock Text="{Binding name}" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                                        
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <TextBlock Text="{Binding #RootList.((vm:ListJobsViewModel)DataContext).SourceLabel}" Foreground="#1E88E5" FontSize="12" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding sourcePath}" Foreground="#AAA" FontSize="12"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <TextBlock Text="{Binding #RootList.((vm:ListJobsViewModel)DataContext).TargetLabel}" Foreground="#1E88E5" FontSize="12" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding targetPath}" Foreground="#AAA" FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <Border Grid.Column="1" Background="#1a2a44" CornerRadius="8" Padding="10,5" VerticalAlignment="Top">
+                                        <TextBlock Text="{Binding strategyType}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Grid>
+</UserControl>

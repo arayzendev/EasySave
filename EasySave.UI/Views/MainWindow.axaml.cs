@@ -6,7 +6,7 @@ namespace EasySave.GUI.Views
     {
         public MainWindow()
         {
-            InitializeComponent(); // Garde cette ligne, elle est vitale
+            InitializeComponent(); 
         }
     }
 }

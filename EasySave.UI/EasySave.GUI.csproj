@@ -34,4 +34,10 @@
   <ItemGroup>
     <ProjectReference Include="..\EasySave.Core\EasySave.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\ListJobsView.axaml.cs">
+      <DependentUpon>ListJobsView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

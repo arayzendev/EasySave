@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
+             x:Class="EasySave.GUI.Views.CreateJobView"
+             x:DataType="vm:CreateJobViewModel">
+
+	<Grid>
+		<Grid.Background>
+			<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+				<GradientStop Color="#1a2a44" Offset="0.0" />
+				<GradientStop Color="#2c1a45" Offset="1.0" />
+			</LinearGradientBrush>
+		</Grid.Background>
+
+		<Border IsVisible="{Binding IsSuccessMessageVisible}" Background="#27ae60" CornerRadius="10" Padding="15" VerticalAlignment="Top" Margin="0,20,0,0" ZIndex="100">
+			<TextBlock Text="{Binding SuccessText}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+		</Border>
+
+		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="420" Spacing="25">
+			<TextBlock Text="{Binding TitleText}" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+
+			<TextBox Text="{Binding JobName}" Watermark="{Binding PlaceholderName}" Height="45" CornerRadius="10"/>
+
+			<Grid ColumnDefinitions="*, Auto">
+				<TextBox Text="{Binding SourcePath}" Watermark="{Binding SourceWatermark}" Height="45" CornerRadius="10,0,0,10"/>
+				<Button Grid.Column="1" Content="📁" Command="{Binding BrowseSourceCommand}" Width="50" Height="45" CornerRadius="0,10,10,0"/>
+			</Grid>
+
+			<Grid ColumnDefinitions="*, Auto">
+				<TextBox Text="{Binding DestinationPath}" Watermark="{Binding TargetWatermark}" Height="45" CornerRadius="10,0,0,10"/>
+				<Button Grid.Column="1" Content="📁" Command="{Binding BrowseDestinationCommand}" Width="50" Height="45" CornerRadius="0,10,10,0"/>
+			</Grid>
+
+			<Grid ColumnDefinitions="*, *">
+				<Button Grid.Column="0" Content="{Binding CancelText}" Command="{Binding CancelCommand}" Background="#e74c3c" Width="150" Height="50" CornerRadius="25" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+				<Button Grid.Column="1" Content="{Binding ValidateText}" Command="{Binding SaveCommand}" Background="#1E88E5" Foreground="White" Width="150" Height="50" CornerRadius="25" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+			</Grid>
+		</StackPanel>
+	</Grid>
+</UserControl>
