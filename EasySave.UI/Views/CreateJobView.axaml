@@ -4,37 +4,90 @@
              x:Class="EasySave.GUI.Views.CreateJobView"
              x:DataType="vm:CreateJobViewModel">
 
-	<Grid>
+	<Grid RowDefinitions="Auto, *">
 		<Grid.Background>
-			<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-				<GradientStop Color="#1a2a44" Offset="0.0" />
-				<GradientStop Color="#2c1a45" Offset="1.0" />
-			</LinearGradientBrush>
+			<RadialGradientBrush Center="50%,50%" GradientOrigin="50%,50%" Radius="0.8">
+				<GradientStop Color="#1e1e2d" Offset="0" />
+				<GradientStop Color="#14141b" Offset="1" />
+			</RadialGradientBrush>
 		</Grid.Background>
 
-		<Border IsVisible="{Binding IsSuccessMessageVisible}" Background="#27ae60" CornerRadius="10" Padding="15" VerticalAlignment="Top" Margin="0,20,0,0" ZIndex="100">
-			<TextBlock Text="{Binding SuccessText}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center"/>
+		<Border Grid.Row="0" Padding="25" Background="#1Affffff" BorderBrush="#22ffffff" BorderThickness="0,0,0,1">
+			<StackPanel Orientation="Horizontal" Spacing="20">
+				<Button Command="{Binding BackCommand}" Background="Transparent" BorderThickness="0">
+					<Path Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
+                          Fill="#727cf5" Stretch="Uniform" Width="24" Height="24"/>
+				</Button>
+				<TextBlock Text="{Binding TitleText}" FontSize="26" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+			</StackPanel>
 		</Border>
 
-		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="420" Spacing="25">
-			<TextBlock Text="{Binding TitleText}" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+		<ScrollViewer Grid.Row="1" Padding="25">
+			<StackPanel Spacing="20">
 
-			<TextBox Text="{Binding JobName}" Watermark="{Binding PlaceholderName}" Height="45" CornerRadius="10"/>
+				<Border IsVisible="{Binding IsQuotaAlertVisible}"
+                        Background="#e74c3c" CornerRadius="10" Padding="15" BoxShadow="0 4 10 0 #40000000">
+					<Grid ColumnDefinitions="Auto, *">
+						<Path Data="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                              Fill="White" Width="18" Height="18" Stretch="Uniform" Margin="0,0,12,0"/>
+						<TextBlock Grid.Column="1" Text="{Binding QuotaMessage}"
+                                   Foreground="White" FontWeight="Bold" VerticalAlignment="Center" FontSize="13"/>
+					</Grid>
+				</Border>
 
-			<Grid ColumnDefinitions="*, Auto">
-				<TextBox Text="{Binding SourcePath}" Watermark="{Binding SourceWatermark}" Height="45" CornerRadius="10,0,0,10"/>
-				<Button Grid.Column="1" Content="📁" Command="{Binding BrowseSourceCommand}" Width="50" Height="45" CornerRadius="0,10,10,0"/>
-			</Grid>
+				<Border Background="#2a2a3d" CornerRadius="12" Padding="30" BoxShadow="0 8 20 0 #40000000">
+					<StackPanel Spacing="25">
 
-			<Grid ColumnDefinitions="*, Auto">
-				<TextBox Text="{Binding DestinationPath}" Watermark="{Binding TargetWatermark}" Height="45" CornerRadius="10,0,0,10"/>
-				<Button Grid.Column="1" Content="📁" Command="{Binding BrowseDestinationCommand}" Width="50" Height="45" CornerRadius="0,10,10,0"/>
-			</Grid>
+						<StackPanel Spacing="8">
+							<TextBlock Text="{Binding NameLabel}" Foreground="#888c9b" FontSize="14"/>
+							<TextBox Text="{Binding JobName}" Watermark="{Binding NameLabel}" Background="#14141b" CornerRadius="8" Height="45"/>
+						</StackPanel>
 
-			<Grid ColumnDefinitions="*, *">
-				<Button Grid.Column="0" Content="{Binding CancelText}" Command="{Binding CancelCommand}" Background="#e74c3c" Width="150" Height="50" CornerRadius="25" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-				<Button Grid.Column="1" Content="{Binding ValidateText}" Command="{Binding SaveCommand}" Background="#1E88E5" Foreground="White" Width="150" Height="50" CornerRadius="25" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-			</Grid>
-		</StackPanel>
+						<StackPanel Spacing="8">
+							<TextBlock Text="{Binding SourceWatermark}" Foreground="#888c9b" FontSize="14"/>
+							<Grid ColumnDefinitions="*, Auto">
+								<TextBox Text="{Binding SourcePath}" IsReadOnly="True" Background="#14141b" CornerRadius="8,0,0,8" Height="45"/>
+								<Button Grid.Column="1" Command="{Binding BrowseSourceCommand}" Content="📁" Width="50" Height="45" CornerRadius="0,8,8,0" Background="#3a3a4d"/>
+							</Grid>
+						</StackPanel>
+
+						<StackPanel Spacing="8">
+							<TextBlock Text="{Binding TargetWatermark}" Foreground="#888c9b" FontSize="14"/>
+							<Grid ColumnDefinitions="*, Auto">
+								<TextBox Text="{Binding DestinationPath}" IsReadOnly="True" Background="#14141b" CornerRadius="8,0,0,8" Height="45"/>
+								<Button Grid.Column="1" Command="{Binding BrowseDestinationCommand}" Content="📁" Width="50" Height="45" CornerRadius="0,8,8,0" Background="#3a3a4d"/>
+							</Grid>
+						</StackPanel>
+
+						<StackPanel Spacing="10">
+							<TextBlock Text="{Binding TypeLabel}" Foreground="#888c9b" FontSize="14"/>
+							<StackPanel Orientation="Horizontal" Spacing="40">
+								<RadioButton Content="{Binding FullText}" Foreground="White" IsChecked="{Binding IsFullBackup}"/>
+								<RadioButton Content="{Binding DiffText}" Foreground="White" IsChecked="{Binding IsDifferentialBackup}"/>
+							</StackPanel>
+						</StackPanel>
+
+						<Grid ColumnDefinitions="*, *">
+							<Button Grid.Column="0" Content="{Binding CancelBtnText}" Command="{Binding CancelCommand}"
+                                    Background="Transparent" BorderBrush="#e74c3c" BorderThickness="1" Foreground="#e74c3c"
+                                    Height="50" CornerRadius="10" Margin="0,0,10,0"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+
+							<Button Grid.Column="1" Content="{Binding SaveBtnText}" Command="{Binding SaveCommand}"
+                                    IsEnabled="{Binding CanCreate}"
+                                    Background="#727cf5" Foreground="White" Height="50" CornerRadius="10"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+								<Button.Styles>
+									<Style Selector="Button:disabled /template/ ContentPresenter">
+										<Setter Property="Background" Value="#1Affffff"/>
+										<Setter Property="Opacity" Value="0.5"/>
+									</Style>
+								</Button.Styles>
+							</Button>
+						</Grid>
+					</StackPanel>
+				</Border>
+			</StackPanel>
+		</ScrollViewer>
 	</Grid>
 </UserControl>

@@ -5,6 +5,7 @@ namespace EasySave.GUI.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private ViewModelBase _currentPage;
+        internal readonly object BackupManager;
 
         public ViewModelBase CurrentPage
         {
@@ -24,7 +25,7 @@ namespace EasySave.GUI.ViewModels
 
         public void NavigateToDashboard()
         {
-            CurrentPage = new MainMenuViewModel(this);
+            CurrentPage = new DashboardViewModel(this);
         }
     }
 }

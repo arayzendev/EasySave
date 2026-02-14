@@ -2,52 +2,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
              x:Class="EasySave.GUI.Views.ListJobsView"
-             x:DataType="vm:ListJobsViewModel"
-             Name="RootList">
-
-    <Grid>
+             x:DataType="vm:ListJobsViewModel" Name="Root">
+    <Grid RowDefinitions="Auto, Auto, *">
         <Grid.Background>
-            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#1a2a44" Offset="0.0" />
-                <GradientStop Color="#2c1a45" Offset="1.0" />
-            </LinearGradientBrush>
+            <RadialGradientBrush Center="50%,50%" Radius="0.8">
+                <GradientStop Color="#1e1e2d" Offset="0" />
+                <GradientStop Color="#14141b" Offset="1" />
+            </RadialGradientBrush>
         </Grid.Background>
 
-        <DockPanel Margin="30">
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="20" Margin="0,0,0,30">
-                <Button Command="{Binding BackCommand}" Content="←" Background="Transparent" Foreground="White" FontSize="20"/>
-                <TextBlock Text="{Binding TitleText}" FontSize="32" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-            </StackPanel>
+        <Border Grid.Row="0" IsVisible="{Binding IsNotifyVisible}" Background="{Binding NotifyColor}" Height="40">
+            <TextBlock Text="{Binding NotifyMsg}" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+        </Border>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Jobs}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="#22ffffff" CornerRadius="12" Margin="0,0,0,15" Padding="20" BorderBrush="#33ffffff" BorderThickness="1">
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <StackPanel Grid.Column="0" Spacing="8">
-                                        <TextBlock Text="{Binding name}" FontSize="20" FontWeight="Bold" Foreground="White"/>
-                                        
-                                        <StackPanel Orientation="Horizontal" Spacing="5">
-                                            <TextBlock Text="{Binding #RootList.((vm:ListJobsViewModel)DataContext).SourceLabel}" Foreground="#1E88E5" FontSize="12" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding sourcePath}" Foreground="#AAA" FontSize="12"/>
+        <Border Grid.Row="1" Padding="20" Background="#1Affffff" BorderBrush="#22ffffff" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="20">
+                <Button Command="{Binding BackCommand}" Background="Transparent">
+                    <Path Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" Fill="#727cf5" Width="20" Height="20" Stretch="Uniform"/>
+                </Button>
+                <TextBlock Text="{Binding TitleText}" FontSize="22" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" Padding="20">
+            <ItemsControl ItemsSource="{Binding Jobs}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#2a2a3d" Margin="0,0,0,15" CornerRadius="12" Padding="20" BoxShadow="0 4 10 0 #40000000">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="{Binding name}" Foreground="White" FontSize="20" FontWeight="Bold"/>
+
+                                    <StackPanel Spacing="5">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="📁 Source :" Foreground="#888c9b" FontSize="12" Width="80"/>
+                                            <TextBlock Text="{Binding sourcePath}" Foreground="#bdc3c7" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
-                                        
-                                        <StackPanel Orientation="Horizontal" Spacing="5">
-                                            <TextBlock Text="{Binding #RootList.((vm:ListJobsViewModel)DataContext).TargetLabel}" Foreground="#1E88E5" FontSize="12" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding targetPath}" Foreground="#AAA" FontSize="12"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="📍 Dest :" Foreground="#888c9b" FontSize="12" Width="80"/>
+                                            <TextBlock Text="{Binding targetPath}" Foreground="#bdc3c7" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <Border Grid.Column="1" Background="#1a2a44" CornerRadius="8" Padding="10,5" VerticalAlignment="Top">
-                                        <TextBlock Text="{Binding strategyType}" Foreground="White" FontSize="10" FontWeight="Bold"/>
-                                    </Border>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </DockPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                                        <Button Command="{Binding #Root.((vm:ListJobsViewModel)DataContext).EditJobCommand}" 
+                                                CommandParameter="{Binding}" 
+                                                Content="Modifier" Background="#3a3a4d" Foreground="White" Padding="15,5" CornerRadius="6"/>
+                                        
+                                        <Button Command="{Binding #Root.((vm:ListJobsViewModel)DataContext).DeleteJobCommand}" 
+                                                CommandParameter="{Binding}" 
+                                                Content="Supprimer" BorderBrush="#e74c3c" Foreground="#e74c3c" Background="Transparent" BorderThickness="1" Padding="15,5" CornerRadius="6"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Border Grid.Column="1" Padding="10,5" Background="#14141b" BorderBrush="#727cf5" BorderThickness="1" CornerRadius="6" VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding strategyType}" Foreground="#727cf5" FontSize="11" FontWeight="Bold"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

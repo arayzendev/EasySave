@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
+             x:Class="EasySave.GUI.Views.DashboardView"
+             x:DataType="vm:DashboardViewModel"
+             Name="Root">
+
+    <Grid RowDefinitions="Auto, *">
+        <Grid.Background>
+            <RadialGradientBrush Center="50%,50%" Radius="0.8">
+                <GradientStop Color="#1e1e2d" Offset="0" />
+                <GradientStop Color="#14141b" Offset="1" />
+            </RadialGradientBrush>
+        </Grid.Background>
+
+        <Border Grid.Row="0" Padding="40,30" Background="#1Affffff" BorderBrush="#22ffffff" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*, Auto">
+                <StackPanel Orientation="Horizontal" Spacing="25">
+                    <TextBlock Text="{Binding TitleText}" FontSize="26" FontWeight="Black" Foreground="White" VerticalAlignment="Center"/>
+                    <Button Command="{Binding CreateCommand}" Background="#727cf5" Foreground="White" CornerRadius="10" Padding="20,10">
+                        <TextBlock Text="{Binding CreateBtnText}" FontWeight="Bold"/>
+                    </Button>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding ExecuteAllCommand}" Background="#27ae60" Foreground="White" CornerRadius="10" Padding="25,10">
+                    <TextBlock Text="{Binding ExecuteAllBtnText}" FontWeight="Bold"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding Jobs}" Margin="40,25">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#2a2a3d" Margin="0,0,0,30" CornerRadius="20" Padding="35" BoxShadow="0 12 30 0 #50000000">
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+                                
+                                <Button Grid.Column="0" 
+                                        Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PlayPauseCommand}" 
+                                        CommandParameter="{Binding}"
+                                        Width="85" Height="85" CornerRadius="42" Background="#27ae60" 
+                                        VerticalAlignment="Center" Margin="0,0,40,0" Padding="0">
+                                    <Viewbox Width="30" Height="30">
+                                        <Path Data="M8,5.14V19.14L19,12.14L8,5.14Z" Fill="White" Stretch="Uniform"/>
+                                    </Viewbox>
+                                </Button>
+
+                                <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center" Margin="0,0,30,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="15">
+                                        <TextBlock Text="{Binding name}" Foreground="White" FontSize="22" FontWeight="Heavy" 
+                                                   MaxWidth="400" TextTrimming="CharacterEllipsis"/>
+                                        <Border Padding="10,4" Background="#14141b" CornerRadius="6">
+                                            <TextBlock Text="{Binding strategyType}" Foreground="#727cf5" FontSize="11" FontWeight="Bold"/>
+                                        </Border>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Spacing="10">
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Path Data="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" Fill="#727cf5" Width="18" Stretch="Uniform"/>
+                                            <TextBlock Text="{Binding sourcePath}" Foreground="#888c9b" FontSize="13" MaxWidth="450" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Path Data="M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2Z" Fill="#27ae60" Width="18" Stretch="Uniform"/>
+                                            <TextBlock Text="{Binding targetPath}" Foreground="#888c9b" FontSize="13" MaxWidth="450" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Spacing="8" Margin="0,15,0,0">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <TextBlock Text="Progression" Foreground="#55596a" FontSize="11" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding backupProgress.Progress, StringFormat={}{0:0}%}" Foreground="White" FontSize="14" FontWeight="Black"/>
+                                        </Grid>
+                                        <ProgressBar Value="{Binding backupProgress.Progress}" Height="10" CornerRadius="5" Foreground="#727cf5" Background="#14141b"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="20" MinWidth="160">
+                                    <Border Padding="15,8" Background="#1A27ae60" BorderBrush="#27ae60" BorderThickness="1" CornerRadius="20">
+                                        <TextBlock Text="{Binding backupProgress.State}" 
+                                                   Foreground="#27ae60" FontSize="11" FontWeight="Black" HorizontalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Spacing="10">
+                                        <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).EditJobCommand}" CommandParameter="{Binding}" 
+                                                Background="#3498db" Foreground="White" CornerRadius="8" HorizontalContentAlignment="Center">
+                                            <TextBlock Text="{Binding #Root.((vm:DashboardViewModel)DataContext).EditBtnText}" FontWeight="Bold" Padding="5"/>
+                                        </Button>
+                                        <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).DeleteJobCommand}" CommandParameter="{Binding}" 
+                                                Background="#e74c3c" Foreground="White" CornerRadius="8" HorizontalContentAlignment="Center">
+                                            <TextBlock Text="{Binding #Root.((vm:DashboardViewModel)DataContext).DeleteBtnText}" FontWeight="Bold" Padding="5"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

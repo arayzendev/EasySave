@@ -1,7 +1,9 @@
-﻿using EasySave.Core.Managers;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
+using EasySave.Core.Managers;
+using EasySave.Core.Models;
 using EasySave.GUI.Commands;
-using System;
 
 namespace EasySave.GUI.ViewModels
 {
@@ -35,7 +37,7 @@ namespace EasySave.GUI.ViewModels
 
             CreateCommand = new RelayCommand(() =>
             {
-                _navigation.CurrentPage = new CreateJobViewModel(_navigation);
+                _navigation.CurrentPage = new JobEditorViewModel(_navigation);
             });
 
             //Navigation vers ListJob
@@ -44,11 +46,15 @@ namespace EasySave.GUI.ViewModels
                 _navigation.CurrentPage = new ListJobsViewModel(_navigation);
             });
 
-            ModifyCommand = new RelayCommand(() => System.Diagnostics.Debug.WriteLine("Aller vers Modifier"));
+            ModifyCommand = new RelayCommand(() =>
+            {
+                _navigation.CurrentPage = new JobEditorViewModel(_navigation);
+            });
             DeleteCommand = new RelayCommand(() => System.Diagnostics.Debug.WriteLine("Aller vers Supprimer"));
 
             //Navigation vers ExecuteJob
-            ExecuteCommand = new RelayCommand(() =>
+            
+            ListCommand = new RelayCommand(() =>
             {
                 _navigation.CurrentPage = new ExecuteJobsViewModel(_navigation);
             });

@@ -19,24 +19,37 @@ namespace EasySave.GUI.ViewModels
         private string _jobName;
         private string _sourcePath;
         private string _destinationPath;
+        private bool _isFullBackup = true;
+        private bool _isDifferentialBackup;
+        private bool _canCreate = true;
+        private bool _isQuotaAlertVisible;
         private bool _isSuccessMessageVisible;
 
-        
+        // --- Traductions (LanguageManager) ---
         public string TitleText => _lang.GetText("Menu_Create");
-        public string SuccessText => _lang.GetText("Msg_Succes");
-        public string PlaceholderName => _lang.GetText("Saisie_Nom");
+        public string NameLabel => _lang.GetText("Saisie_Nom");
         public string SourceWatermark => _lang.GetText("Saisie_Source");
         public string TargetWatermark => _lang.GetText("Saisie_Dest");
-        public string CancelText => _lang.GetText("Btn_Cancel"); 
-        public string ValidateText => _lang.GetText("Btn_Validate"); 
+        public string TypeLabel => _lang.GetText("Saisie_Type") ?? "Stratégie :";
+        public string FullText => _lang.GetText("Type_Full") ?? "Complète";
+        public string DiffText => _lang.GetText("Type_Diff") ?? "Différentielle";
+        public string SaveBtnText => _lang.GetText("Btn_Validate");
+        public string CancelBtnText => _lang.GetText("Btn_Cancel");
+        public string QuotaMessage => _lang.GetText("Msg_QuotaFull") ?? "Limite de 5 travaux atteinte.";
 
+        // --- Propriétés Formulaire ---
         public string JobName { get => _jobName; set { _jobName = value; OnPropertyChanged(); } }
         public string SourcePath { get => _sourcePath; set { _sourcePath = value; OnPropertyChanged(); } }
         public string DestinationPath { get => _destinationPath; set { _destinationPath = value; OnPropertyChanged(); } }
-        public bool IsSuccessMessageVisible { get => _isSuccessMessageVisible; set { _isSuccessMessageVisible = value; OnPropertyChanged(); } }
+        public bool IsFullBackup { get => _isFullBackup; set { _isFullBackup = value; OnPropertyChanged(); } }
+        public bool IsDifferentialBackup { get => _isDifferentialBackup; set { _isDifferentialBackup = value; OnPropertyChanged(); } }
+        public bool CanCreate { get => _canCreate; set { _canCreate = value; OnPropertyChanged(); } }
+        public bool IsQuotaAlertVisible { get => _isQuotaAlertVisible; set { _isQuotaAlertVisible = value; OnPropertyChanged(); } }
 
+        // --- Commandes ---
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
+        public ICommand BackCommand { get; }
         public ICommand BrowseSourceCommand { get; }
         public ICommand BrowseDestinationCommand { get; }
 
@@ -45,12 +58,28 @@ namespace EasySave.GUI.ViewModels
             _navigation = navigation;
             _backupManager = new BackupManager();
 
-            CancelCommand = new RelayCommand(() => _navigation.CurrentPage = new MainMenuViewModel(_navigation));
+            // Vérification du Quota 5 dès le début
+            var jobs = _backupManager.ListJobs();
+            if (jobs != null && jobs.Count >= 5)
+            {
+                CanCreate = false;
+                IsQuotaAlertVisible = true;
+            }
+
+            BackCommand = new RelayCommand(() => _navigation.CurrentPage = new MainMenuViewModel(_navigation));
+
+            CancelCommand = new RelayCommand(() => {
+                JobName = string.Empty;
+                SourcePath = string.Empty;
+                DestinationPath = string.Empty;
+                IsFullBackup = true;
+                IsDifferentialBackup = false;
+            });
 
             SaveCommand = new RelayCommand(async () => {
-                _backupManager.CreateJob(JobName, SourcePath, DestinationPath, "full");
-                IsSuccessMessageVisible = true;
-                await Task.Delay(1500);
+                if (!CanCreate) return;
+                string strategy = IsFullBackup ? "full" : "differential";
+                _backupManager.CreateJob(JobName, SourcePath, DestinationPath, strategy);
                 _navigation.CurrentPage = new MainMenuViewModel(_navigation);
             });
 

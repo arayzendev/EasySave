@@ -59,7 +59,7 @@ namespace EasySave.GUI.ViewModels
             // On initialise la commande
             StartCommand = new RelayCommand(() =>
             {
-                _navigation.CurrentPage = new MainMenuViewModel(_navigation);
+                _navigation.CurrentPage = new DashboardViewModel(_navigation);
             });
 
             // Langue par défaut

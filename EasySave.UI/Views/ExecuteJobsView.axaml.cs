@@ -29,6 +29,6 @@ namespace EasySave.GUI.Views
                 foreach (var item in e.RemovedItems.Cast<BackupJob>())
                     vm.SelectedJobs.Remove(item);
             }
-        }
+}
     }
 }
