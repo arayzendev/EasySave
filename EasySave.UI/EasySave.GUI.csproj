@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -34,5 +34,11 @@
   <ItemGroup>
     <ProjectReference Include="..\EasySave.Core\EasySave.Core.csproj" />
     <ProjectReference Include="..\EasySave\EasySave.Core.csproj" />
+    <ProjectReference Include="..\CryptoSoft\CryptoSoft.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ProjectReference>
   </ItemGroup>
+
 </Project>

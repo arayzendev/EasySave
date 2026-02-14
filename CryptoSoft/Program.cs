@@ -1,15 +1,19 @@
-﻿namespace CryptoSoft;
+namespace CryptoSoft;
 
 public static class Program
 {
+    private static Mutex? mutex = null;
+
     public static void Main(string[] args)
     {
+        mutex = new Mutex(true, out bool createdNew);
+        if (!createdNew)
+        {
+            Environment.Exit(-99);
+        }
+
         try
         {
-            foreach (var arg in args)
-            {
-                Console.WriteLine(arg);
-            }
 
             var fileManager = new FileManager(args[0], args[1]);
             int ElapsedTime = fileManager.TransformFile();
@@ -19,6 +23,11 @@ public static class Program
         {
             Console.WriteLine(e.Message);
             Environment.Exit(-99);
+        }
+        finally
+        {
+            mutex?.ReleaseMutex();
+            mutex?.Dispose();
         }
     }
 }

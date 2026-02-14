@@ -193,7 +193,7 @@ namespace EasySave.Core.Managers
         /// Choix du travailleur ï¿½ executer
         /// </summary>
         /// <param name="index"></param>
-        public void ExecuteJob(int index)
+        public void ExecuteJob(int index, string encryptionKey = null)
         {
             var stopwatch = Stopwatch.StartNew();
             // Vérification du logiciel métier
@@ -213,7 +213,7 @@ namespace EasySave.Core.Managers
                 });
                 throw new Exception(message);
             }
-            config.backupJobs[index].Execute(OnProgressUpdate, logger);
+            config.backupJobs[index].Execute(OnProgressUpdate, logger, encryptionKey);
             stopwatch.Stop();
 
             //Ecrit les logs 
