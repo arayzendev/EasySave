@@ -37,13 +37,13 @@ namespace EasySave.Core.Strategies
 
                     //Sauvegarde ce qui est nouveau
                     List<string> files = new List<string>();
-                    Parallel.ForEach(allFiles, options, file =>
+                    foreach(string file in allFiles)
                     {
                         string rel = Path.GetRelativePath(sourcePath, file);
                         string dest = Path.Combine(targetPath, rel);
                         if (!File.Exists(dest) || File.GetLastWriteTime(file) > File.GetLastWriteTime(dest))
                             files.Add(file);
-                    });
+                    }
 
                     //Met à jour le model backupProgress
                     backupProgress.TotalFiles = files.Count;
@@ -63,7 +63,7 @@ namespace EasySave.Core.Strategies
                     long copiedSize = 0;
 
                     //Boucle qui ajoute les fichiers du chemin source aux chemin cible
-                    foreach (string file in files)
+                    Parallel.ForEach(files, options, file =>
                     {
                         string relativePath = Path.GetRelativePath(sourcePath, file);
                         var destPath = Path.Combine(targetPath, relativePath);
@@ -99,7 +99,7 @@ namespace EasySave.Core.Strategies
                                 { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
                             }
                         });
-                    }
+                    });
                 }
                 else
                 {
