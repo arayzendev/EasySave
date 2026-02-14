@@ -328,7 +328,7 @@ namespace EasySave
         /// <param name="backupManager"></param>
         static void ConfigureForbiddenSoftware(BackupManager backupManager)
         {
-            Console.WriteLine($"\n{LanguageManager.Instance.GetText("Prompt_ForbiddenSoftware")} ({backupManager.GetForbiddenSoftware()}): ");
+            Console.WriteLine($"\n{LanguageManager.Instance.GetText("Prompt_ForbiddenSoftware")}\nactuel : ({backupManager.GetForbiddenSoftware()}) ");
             string softwareName = Console.ReadLine();
 
             if (!string.IsNullOrWhiteSpace(softwareName))

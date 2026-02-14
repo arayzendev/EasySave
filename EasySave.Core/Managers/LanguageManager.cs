@@ -122,7 +122,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("List_Source", "Source: ");
                 _translations.Add("List_Target", "Destination: ");
                 _translations.Add("Prompt_JobNumber", "Job number: ");
-                _translations.Add("Prompt_ForbiddenSoftware", "Forbidden software name (e.g. Calculator), current : ");
+                _translations.Add("Prompt_ForbiddenSoftware", "Forbidden software name (e.g. Calculator), ");
                 _translations.Add("Msg_ForbiddenSoftwareBlocked", "Backup blocked - forbidden software running: ");
                 _translations.Add("Msg_ForbiddenSoftwareSet", "Forbidden software configured successfully.");
                 _translations.Add("Encryption_Key_Input","Enter encryption key (leave empty to skip): ");
