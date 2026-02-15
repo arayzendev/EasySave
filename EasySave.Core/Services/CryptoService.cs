@@ -75,8 +75,13 @@ namespace EasySave.Core.Services
                 }
 
                 using Process process = Process.Start(startInfo);
+                var stopwatch = Stopwatch.StartNew();
                 process.WaitForExit();
-                return process.ExitCode;
+                stopwatch.Stop();
+                
+                if (process.ExitCode == 0)
+                    return (int)stopwatch.ElapsedMilliseconds;
+                return -process.ExitCode;
             }
             catch
             {
