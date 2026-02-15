@@ -6,7 +6,7 @@ public static class Program
 
     public static void Main(string[] args)
     {
-        mutex = new Mutex(true, out bool createdNew);
+        mutex = new Mutex(true,"CryptoSoftInstance", out bool createdNew);
         if (!createdNew)
         {
             Environment.Exit(-99);
