@@ -81,7 +81,7 @@ namespace EasySave.Core.Services
                 
                 if (process.ExitCode == 0)
                     return (int)stopwatch.ElapsedMilliseconds;
-                return -process.ExitCode;
+                return -1;
             }
             catch
             {
