@@ -1,6 +1,7 @@
 using EasyLog;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
+using EasySave.Core.Services;
 
 namespace EasySave.Core.Strategies
 {
@@ -18,8 +19,9 @@ namespace EasySave.Core.Strategies
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
         /// <param name="logger"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger)
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null)
         {
+            CryptoService cryptoService = new CryptoService();
             try
             {
                 var options = new ParallelOptions
@@ -62,6 +64,13 @@ namespace EasySave.Core.Strategies
                         File.Copy(file, destPath, true);
                         stopwatch.Stop();
 
+                        // Cryptage si nécessaire
+                        int encryptionTime = 0;
+                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                        {
+                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                        }
+
                         // Mise à jour du backupProgress
                         long fileSize = new FileInfo(file).Length;
                         copiedFiles++;
@@ -84,7 +93,8 @@ namespace EasySave.Core.Strategies
                                 { "SourceFile", file },
                                 { "TargetFile", destPath },
                                 { "FileSize", fileSize },
-                                { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                                { "TransferTimeMs", stopwatch.ElapsedMilliseconds },
+                                { "EncryptionTimeMs", encryptionTime }
                             }
                         });
                     });

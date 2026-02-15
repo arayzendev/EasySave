@@ -209,8 +209,10 @@ namespace EasySave
             {
                 try
                 {
+                    Console.Write(LanguageManager.Instance.GetText("Encryption_Key_Input"));
+                    string encryptionKey = Console.ReadLine();
                     Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execution"));
-                    backupManager.ExecuteJob(index - 1);
+                    backupManager.ExecuteJob(index - 1, encryptionKey);
                     Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[index - 1].name}");
                 }
                 catch (Exception ex)
@@ -242,13 +244,15 @@ namespace EasySave
                 Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
                 return;
             }
+            Console.Write(LanguageManager.Instance.GetText("Encryption_Key_Input"));
+            string encryptionKey = Console.ReadLine();
 
             Parallel.For(0, jobs.Count, options, i =>
             {
                 try
                 {
                     Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execution")} {jobs[i].name}");
-                    backupManager.ExecuteJob(i);
+                    backupManager.ExecuteJob(i, encryptionKey);
                     Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[i].name}");
                 }
                 catch (Exception ex)
@@ -378,6 +382,9 @@ namespace EasySave
                     indices.Add(idx);
             }
 
+            Console.Write(LanguageManager.Instance.GetText("Encryption_Key_Input"));
+            string encryptionKey = Console.ReadLine();
+
             foreach (int i in indices)
             {
                 if (i >= 1 && i <= jobs.Count)
@@ -385,7 +392,7 @@ namespace EasySave
                     try
                     {
                         Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execution")} {jobs[i - 1].name}");
-                        backupManager.ExecuteJob(i - 1);
+                        backupManager.ExecuteJob(i - 1, encryptionKey);
                         Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[i - 1].name}");
                     }
                     catch (Exception ex)

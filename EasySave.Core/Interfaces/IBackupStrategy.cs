@@ -13,6 +13,6 @@ namespace EasySave.Core.Interfaces
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
         /// <param name="logger"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger);
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null);
     }
 }
