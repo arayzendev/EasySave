@@ -44,6 +44,19 @@
                              Foreground="White"/>
 			</StackPanel>
 
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="30">
+				<RadioButton Content="{Binding JsonLabel}"
+                             IsChecked="{Binding IsJsonSelected}"
+                             GroupName="Log"
+                             Foreground="White"/>
+				<RadioButton Content="{Binding XmlLabel}"
+                             IsChecked="{Binding IsXmlSelected}"
+                             GroupName="Log"
+                             Foreground="White"/>
+			</StackPanel>
+
 			<Button Content="{Binding StartButtonText}"
                     Command="{Binding StartCommand}"
                     Width="240"

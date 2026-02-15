@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,8 +80,8 @@ namespace EasySave.GUI.ViewModels
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             _refreshTimer.Tick += (s, e) =>
             {
-                // Force le rafraîchissement de la liste (Barre de progression et État)
-                OnPropertyChanged(nameof(Jobs));
+                // Recharge les jobs depuis le manager pour avoir les dernières valeurs de progression
+                Jobs = new ObservableCollection<BackupJob>(_backupManager.ListJobs());
 
                 // FORCE LE RAFRAÎCHISSEMENT DES TEXTES (Langue)
                 OnPropertyChanged(nameof(TitleText));

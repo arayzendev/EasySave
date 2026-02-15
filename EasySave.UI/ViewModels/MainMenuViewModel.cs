@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using EasySave.Core.Managers;
@@ -48,13 +48,15 @@ namespace EasySave.GUI.ViewModels
 
             ModifyCommand = new RelayCommand(() =>
             {
-                _navigation.CurrentPage = new JobEditorViewModel(_navigation);
+                _navigation.CurrentPage = new ListJobsViewModel(_navigation);
             });
-            DeleteCommand = new RelayCommand(() => System.Diagnostics.Debug.WriteLine("Aller vers Supprimer"));
+            DeleteCommand = new RelayCommand(() =>
+            {
+                _navigation.CurrentPage = new ListJobsViewModel(_navigation);
+            });
 
             //Navigation vers ExecuteJob
-            
-            ListCommand = new RelayCommand(() =>
+            ExecuteCommand = new RelayCommand(() =>
             {
                 _navigation.CurrentPage = new ExecuteJobsViewModel(_navigation);
             });

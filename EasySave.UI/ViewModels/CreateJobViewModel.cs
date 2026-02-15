@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -78,6 +78,10 @@ namespace EasySave.GUI.ViewModels
 
             SaveCommand = new RelayCommand(async () => {
                 if (!CanCreate) return;
+                if (string.IsNullOrWhiteSpace(JobName) || string.IsNullOrWhiteSpace(SourcePath) || string.IsNullOrWhiteSpace(DestinationPath))
+                {
+                    return;
+                }
                 string strategy = IsFullBackup ? "full" : "differential";
                 _backupManager.CreateJob(JobName, SourcePath, DestinationPath, strategy);
                 _navigation.CurrentPage = new MainMenuViewModel(_navigation);

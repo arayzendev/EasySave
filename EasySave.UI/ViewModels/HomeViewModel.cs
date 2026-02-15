@@ -1,4 +1,4 @@
-﻿using System.Windows.Input;
+using System.Windows.Input;
 using EasySave.Core.Managers;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
@@ -8,6 +8,7 @@ namespace EasySave.GUI.ViewModels
     {
         private readonly MainWindowViewModel _navigation;
         private readonly LanguageManager _lang;
+        private readonly BackupManager _backupManager;
 
         // Propriétés pour l'interface (Bindings)
 
@@ -15,6 +16,8 @@ namespace EasySave.GUI.ViewModels
         public string StartButtonText => _lang.GetText("Btn_Start");
         public string FrenchLabel => _lang.GetText("lang_FR");
         public string EnglishLabel => _lang.GetText("lang_EN");
+        public string JsonLabel => "JSON";
+        public string XmlLabel => "XML";
 
     
         public ICommand StartCommand { get; }
@@ -30,7 +33,7 @@ namespace EasySave.GUI.ViewModels
                     _isFrenchSelected = value;
                     if (value) _lang.SetLanguage("FR");
                     OnPropertyChanged();
-                    RefreshTexts(); // Force la mise à jour des labels
+                    RefreshTexts();
                 }
             }
         }
@@ -46,7 +49,37 @@ namespace EasySave.GUI.ViewModels
                     _isEnglishSelected = value;
                     if (value) _lang.SetLanguage("EN");
                     OnPropertyChanged();
-                    RefreshTexts(); // Force la mise à jour des labels
+                    RefreshTexts();
+                }
+            }
+        }
+
+        private bool _isJsonSelected = true;
+        public bool IsJsonSelected
+        {
+            get => _isJsonSelected;
+            set
+            {
+                if (_isJsonSelected != value)
+                {
+                    _isJsonSelected = value;
+                    if (value) _backupManager.SetLog("JSON");
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _isXmlSelected;
+        public bool IsXmlSelected
+        {
+            get => _isXmlSelected;
+            set
+            {
+                if (_isXmlSelected != value)
+                {
+                    _isXmlSelected = value;
+                    if (value) _backupManager.SetLog("XML");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -55,14 +88,13 @@ namespace EasySave.GUI.ViewModels
         {
             _navigation = navigation;
             _lang = LanguageManager.Instance;
+            _backupManager = new BackupManager();
 
-            // On initialise la commande
             StartCommand = new RelayCommand(() =>
             {
                 _navigation.CurrentPage = new DashboardViewModel(_navigation);
             });
 
-            // Langue par défaut
             _lang.SetLanguage("FR");
         }
 

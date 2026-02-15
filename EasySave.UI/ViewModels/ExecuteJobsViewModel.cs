@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -38,6 +38,10 @@ namespace EasySave.GUI.ViewModels
         public ExecuteJobsViewModel(MainWindowViewModel navigation)
         {
             _navigation = navigation;
+            _backupManager = new BackupManager();
+            Jobs = new ObservableCollection<BackupJob>(_backupManager.ListJobs());
+            BackCommand = new RelayCommand(() => _navigation.CurrentPage = new MainMenuViewModel(_navigation));
+            ExecuteAllCommand = new RelayCommand(async () => await RunBackups(Jobs.ToList()));
         }
 
         private async Task RunBackups(List<BackupJob> list)

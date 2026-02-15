@@ -1,6 +1,7 @@
 using EasyLog;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
+using EasySave.Core.Services;
 
 namespace EasySave.Core.Strategies
 {
@@ -18,10 +19,17 @@ namespace EasySave.Core.Strategies
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
         /// <param name="logger"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger)
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null)
         {
+            CryptoService cryptoService = new CryptoService();
             try
-            {   //Vérifie si un chemin source et cible existe
+            {
+                var options = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = 4 // maximum 4 threads en parallèle
+                };
+
+                //Vérifie si un chemin source et cible existe
                 if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
                 {
                     //Créer un dossier dans path et stocke les fichiers de la source
@@ -35,16 +43,18 @@ namespace EasySave.Core.Strategies
                     backupProgress.DateTime = DateTime.Now;
 
                     long totalSize = 0;
-                    foreach (var file in files)
+                    Parallel.ForEach(files, options, file =>
+                    {
                         totalSize += new FileInfo(file).Length;
-                    backupProgress.TotalSize = totalSize;
-                    backupProgress.RemainingSize = totalSize;
+                        backupProgress.TotalSize = totalSize;
+                        backupProgress.RemainingSize = totalSize;
+                    });
 
                     int copiedFiles = 0;
                     long copiedSize = 0;
 
                     //Boucle pour copier tous les fichiers vers le chemin cible
-                    foreach (string file in files)
+                    Parallel.ForEach(files, options, file =>
                     {
                         string relativePath = Path.GetRelativePath(sourcePath, file);
                         var destPath = Path.Combine(targetPath, relativePath);
@@ -53,6 +63,13 @@ namespace EasySave.Core.Strategies
                         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                         File.Copy(file, destPath, true);
                         stopwatch.Stop();
+
+                        // Cryptage si nécessaire
+                        int encryptionTime = 0;
+                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                        {
+                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                        }
 
                         // Mise à jour du backupProgress
                         long fileSize = new FileInfo(file).Length;
@@ -76,10 +93,11 @@ namespace EasySave.Core.Strategies
                                 { "SourceFile", file },
                                 { "TargetFile", destPath },
                                 { "FileSize", fileSize },
-                                { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                                { "TransferTimeMs", stopwatch.ElapsedMilliseconds },
+                                { "EncryptionTimeMs", encryptionTime }
                             }
                         });
-                    }
+                    });
                 }
                 else
                 {

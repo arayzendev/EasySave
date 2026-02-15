@@ -7,6 +7,7 @@ namespace EasySave.Core.Managers
     {
         //Attributs chemin d'accès
         private string filePath;
+        private static readonly object stateFileLock = new object();
 
         /// <summary>
         /// Créer le fichier de l'état
@@ -30,7 +31,10 @@ namespace EasySave.Core.Managers
         /// <param name="backupJobs"></param>
         public void Write(List<BackupJob> backupJobs)
         {
-            File.WriteAllText(filePath, JsonSerializer.Serialize(backupJobs, new JsonSerializerOptions { WriteIndented = true, Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() } }));
+            lock (stateFileLock)
+            {
+                File.WriteAllText(filePath, JsonSerializer.Serialize(backupJobs, new JsonSerializerOptions { WriteIndented = true, Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() } }));
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using EasyLog.Models;
 using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
+using EasySave.Managers;
 using System.Diagnostics;
 
 namespace EasySave.Core.Managers
@@ -18,6 +19,7 @@ namespace EasySave.Core.Managers
         private ConfigManager configManager;
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
+        private ProcessMonitor processMonitor;
 
         /// <summary>
         /// Constructeur
@@ -27,6 +29,7 @@ namespace EasySave.Core.Managers
             configManager = new ConfigManager();
             stateManager = new StateManager();
             backupStrategyFactory = new BackupStrategyFactory();
+            processMonitor = new ProcessMonitor();
             config = configManager.Load();
             LanguageManager.Instance.SetLanguage(config.language.ToString());
             InitializeLogger();
@@ -79,11 +82,7 @@ namespace EasySave.Core.Managers
         /// <returns></returns>
         public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
         {
-            //Vï¿½rifie si on dï¿½passe pas les 5 travailleurs
-            if (config.backupJobs.Count >= 5)
-            {
-                return false;
-            }
+
             var stopwatch = Stopwatch.StartNew();
 
             //Crï¿½ation du travailleur
@@ -163,13 +162,58 @@ namespace EasySave.Core.Managers
         }
 
         /// <summary>
+        /// Configure le nom du logiciel métier
+        /// </summary>
+        /// <param name="softwareName"></param>
+        public void SetForbiddenSoftware(string softwareName)
+        {
+            config.forbiddenSoftwareName = softwareName;
+            configManager.Save(config);
+        }
+
+        /// <summary>
+        /// Recupere le nom du logiciel métier
+        /// </summary>
+        /// <returns></returns>
+        public string GetForbiddenSoftware()
+        {
+            return config.forbiddenSoftwareName;
+        }
+
+        /// <summary>
+        /// Verifie si le logiciel métier est en cours d'execution
+        /// </summary>
+        /// <returns></returns>
+        public bool IsForbiddenSoftwareRunning()
+        {
+            return processMonitor.IsRunning(config.forbiddenSoftwareName);
+        }
+
+        /// <summary>
         /// Choix du travailleur ï¿½ executer
         /// </summary>
         /// <param name="index"></param>
-        public void ExecuteJob(int index)
+        public void ExecuteJob(int index, string encryptionKey = null)
         {
             var stopwatch = Stopwatch.StartNew();
-            config.backupJobs[index].Execute(OnProgressUpdate, logger);
+            // Vérification du logiciel métier
+            if (IsForbiddenSoftwareRunning())
+            {
+                string message = $"{LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareBlocked")}{config.forbiddenSoftwareName}";
+                logger.Write(new EasyLog.LogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Application = config.backupJobs[index].name,
+                    data = new Dictionary<string, object>
+                    {
+                        { "Status", "Blocked" },
+                        { "Reason", "Forbidden software running" },
+                        { "SoftwareName", config.forbiddenSoftwareName }
+                    }
+                });
+                throw new Exception(message);
+            }
+            config.backupJobs[index].Execute(OnProgressUpdate, logger, encryptionKey);
             stopwatch.Stop();
 
             //Ecrit les logs 

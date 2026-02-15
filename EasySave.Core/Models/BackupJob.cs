@@ -16,7 +16,7 @@ namespace EasySave.Core.Models
         public BackupProgress backupProgress { get; set; }
 
         /// <summary>
-        /// Constructeur par défaut
+        /// Constructeur par dï¿½faut
         /// </summary>
         public BackupJob()
         {
@@ -24,7 +24,7 @@ namespace EasySave.Core.Models
             backupProgress = new BackupProgress();
         }
         /// <summary>
-        /// Constructeur paramétré
+        /// Constructeur paramï¿½trï¿½
         /// </summary>
         /// <param name="name"></param>
         /// <param name="sourcePath"></param>
@@ -45,14 +45,14 @@ namespace EasySave.Core.Models
         /// Execution d'une strategie de sauvegarde
         /// </summary>
         /// <param name="onProgressUpdate"></param>
-        public void Execute(Action onProgressUpdate, EasyLog.Logger logger)
+        public void Execute(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
         {
-            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger);
+            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
 
         }
 
         /// <summary>
-        /// Mise à jour des chemins
+        /// Mise ï¿½ jour des chemins
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="targetPath"></param>

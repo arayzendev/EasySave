@@ -1,9 +1,4 @@
-using System;
-using System.IO;
 using EasySave.Core.Managers;
-
-
-
 
 namespace EasySave
 {
@@ -68,6 +63,7 @@ namespace EasySave
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_ExecuteAll"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Modify"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Delete"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Menu_ForbiddenSoftware"));
                 Console.WriteLine(LanguageManager.Instance.GetText("Menu_Quit"));
                 Console.Write(LanguageManager.Instance.GetText("Menu_Choice"));
 
@@ -94,6 +90,9 @@ namespace EasySave
                         DeleteJob(backupManager);
                         break;
                     case "7":
+                        ConfigureForbiddenSoftware(backupManager);
+                        break;
+                    case "8":
                         running = false;
                         break;
                     default:
@@ -161,7 +160,7 @@ namespace EasySave
             }
             else
             {
-                Console.WriteLine(LanguageManager.Instance.GetText("Err_Quota"));
+                Console.WriteLine(LanguageManager.Instance.GetText("Err_Create"));
             }
         }
 
@@ -210,8 +209,10 @@ namespace EasySave
             {
                 try
                 {
+                    Console.Write(LanguageManager.Instance.GetText("Encryption_Key_Input"));
+                    string encryptionKey = Console.ReadLine();
                     Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execution"));
-                    backupManager.ExecuteJob(index - 1);
+                    backupManager.ExecuteJob(index - 1, encryptionKey);
                     Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[index - 1].name}");
                 }
                 catch (Exception ex)
@@ -233,26 +234,32 @@ namespace EasySave
         static void ExecuteAllJobs(BackupManager backupManager)
         {
             var jobs = backupManager.ListJobs();
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = 4
+            };
 
             if (jobs.Count == 0)
             {
                 Console.WriteLine(LanguageManager.Instance.GetText("Err_NoJobs"));
                 return;
             }
+            Console.Write(LanguageManager.Instance.GetText("Encryption_Key_Input"));
+            string encryptionKey = Console.ReadLine();
 
-            for (int i = 0; i < jobs.Count; i++)
+            Parallel.For(0, jobs.Count, options, i =>
             {
                 try
                 {
                     Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execution")} {jobs[i].name}");
-                    backupManager.ExecuteJob(i);
+                    backupManager.ExecuteJob(i, encryptionKey);
                     Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[i].name}");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(LanguageManager.Instance.GetText("Msg_Execute_Fail") + ex.Message);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -316,6 +323,22 @@ namespace EasySave
         }
 
         /// <summary>
+        /// Configure le logiciel métier
+        /// </summary>
+        /// <param name="backupManager"></param>
+        static void ConfigureForbiddenSoftware(BackupManager backupManager)
+        {
+            Console.WriteLine($"\n{LanguageManager.Instance.GetText("Prompt_ForbiddenSoftware")}\nactuel : ({backupManager.GetForbiddenSoftware()}) ");
+            string softwareName = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(softwareName))
+            {
+                backupManager.SetForbiddenSoftware(softwareName);
+                Console.WriteLine(LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareSet"));
+            }
+        }
+
+        /// <summary>
         /// Exucution CLI
         /// </summary>
         /// <param name="backupManager"></param>
@@ -359,6 +382,9 @@ namespace EasySave
                     indices.Add(idx);
             }
 
+            Console.Write(LanguageManager.Instance.GetText("Encryption_Key_Input"));
+            string encryptionKey = Console.ReadLine();
+
             foreach (int i in indices)
             {
                 if (i >= 1 && i <= jobs.Count)
@@ -366,7 +392,7 @@ namespace EasySave
                     try
                     {
                         Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execution")} {jobs[i - 1].name}");
-                        backupManager.ExecuteJob(i - 1);
+                        backupManager.ExecuteJob(i - 1, encryptionKey);
                         Console.WriteLine($"{LanguageManager.Instance.GetText("Msg_Execute_Succes")} : {jobs[i - 1].name}");
                     }
                     catch (Exception ex)
