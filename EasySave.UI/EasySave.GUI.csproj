@@ -33,17 +33,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EasySave.Core\EasySave.Core.csproj" />
+    <ProjectReference Include="..\EasySave\EasySave.Core.csproj" />
     <ProjectReference Include="..\CryptoSoft\CryptoSoft.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Views\ListJobsView.axaml.cs">
-      <DependentUpon>ListJobsView.axaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 
 </Project>
