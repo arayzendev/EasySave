@@ -200,7 +200,7 @@ namespace EasySave.Core.Managers
             if (IsForbiddenSoftwareRunning())
             {
                 string message = $"{LanguageManager.Instance.GetText("Msg_ForbiddenSoftwareBlocked")}{config.forbiddenSoftwareName}";
-                logger.Write(new EasyLog.LogEntry
+                logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     Application = config.backupJobs[index].name,
