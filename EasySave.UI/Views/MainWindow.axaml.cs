@@ -1,11 +1,12 @@
 using Avalonia.Controls;
 
-namespace EasySave.UI.Views;
-
-public partial class MainWindow : Window
+namespace EasySave.GUI.Views
 {
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
+        public MainWindow()
+        {
+            InitializeComponent(); 
+        }
     }
 }

@@ -4,8 +4,10 @@ namespace EasySave.Core.Models
     public enum BackupState
     {
         Active,
-        inactive,
+        Inactive,
         Ended,
-        Failed
+        Failed,
+        Paused,
+        Stopped
     }
 }
