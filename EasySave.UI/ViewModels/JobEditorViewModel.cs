@@ -50,7 +50,7 @@ namespace EasySave.GUI.ViewModels
         public JobEditorViewModel(MainWindowViewModel navigation, BackupJob job = null, int index = -1)
         {
             _navigation = navigation;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
             _index = index;
             _isModification = (job != null);
 

@@ -12,6 +12,8 @@ namespace EasySave.Core.Managers
 { 
     public class BackupManager
     {
+        private static BackupManager _instance = null;
+        private static readonly object _lock = new object();
 
         //Attributs paramï¿½tre des sauvegardes
         private Config config;
@@ -21,10 +23,25 @@ namespace EasySave.Core.Managers
         private Logger logger;
         private ProcessMonitor processMonitor;
 
+        public static BackupManager Instance
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new BackupManager();
+                    }
+                    return _instance;
+                }
+            }
+        }
+
         /// <summary>
-        /// Constructeur
+        /// Constructeur privé pour singleton
         /// </summary>
-        public BackupManager()
+        private BackupManager()
         {
             configManager = new ConfigManager();
             stateManager = new StateManager();

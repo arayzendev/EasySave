@@ -45,7 +45,7 @@ namespace EasySave.GUI.ViewModels
         public DashboardViewModel(MainWindowViewModel navigation)
         {
             _navigation = navigation;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
             Jobs = new ObservableCollection<BackupJob>(_backupManager.ListJobs());
 
             CreateCommand = new RelayCommand(() => _navigation.CurrentPage = new JobEditorViewModel(_navigation));
@@ -72,9 +72,16 @@ namespace EasySave.GUI.ViewModels
 
             PlayCommand = new RelayCommand<BackupJob>(async (job) => {
                 int index = Jobs.IndexOf(job);
-                if (index != -1 && job.backupProgress.State != BackupState.Active)
+                if (index != -1)
                 {
-                    await Task.Run(() => _backupManager.ExecuteJob(index));
+                    if (job.backupProgress.State == BackupState.Paused)
+                    {
+                        await Task.Run(() => _backupManager.ResumeJob(index));
+                    }
+                    else if (job.backupProgress.State != BackupState.Active)
+                    {
+                        await Task.Run(() => _backupManager.ExecuteJob(index));
+                    }
                 }
             });
 
@@ -98,8 +105,29 @@ namespace EasySave.GUI.ViewModels
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             _refreshTimer.Tick += (s, e) =>
             {
-                // Recharge les jobs depuis le manager pour avoir les dernières valeurs de progression
-                Jobs = new ObservableCollection<BackupJob>(_backupManager.ListJobs());
+                // Mise à jour des propriétés des jobs existants en place
+                var freshJobs = _backupManager.ListJobs();
+                for (int i = 0; i < freshJobs.Count && i < Jobs.Count; i++)
+                {
+                    var fresh = freshJobs[i];
+                    var job = Jobs[i];
+                    
+                    job.name = fresh.name;
+                    job.sourcePath = fresh.sourcePath;
+                    job.targetPath = fresh.targetPath;
+                    job.strategyType = fresh.strategyType;
+                    
+                    // Mise à jour des propriétés de backupProgress en place (pas de remplacement d'objet)
+                    job.backupProgress.State = fresh.backupProgress.State;
+                    job.backupProgress.Progress = fresh.backupProgress.Progress;
+                    job.backupProgress.TotalFiles = fresh.backupProgress.TotalFiles;
+                    job.backupProgress.TotalSize = fresh.backupProgress.TotalSize;
+                    job.backupProgress.FileSize = fresh.backupProgress.FileSize;
+                    job.backupProgress.TransferTime = fresh.backupProgress.TransferTime;
+                    job.backupProgress.RemainingFiles = fresh.backupProgress.RemainingFiles;
+                    job.backupProgress.RemainingSize = fresh.backupProgress.RemainingSize;
+                    job.backupProgress.DateTime = fresh.backupProgress.DateTime;
+                }
 
                 // FORCE LE RAFRAÎCHISSEMENT DES TEXTES (Langue)
                 OnPropertyChanged(nameof(TitleText));

@@ -102,7 +102,7 @@ namespace EasySave.GUI.ViewModels
         {
             _navigation = navigation;
             _lang = LanguageManager.Instance;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
 
             StartCommand = new RelayCommand(() =>
             {

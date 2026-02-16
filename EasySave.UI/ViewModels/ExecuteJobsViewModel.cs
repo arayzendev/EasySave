@@ -28,7 +28,7 @@ namespace EasySave.GUI.ViewModels
         public ExecuteJobsViewModel(MainWindowViewModel navigation, ObservableCollection<BackupJob> jobs)
         {
             _navigation = navigation;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
             Jobs = jobs;
 
             BackCommand = new RelayCommand(() => _navigation.CurrentPage = new MainMenuViewModel(_navigation));
@@ -38,7 +38,7 @@ namespace EasySave.GUI.ViewModels
         public ExecuteJobsViewModel(MainWindowViewModel navigation)
         {
             _navigation = navigation;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
             Jobs = new ObservableCollection<BackupJob>(_backupManager.ListJobs());
             BackCommand = new RelayCommand(() => _navigation.CurrentPage = new MainMenuViewModel(_navigation));
             ExecuteAllCommand = new RelayCommand(async () => await RunBackups(Jobs.ToList()));

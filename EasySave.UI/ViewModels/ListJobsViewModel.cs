@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
@@ -32,7 +32,7 @@ namespace EasySave.GUI.ViewModels
         public ListJobsViewModel(MainWindowViewModel navigation)
         {
             _navigation = navigation;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
             RefreshList();
 
             BackCommand = new RelayCommand(() => _navigation.CurrentPage = new MainMenuViewModel(_navigation));

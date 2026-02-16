@@ -59,7 +59,7 @@ namespace EasySave.GUI.ViewModels
         public CreateJobViewModel(MainWindowViewModel navigation)
         {
             _navigation = navigation;
-            _backupManager = new BackupManager();
+            _backupManager = BackupManager.Instance;
 
             // Vérification du Quota 5 dès le début
             var jobs = _backupManager.ListJobs();
