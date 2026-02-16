@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
+             x:Class="EasySave.GUI.Views.MainMenuView"
+             x:DataType="vm:MainMenuViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Button.MenuTile">
+            <Setter Property="Height" Value="100"/>
+            <Setter Property="Width" Value="300"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Background" Value="#33ffffff"/>
+            <Setter Property="BorderBrush" Value="#44ffffff"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        
+        <Style Selector="Button.MenuTile:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#55ffffff"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="TextBlock.Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#1a2a44" Offset="0.0" />
+                <GradientStop Color="#2c1a45" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+            
+            <Image Source="avares://EasySave.GUI/Assets/Easysave.png" 
+                   Width="100" 
+                   Height="100" 
+                   HorizontalAlignment="Center"/>
+
+            <TextBlock Text="{Binding Title}" 
+                       FontSize="32" 
+                       FontWeight="Bold" 
+                       Foreground="White" 
+                       HorizontalAlignment="Center" 
+                       Margin="0,0,0,20"/>
+
+            <UniformGrid Columns="2">
+                
+                <Button Classes="MenuTile" Command="{Binding CreateCommand}">
+                    <Grid ColumnDefinitions="60, *">
+                        <TextBlock Grid.Column="0" Text="➕" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding CreateText}" FontSize="16" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
+                    </Grid>
+                </Button>
+
+                <Button Classes="MenuTile" Command="{Binding ListCommand}">
+                    <Grid ColumnDefinitions="60, *">
+                        <TextBlock Grid.Column="0" Text="📋" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ListText}" FontSize="16" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
+                    </Grid>
+                </Button>
+
+                <Button Classes="MenuTile" Command="{Binding ModifyCommand}">
+                    <Grid ColumnDefinitions="60, *">
+                        <TextBlock Grid.Column="0" Text="✏️" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ModifyText}" FontSize="16" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
+                    </Grid>
+                </Button>
+
+                <Button Classes="MenuTile" Command="{Binding DeleteCommand}">
+                    <Grid ColumnDefinitions="60, *">
+                        <TextBlock Grid.Column="0" Text="🗑️" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding DeleteText}" FontSize="16" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
+                    </Grid>
+                </Button>
+
+                <Button Classes="MenuTile" Command="{Binding ExecuteCommand}" Background="#27ae60">
+                    <Grid ColumnDefinitions="60, *">
+                        <TextBlock Grid.Column="0" Text="▶️" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ExecuteText}" FontSize="16" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
+                    </Grid>
+                </Button>
+
+                <Button Classes="MenuTile" Command="{Binding QuitCommand}" Background="#c0392b">
+                    <Grid ColumnDefinitions="60, *">
+                        <TextBlock Grid.Column="0" Text="🚪" FontSize="26" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding QuitText}" FontSize="16" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
+                    </Grid>
+                </Button>
+
+            </UniformGrid>
+        </StackPanel>
+
+        <TextBlock Text="EasySave 2.0 ®" 
+                   VerticalAlignment="Bottom" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,0,0,20" 
+                   Foreground="White" 
+                   Opacity="0.5" 
+                   FontSize="12"/>
+    </Grid>
+</UserControl>

@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="EasyLog/EasyLog.csproj" Id="da2cce97-5fcf-4c55-91cb-e32b800b49e5" />
-    <Project Path="EasySave/EasySave.csproj" Id="66138140-d374-4f9c-a1be-1d79c4a8bfde" />
+    <Project Path="EasySave.CLI/EasySave.CLI.csproj" Id="67e2fb7f-4520-470a-9d4d-85685f2a126f" />
+    <Project Path="EasySave.Core/EasySave.Core.csproj" />
+    <Project Path="EasySave.UI/EasySave.GUI.csproj" />
   </Folder>
+  <Project Path="CryptoSoft/CryptoSoft.csproj" />
 </Solution>
