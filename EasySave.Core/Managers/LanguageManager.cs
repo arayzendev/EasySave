@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace EasySave.Core.Models
+namespace EasySave.Core.Managers
 {
     public class LanguageManager
     {
@@ -66,8 +63,10 @@ namespace EasySave.Core.Models
                 _translations.Add("Menu_List", "2. Lister les travaux");
                 _translations.Add("Menu_Execute", "3. Ex�cuter un travail");
                 _translations.Add("Menu_ExecuteAll", "4. Ex�cuter tous les travaux");
-                _translations.Add("Menu_Delete", "5. Supprimer un travail");
-                _translations.Add("Menu_Quit", "6. Quitter");
+                _translations.Add("Menu_Modify", "5. Modifier un travail");
+                _translations.Add("Menu_Delete", "6. Supprimer un travail");
+                _translations.Add("Menu_ForbiddenSoftware", "7. Configurer le logiciel metier");
+                _translations.Add("Menu_Quit", "8. Quitter");
                 _translations.Add("Menu_Choice", "Votre choix : ");
                 _translations.Add("Menu_Invalid", "Choix invalide.");
                 _translations.Add("Msg_Execute_Succes", "Sauvegarde termin�e avec succ�s");
@@ -86,7 +85,7 @@ namespace EasySave.Core.Models
                 _translations.Add("Prompt_ForbiddenSoftware", "Nom du logiciel metier (ex: Calculator), actuel : ");
                 _translations.Add("Msg_ForbiddenSoftwareBlocked", "Sauvegarde bloquee - logiciel metier en cours d'execution : ");
                 _translations.Add("Msg_ForbiddenSoftwareSet", "Logiciel metier configure avec succes.");
-                _translations.Add("Encryption_Key_Input","Entrer une clé de chiffremenr (optionnel) : ");
+                _translations.Add("Encryption_Key_Input", "Entrer une clé de chiffremenr (optionnel) : ");
             }
             else
             {
@@ -114,8 +113,10 @@ namespace EasySave.Core.Models
                 _translations.Add("Menu_List", "2. List backup jobs");
                 _translations.Add("Menu_Execute", "3. Execute a backup job");
                 _translations.Add("Menu_ExecuteAll", "4. Execute all backup jobs");
-                _translations.Add("Menu_Delete", "5. Delete a backup job");
-                _translations.Add("Menu_Quit", "6. Quit");
+                _translations.Add("Menu_Modify", "5. Modify a backup job");
+                _translations.Add("Menu_Delete", "6. Delete a backup job");
+                _translations.Add("Menu_ForbiddenSoftware", "7. Configure forbidden software");
+                _translations.Add("Menu_Quit", "8. Quit");
                 _translations.Add("Menu_Choice", "Your choice: ");
                 _translations.Add("Menu_Invalid", "Invalid choice.");
                 _translations.Add("Msg_Execute_Succes", "Backup completed successfully");
@@ -134,7 +135,7 @@ namespace EasySave.Core.Models
                 _translations.Add("Prompt_ForbiddenSoftware", "Forbidden software name (e.g. Calculator), ");
                 _translations.Add("Msg_ForbiddenSoftwareBlocked", "Backup blocked - forbidden software running: ");
                 _translations.Add("Msg_ForbiddenSoftwareSet", "Forbidden software configured successfully.");
-                _translations.Add("Encryption_Key_Input","Enter encryption key (leave empty to skip): ");
+                _translations.Add("Encryption_Key_Input", "Enter encryption key (leave empty to skip): ");
             }
         }
 
