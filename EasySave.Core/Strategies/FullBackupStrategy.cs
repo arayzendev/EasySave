@@ -27,6 +27,7 @@ namespace EasySave.Core.Strategies
             Directory.CreateDirectory(targetPath);
             string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
 
+            backupProgress.Progress = 0;
             backupProgress.TotalFiles = files.Length;
             backupProgress.RemainingFiles = files.Length;
             backupProgress.State = BackupState.Active;
@@ -83,6 +84,7 @@ namespace EasySave.Core.Strategies
 
                     lock (lockObj)
                     {
+                        backupProgress.Progress = 0;
                         copiedFiles++;
                         copiedSize += fileSize;
 
