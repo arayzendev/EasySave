@@ -1,0 +1,96 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
+             x:Class="EasySave.GUI.Views.HomeView"
+             x:DataType="vm:HomeViewModel">
+
+	<Grid>
+		<Grid.Background>
+			<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+				<GradientStop Color="#1a2a44" Offset="0.0" />
+				<GradientStop Color="#2c1a45" Offset="1.0" />
+			</LinearGradientBrush>
+		</Grid.Background>
+
+		<StackPanel VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Spacing="25">
+
+			<Border Background="White"
+                    CornerRadius="15"
+                    Padding="10"
+                    HorizontalAlignment="Center">
+				<Image Source="avares://EasySave.GUI/Assets/Easysave.png"
+                       Width="180"
+                       Height="180"/>
+			</Border>
+
+			<TextBlock Text="EASY SAVE"
+                       FontSize="40"
+                       FontWeight="ExtraBold"
+                       Foreground="White"
+                       HorizontalAlignment="Center"/>
+
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="30">
+				<RadioButton Content="{Binding FrenchLabel}"
+                             IsChecked="{Binding IsFrenchSelected}"
+                             GroupName="Lang"
+                             Foreground="White"/>
+				<RadioButton Content="{Binding EnglishLabel}"
+                             IsChecked="{Binding IsEnglishSelected}"
+                             GroupName="Lang"
+                             Foreground="White"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="30">
+				<RadioButton Content="{Binding JsonLabel}"
+                             IsChecked="{Binding IsJsonSelected}"
+                             GroupName="Log"
+                             Foreground="White"/>
+				<RadioButton Content="{Binding XmlLabel}"
+                             IsChecked="{Binding IsXmlSelected}"
+                             GroupName="Log"
+                             Foreground="White"/>
+			</StackPanel>
+
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="10">
+				<TextBox Text="{Binding ForbiddenSoftware}" 
+                         Watermark="{Binding SoftwareWatermark}" 
+                         Width="250" Height="40" 
+                         Background="#1Affffff" 
+                         Foreground="White"/>
+				<Button Content="✓" Command="{Binding SaveSoftwareCommand}" 
+                        Width="40" Height="40" 
+                        Background="#27ae60" Foreground="White"/>
+			</StackPanel>
+
+			<Button Content="{Binding StartButtonText}"
+                    Command="{Binding StartCommand}"
+                    Width="240"
+                    Height="55"
+                    Background="#2196F3"
+                    Foreground="White"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    CornerRadius="12"
+                    HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
+
+		</StackPanel>
+		<TextBlock Text="EasySave 2.0 ®"
+                   VerticalAlignment="Bottom"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,20"
+                   Foreground="White"
+                   FontSize="13"
+                   FontWeight="SemiLight"
+                   Opacity="0.5"/>
+	</Grid>
+</UserControl>

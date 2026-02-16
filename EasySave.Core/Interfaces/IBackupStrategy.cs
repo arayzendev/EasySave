@@ -1,5 +1,6 @@
 using EasyLog;
 using EasySave.Core.Models;
+using System.Threading;
 
 namespace EasySave.Core.Interfaces
 {
@@ -13,6 +14,8 @@ namespace EasySave.Core.Interfaces
         /// <param name="backupProgress"></param>
         /// <param name="OnProgressupdate"></param>
         /// <param name="logger"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null);
+        /// <param name="encryptionKey"></param>
+        /// <param name="cancellationToken"></param>
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null, CancellationToken cancellationToken = default);
     }
 }
