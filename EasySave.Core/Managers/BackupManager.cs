@@ -230,7 +230,9 @@ namespace EasySave.Core.Managers
                         { "SoftwareName", config.forbiddenSoftwareName }
                     }
                 });
-                throw new Exception(message);
+                config.backupJobs[index].backupProgress.State=BackupState.Failed;
+                OnProgressUpdate();
+                return;
             }
             // Use job's encryption key if not provided
             string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
