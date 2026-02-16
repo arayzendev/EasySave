@@ -12,6 +12,8 @@ namespace EasySave.Core.Managers
 { 
     public class BackupManager
     {
+        private static BackupManager _instance = null;
+        private static readonly object _lock = new object();
 
         //Attributs paramï¿½tre des sauvegardes
         private Config config;
@@ -21,10 +23,25 @@ namespace EasySave.Core.Managers
         private Logger logger;
         private ProcessMonitor processMonitor;
 
+        public static BackupManager Instance
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new BackupManager();
+                    }
+                    return _instance;
+                }
+            }
+        }
+
         /// <summary>
-        /// Constructeur
+        /// Constructeur privé pour singleton
         /// </summary>
-        public BackupManager()
+        private BackupManager()
         {
             configManager = new ConfigManager();
             stateManager = new StateManager();
@@ -80,14 +97,16 @@ namespace EasySave.Core.Managers
         /// <param name="targetPath"></param>
         /// <param name="backupStrategy"></param>
         /// <returns></returns>
-        public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
+        public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy, string encryptionKey = null)
         {
 
             var stopwatch = Stopwatch.StartNew();
 
             //Crï¿½ation du travailleur
             IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
-            config.backupJobs.Add(new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy));
+            var job = new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy);
+            job.encryptionKey = encryptionKey;
+            config.backupJobs.Add(job);
 
             //Sauvegarde de la configuration du travailleur
             configManager.Save(config);
@@ -213,7 +232,9 @@ namespace EasySave.Core.Managers
                 });
                 throw new Exception(message);
             }
-            config.backupJobs[index].Execute(OnProgressUpdate, logger, encryptionKey);
+            // Use job's encryption key if not provided
+            string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
+            config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
             stopwatch.Stop();
 
             //Ecrit les logs 
@@ -227,6 +248,31 @@ namespace EasySave.Core.Managers
                                     { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
                                 }
             });
+        }
+
+        public void PauseJob(int index)
+        {
+            if (index >= 0 && index < config.backupJobs.Count)
+            {
+                config.backupJobs[index].Pause();
+            }
+        }
+
+        public void ResumeJob(int index)
+        {
+            if (index >= 0 && index < config.backupJobs.Count)
+            {
+                string key = config.backupJobs[index].encryptionKey;
+                config.backupJobs[index].Resume(OnProgressUpdate, logger, key);
+            }
+        }
+
+        public void StopJob(int index)
+        {
+            if (index >= 0 && index < config.backupJobs.Count)
+            {
+                config.backupJobs[index].Stop();
+            }
         }
 
         /// <summary>

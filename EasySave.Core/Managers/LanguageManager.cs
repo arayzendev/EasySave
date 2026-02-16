@@ -40,6 +40,11 @@ namespace EasySave.Core.Managers
 
             if (CurrentLanguage == "FR")
             {
+                _translations.Add("lang_FR", "Français");
+                _translations.Add("lang_EN", "Anglais");
+                _translations.Add("Btn_Start", "Commencer");
+                _translations.Add("Btn_Cancel", "Annuler");
+                _translations.Add("Btn_Validate", "Valider");
                 _translations.Add("Menu_Titre", "--- Menu Principal ---");
                 _translations.Add("Travail_Numero", "Travail n�");
                 _translations.Add("Saisie_Nom", "Nom du travail : ");
@@ -84,6 +89,11 @@ namespace EasySave.Core.Managers
             }
             else
             {
+                _translations.Add("lang_EN", "English");
+                _translations.Add("lang_FR", "French");
+                _translations.Add("Btn_Start", "Start");
+                _translations.Add("Btn_Cancel", "Cancel");
+                _translations.Add("Btn_Validate", "Validate");
                 _translations.Add("Menu_Titre", "--- Main Menu ---");
                 _translations.Add("Travail_Numero", "Job n�");
                 _translations.Add("Saisie_Nom", "Job Name: ");

@@ -2,125 +2,138 @@ using EasyLog;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
+using System.Threading;
 
 namespace EasySave.Core.Strategies
 {
     internal class FullBackupStrategy : IBackupStrategy
     {
-        /// <summary>
-        /// Constructeur
-        /// </summary>
         public FullBackupStrategy() { }
-        /// <summary>
-        /// Sauvegarde complète
-        /// </summary>
-        /// <param name="sourcePath"></param>
-        /// <param name="targetPath"></param>
-        /// <param name="backupProgress"></param>
-        /// <param name="OnProgressupdate"></param>
-        /// <param name="logger"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null)
+
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null, CancellationToken cancellationToken = default)
         {
             CryptoService cryptoService = new CryptoService();
+
+            if (string.IsNullOrEmpty(sourcePath) || string.IsNullOrEmpty(targetPath))
+            {
+                throw new ArgumentException("Source or target path cannot be null or empty.");
+            }
+
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = 4
+            };
+
+            Directory.CreateDirectory(targetPath);
+            string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+
+            backupProgress.TotalFiles = files.Length;
+            backupProgress.RemainingFiles = files.Length;
+            backupProgress.State = BackupState.Active;
+            backupProgress.DateTime = DateTime.Now;
+
+            long totalSize = 0;
+            Parallel.ForEach(files, options, file =>
+            {
+                Interlocked.Add(ref totalSize, new FileInfo(file).Length);
+            });
+            backupProgress.TotalSize = totalSize;
+            backupProgress.RemainingSize = totalSize;
+
+            int copiedFiles = 0;
+            long copiedSize = 0;
+            object lockObj = new object();
+
             try
             {
-                var options = new ParallelOptions
+                Parallel.ForEach(files, options, (file, loopState) =>
                 {
-                    MaxDegreeOfParallelism = 3 // maximum 4 threads en parallèle
-                };
-
-                //Vérifie si un chemin source et cible existe
-                if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(targetPath))
-                {
-                    //Créer un dossier dans path et stocke les fichiers de la source
-                    Directory.CreateDirectory(targetPath);
-                    string[] files = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
-                    
-                    //Met à jour le progrès et l'état
-                    backupProgress.TotalFiles = files.Length;
-                    backupProgress.RemainingFiles = files.Length;
-                    backupProgress.State = BackupState.Active;
-                    backupProgress.DateTime = DateTime.Now;
-
-                    long totalSize = 0;
-                    Parallel.ForEach(files, options, file =>
+                    if (cancellationToken.IsCancellationRequested)
                     {
-                        totalSize += new FileInfo(file).Length;
-                        backupProgress.TotalSize = totalSize;
-                        backupProgress.RemainingSize = totalSize;
-                    });
+                        loopState.Stop();
+                        return;
+                    }
 
-                    int copiedFiles = 0;
-                    long copiedSize = 0;
-
-                    //Boucle pour copier tous les fichiers vers le chemin cible
-                    Parallel.ForEach(files, options, file =>
+                    while (backupProgress.State == BackupState.Paused && !cancellationToken.IsCancellationRequested)
                     {
-                        string relativePath = Path.GetRelativePath(sourcePath, file);
-                        var destPath = Path.Combine(targetPath, relativePath);
-                        Directory.CreateDirectory(Path.GetDirectoryName(destPath));
+                        Thread.Sleep(100);
+                    }
 
-                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                        File.Copy(file, destPath, true);
-                        stopwatch.Stop();
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        loopState.Stop();
+                        return;
+                    }
 
-                        // Cryptage si nécessaire
-                        int encryptionTime = 0;
-                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
-                        {
-                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
-                        }
+                    string relativePath = Path.GetRelativePath(sourcePath, file);
+                    var destPath = Path.Combine(targetPath, relativePath);
+                    Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
-                        // Mise à jour du backupProgress
-                        long fileSize = new FileInfo(file).Length;
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    File.Copy(file, destPath, true);
+                    stopwatch.Stop();
+
+                    int encryptionTime = 0;
+                    if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                    {
+                        encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                    }
+
+                    long fileSize = new FileInfo(file).Length;
+
+                    lock (lockObj)
+                    {
                         copiedFiles++;
                         copiedSize += fileSize;
 
                         backupProgress.FileSize = fileSize;
                         backupProgress.TransferTime = (float)stopwatch.ElapsedMilliseconds;
-                        backupProgress.Progress = (float)copiedSize / backupProgress.TotalSize * 100;
+                        backupProgress.Progress = totalSize > 0 ? (float)copiedSize / totalSize * 100 : 100;
                         backupProgress.RemainingFiles = backupProgress.TotalFiles - copiedFiles;
                         backupProgress.RemainingSize = backupProgress.TotalSize - copiedSize;
                         OnProgressupdate?.Invoke();
+                    }
 
-                        //Ecrit les logs 
-                        logger.Write(new LogEntry
+                    logger.Write(new LogEntry
+                    {
+                        Timestamp = DateTime.Now,
+                        Application = "EasySave",
+                        data = new Dictionary<string, object>
                         {
-                            Timestamp = DateTime.Now,
-                            Application = "EasySave",
-                            data = new Dictionary<string, object>
-                            {
-                                { "SourceFile", file },
-                                { "TargetFile", destPath },
-                                { "FileSize", fileSize },
-                                { "TransferTimeMs", stopwatch.ElapsedMilliseconds },
-                                { "EncryptionTimeMs", encryptionTime }
-                            }
-                        });
+                            { "SourceFile", file },
+                            { "TargetFile", destPath },
+                            { "FileSize", fileSize },
+                            { "TransferTimeMs", stopwatch.ElapsedMilliseconds },
+                            { "EncryptionTimeMs", encryptionTime }
+                        }
                     });
+                });
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    backupProgress.State = BackupState.Stopped;
                 }
                 else
                 {
-                    throw new ArgumentException("Source or target path cannot be null or empty.");
+                    backupProgress.State = BackupState.Ended;
+                    backupProgress.Progress = 100;
                 }
-                //Réussite de la sauvegarde
-                backupProgress.State = BackupState.Ended;
-                backupProgress.Progress = 100;
-                OnProgressupdate?.Invoke();
             }
             catch (Exception ex)
             {
-                //Log d'erreur
                 logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     Application = "EasySave",
                     data = new Dictionary<string, object>
-                            {
-                                { "Error FullBackup", ex.Message.ToString()},
-                            }
+                    {
+                        { "Error FullBackup", ex.Message.ToString() }
+                    }
                 });
+                backupProgress.State = BackupState.Stopped;
             }
+
+            OnProgressupdate?.Invoke();
         }
     }
 }
