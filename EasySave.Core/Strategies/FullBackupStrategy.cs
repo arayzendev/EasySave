@@ -26,7 +26,7 @@ namespace EasySave.Core.Strategies
             {
                 var options = new ParallelOptions
                 {
-                    MaxDegreeOfParallelism = 4 // maximum 4 threads en parallèle
+                    MaxDegreeOfParallelism = 3 // maximum 4 threads en parallèle
                 };
 
                 //Vérifie si un chemin source et cible existe
