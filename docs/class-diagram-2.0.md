@@ -175,19 +175,19 @@ classDiagram
         class ILogFormatter {
             <<interface>>
             +string Format(LogEntry entry)
-            +string FileExtension { get; }
+            +string FileExtension
         }
 
         class JsonFormatterStrategy {
             +JsonFormatterStrategy()
             +string Format(LogEntry entry)
-            +string FileExtension { get; }
+            +string FileExtension
         }
 
         class XmlFormatterStrategy {
             +XmlFormatterStrategy()
             +string Format(LogEntry entry)
-            +string FileExtension { get; }
+            +string FileExtension
         }
 
         class LogFormatterFactory {
