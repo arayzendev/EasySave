@@ -6,6 +6,7 @@ using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasySave.Managers;
+using EasySave.Core.Models;
 using System.Diagnostics;
 
 namespace EasySave.Core.Managers
@@ -41,7 +42,7 @@ namespace EasySave.Core.Managers
         /// <summary>
         /// Constructeur privé pour singleton
         /// </summary>
-        private BackupManager()
+        public BackupManager()
         {
             configManager = new ConfigManager();
             stateManager = new StateManager();

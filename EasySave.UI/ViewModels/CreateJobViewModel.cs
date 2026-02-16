@@ -7,6 +7,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using EasySave.Core.Managers;
 using EasySave.GUI.Commands;
+using EasySave.Core.Models;
 
 namespace EasySave.GUI.ViewModels
 {

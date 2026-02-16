@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using EasySave.GUI.Commands;
+using EasySave.Core.Models;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
 namespace EasySave.GUI.ViewModels

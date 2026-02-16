@@ -1,5 +1,6 @@
 ﻿using EasySave.CLI;
 using EasySave.Core.Managers;
+using EasySave.Core.Models;
 
 namespace EasySave.CLI
 {

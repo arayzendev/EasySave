@@ -1,5 +1,6 @@
 using System.Windows.Input;
 using EasySave.Core.Managers;
+using EasySave.Core.Models;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
 namespace EasySave.GUI.ViewModels
