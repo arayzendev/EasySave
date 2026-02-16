@@ -22,8 +22,8 @@
 			</StackPanel>
 		</Border>
 
-		<ScrollViewer Grid.Row="1" Padding="25">
-			<StackPanel Spacing="20">
+		<ScrollViewer Grid.Row="1" Padding="25" VerticalScrollBarVisibility="Auto">
+			<StackPanel Spacing="20" MinHeight="600">
 
 				<Border IsVisible="{Binding IsQuotaAlertVisible}"
                         Background="#e74c3c" CornerRadius="10" Padding="15" BoxShadow="0 4 10 0 #40000000">
@@ -57,6 +57,11 @@
 								<TextBox Text="{Binding DestinationPath}" IsReadOnly="True" Background="#14141b" CornerRadius="8,0,0,8" Height="45"/>
 								<Button Grid.Column="1" Command="{Binding BrowseDestinationCommand}" Content="📁" Width="50" Height="45" CornerRadius="0,8,8,0" Background="#3a3a4d"/>
 							</Grid>
+						</StackPanel>
+
+						<StackPanel Spacing="8">
+							<TextBlock Text="{Binding EncryptionLabel}" Foreground="#888c9b" FontSize="14"/>
+							<TextBox Text="{Binding EncryptionKey}" Watermark="Mot de passe (optionnel)" Background="#14141b" CornerRadius="8" Height="45"/>
 						</StackPanel>
 
 						<StackPanel Spacing="10">

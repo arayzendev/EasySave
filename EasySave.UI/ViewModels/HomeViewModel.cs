@@ -18,9 +18,23 @@ namespace EasySave.GUI.ViewModels
         public string EnglishLabel => _lang.GetText("lang_EN");
         public string JsonLabel => "JSON";
         public string XmlLabel => "XML";
+        public string SoftwareLabel => "Logiciel métier à bloquer :";
+        public string SoftwareWatermark => "ex: Calculator, chrome.exe...";
 
     
         public ICommand StartCommand { get; }
+        public ICommand SaveSoftwareCommand { get; }
+
+        private string _forbiddenSoftware;
+        public string ForbiddenSoftware
+        {
+            get => _forbiddenSoftware;
+            set
+            {
+                _forbiddenSoftware = value;
+                OnPropertyChanged();
+            }
+        }
 
         private bool _isFrenchSelected = true;
         public bool IsFrenchSelected
@@ -93,6 +107,14 @@ namespace EasySave.GUI.ViewModels
             StartCommand = new RelayCommand(() =>
             {
                 _navigation.CurrentPage = new DashboardViewModel(_navigation);
+            });
+
+            SaveSoftwareCommand = new RelayCommand(() =>
+            {
+                if (!string.IsNullOrWhiteSpace(ForbiddenSoftware))
+                {
+                    _backupManager.SetForbiddenSoftware(ForbiddenSoftware);
+                }
             });
 
             _lang.SetLanguage("FR");

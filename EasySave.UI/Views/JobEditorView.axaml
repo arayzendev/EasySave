@@ -25,8 +25,8 @@
             </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="2" Padding="25">
-            <StackPanel Spacing="20">
+        <ScrollViewer Grid.Row="2" Padding="25" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="20" MinHeight="600">
                 <Border IsVisible="{Binding IsQuotaAlertVisible}" Background="#e74c3c" CornerRadius="8" Padding="10">
                     <TextBlock Text="{Binding QuotaMessage}" Foreground="White" HorizontalAlignment="Center"/>
                 </Border>
@@ -41,6 +41,7 @@
                             <TextBox Text="{Binding DestinationPath}" Watermark="{Binding TargetWatermark}" Foreground="White" IsReadOnly="True" Background="#14141b"/>
                             <Button Grid.Column="1" Command="{Binding BrowseDestinationCommand}" Content="📁" Background="#3a3a4d"/>
                         </Grid>
+                        <TextBox Text="{Binding EncryptionKey}" Watermark="Mot de passe (optionnel)" Foreground="White" Background="#14141b"/>
                         <StackPanel Orientation="Horizontal" Spacing="30" IsVisible="{Binding IsCreationMode}">
                             <RadioButton Content="Full" Foreground="White" IsChecked="{Binding IsFullBackup}"/>
                             <RadioButton Content="Differential" Foreground="White" IsChecked="{Binding !IsFullBackup}"/>

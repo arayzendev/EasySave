@@ -19,6 +19,7 @@ namespace EasySave.GUI.ViewModels
         private string _jobName;
         private string _sourcePath;
         private string _destinationPath;
+        private string _encryptionKey;
         private bool _isFullBackup = true;
         private bool _isDifferentialBackup;
         private bool _canCreate = true;
@@ -36,11 +37,13 @@ namespace EasySave.GUI.ViewModels
         public string SaveBtnText => _lang.GetText("Btn_Validate");
         public string CancelBtnText => _lang.GetText("Btn_Cancel");
         public string QuotaMessage => _lang.GetText("Msg_QuotaFull") ?? "Limite de 5 travaux atteinte.";
+        public string EncryptionLabel => "Clé de chiffrement (optionnel) :";
 
         // --- Propriétés Formulaire ---
         public string JobName { get => _jobName; set { _jobName = value; OnPropertyChanged(); } }
         public string SourcePath { get => _sourcePath; set { _sourcePath = value; OnPropertyChanged(); } }
         public string DestinationPath { get => _destinationPath; set { _destinationPath = value; OnPropertyChanged(); } }
+        public string EncryptionKey { get => _encryptionKey; set { _encryptionKey = value; OnPropertyChanged(); } }
         public bool IsFullBackup { get => _isFullBackup; set { _isFullBackup = value; OnPropertyChanged(); } }
         public bool IsDifferentialBackup { get => _isDifferentialBackup; set { _isDifferentialBackup = value; OnPropertyChanged(); } }
         public bool CanCreate { get => _canCreate; set { _canCreate = value; OnPropertyChanged(); } }
@@ -83,7 +86,7 @@ namespace EasySave.GUI.ViewModels
                     return;
                 }
                 string strategy = IsFullBackup ? "full" : "differential";
-                _backupManager.CreateJob(JobName, SourcePath, DestinationPath, strategy);
+                _backupManager.CreateJob(JobName, SourcePath, DestinationPath, strategy, EncryptionKey);
                 _navigation.CurrentPage = new MainMenuViewModel(_navigation);
             });
 

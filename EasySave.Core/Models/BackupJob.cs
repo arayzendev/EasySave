@@ -11,6 +11,7 @@ namespace EasySave.Core.Models
         public string sourcePath { get; set; }
         public string targetPath { get; set; }
         public string strategyType { get; set; }
+        public string encryptionKey { get; set; }
         [JsonIgnore]
         public IBackupStrategy backupStrategy { get; set; }
         public BackupProgress backupProgress { get; set; }

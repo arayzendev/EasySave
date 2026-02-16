@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -19,7 +19,7 @@ namespace EasySave.GUI.ViewModels
         private readonly int _index;
         private readonly bool _isModification;
 
-        private string _jobName, _sourcePath, _destinationPath, _notifyMsg, _notifyColor;
+        private string _jobName, _sourcePath, _destinationPath, _encryptionKey, _notifyMsg, _notifyColor;
         private bool _isFullBackup = true, _canSaveQuota = true, _isQuotaAlertVisible, _isNotifyVisible;
 
         public string TitleText => _isModification ? _lang.GetText("Menu_Modify") : _lang.GetText("Menu_Create");
@@ -28,11 +28,13 @@ namespace EasySave.GUI.ViewModels
         public string TargetWatermark => _lang.GetText("Saisie_Dest");
         public string SaveBtnText => _lang.GetText("Btn_Validate");
         public string QuotaMessage => _lang.GetText("Msg_QuotaFull") ?? "Quota 5/5 atteint";
+        public string EncryptionLabel => "Clé de chiffrement (optionnel) :";
 
         public bool CanExecuteSave => !string.IsNullOrWhiteSpace(JobName) && !string.IsNullOrWhiteSpace(SourcePath) && !string.IsNullOrWhiteSpace(DestinationPath) && _canSaveQuota;
         public string JobName { get => _jobName; set { _jobName = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanExecuteSave)); } }
         public string SourcePath { get => _sourcePath; set { _sourcePath = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanExecuteSave)); } }
         public string DestinationPath { get => _destinationPath; set { _destinationPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanExecuteSave)); } }
+        public string EncryptionKey { get => _encryptionKey; set { _encryptionKey = value; OnPropertyChanged(); } }
         public bool IsFullBackup { get => _isFullBackup; set { _isFullBackup = value; OnPropertyChanged(); } }
         public bool IsCreationMode => !_isModification;
         public bool IsQuotaAlertVisible { get => _isQuotaAlertVisible; set { _isQuotaAlertVisible = value; OnPropertyChanged(); } }
@@ -56,6 +58,7 @@ namespace EasySave.GUI.ViewModels
             {
                 JobName = job.name; SourcePath = job.sourcePath; DestinationPath = job.targetPath;
                 IsFullBackup = job.strategyType.ToLower() == "full";
+                EncryptionKey = job.encryptionKey;
             }
             else if (_backupManager.ListJobs().Count >= 5)
             {
@@ -74,7 +77,7 @@ namespace EasySave.GUI.ViewModels
                 }
                 else
                 {
-                    _backupManager.CreateJob(JobName, SourcePath, DestinationPath, IsFullBackup ? "full" : "differential");
+                    _backupManager.CreateJob(JobName, SourcePath, DestinationPath, IsFullBackup ? "full" : "differential", EncryptionKey);
                     NotifyMsg = _lang.GetText("Msg_Created") ?? "Travail créé !";
                     NotifyColor = "#27ae60";
                 }

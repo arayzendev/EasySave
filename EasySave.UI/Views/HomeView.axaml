@@ -57,6 +57,19 @@
                              Foreground="White"/>
 			</StackPanel>
 
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="10">
+				<TextBox Text="{Binding ForbiddenSoftware}" 
+                         Watermark="{Binding SoftwareWatermark}" 
+                         Width="250" Height="40" 
+                         Background="#1Affffff" 
+                         Foreground="White"/>
+				<Button Content="✓" Command="{Binding SaveSoftwareCommand}" 
+                        Width="40" Height="40" 
+                        Background="#27ae60" Foreground="White"/>
+			</StackPanel>
+
 			<Button Content="{Binding StartButtonText}"
                     Command="{Binding StartCommand}"
                     Width="240"

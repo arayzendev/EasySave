@@ -80,14 +80,16 @@ namespace EasySave.Core.Managers
         /// <param name="targetPath"></param>
         /// <param name="backupStrategy"></param>
         /// <returns></returns>
-        public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy)
+        public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy, string encryptionKey = null)
         {
 
             var stopwatch = Stopwatch.StartNew();
 
             //Crï¿½ation du travailleur
             IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
-            config.backupJobs.Add(new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy));
+            var job = new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy);
+            job.encryptionKey = encryptionKey;
+            config.backupJobs.Add(job);
 
             //Sauvegarde de la configuration du travailleur
             configManager.Save(config);
@@ -213,7 +215,9 @@ namespace EasySave.Core.Managers
                 });
                 throw new Exception(message);
             }
-            config.backupJobs[index].Execute(OnProgressUpdate, logger, encryptionKey);
+            // Use job's encryption key if not provided
+            string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
+            config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
             stopwatch.Stop();
 
             //Ecrit les logs 
