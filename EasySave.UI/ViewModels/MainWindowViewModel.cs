@@ -1,11 +1,10 @@
-﻿using EasySave.GUI.ViewModels;
+using EasySave.GUI.ViewModels;
 
 namespace EasySave.GUI.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
         private ViewModelBase _currentPage;
-        internal readonly object BackupManager;
 
         public ViewModelBase CurrentPage
         {

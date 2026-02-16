@@ -54,7 +54,7 @@ namespace EasySave.GUI.ViewModels
             _index = index;
             _isModification = (job != null);
 
-            if (_isModification)
+            if (_isModification && job != null)
             {
                 JobName = job.name; SourcePath = job.sourcePath; DestinationPath = job.targetPath;
                 IsFullBackup = job.strategyType.ToLower() == "full";
