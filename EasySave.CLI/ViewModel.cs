@@ -6,14 +6,14 @@ namespace EasySave.CLI
     public class MainViewModel
     {
         private readonly BackupManager backupManager;
-        private ConsoleView view;
+        private View view;
 
         public MainViewModel(BackupManager manager)
         {
             backupManager = manager;
         }
 
-        public void AttachView(ConsoleView v)
+        public void AttachView(View v)
         {
             view = v;
         }

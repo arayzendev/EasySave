@@ -1,7 +1,6 @@
-using EasySave.CLI;
 using EasySave.Core.Managers;
 
-namespace EasySave
+namespace EasySave.CLI
 {
     class Program
     {
@@ -9,7 +8,7 @@ namespace EasySave
         {
             BackupManager manager = new BackupManager();
             MainViewModel vm = new MainViewModel(manager);
-            ConsoleView view = new ConsoleView(vm);
+            View view = new View(vm);
 
             view.Run(args);
         }
