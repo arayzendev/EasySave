@@ -233,6 +233,31 @@ namespace EasySave.Core.Managers
             });
         }
 
+        public void PauseJob(int index)
+        {
+            if (index >= 0 && index < config.backupJobs.Count)
+            {
+                config.backupJobs[index].Pause();
+            }
+        }
+
+        public void ResumeJob(int index)
+        {
+            if (index >= 0 && index < config.backupJobs.Count)
+            {
+                string key = config.backupJobs[index].encryptionKey;
+                config.backupJobs[index].Resume(OnProgressUpdate, logger, key);
+            }
+        }
+
+        public void StopJob(int index)
+        {
+            if (index >= 0 && index < config.backupJobs.Count)
+            {
+                config.backupJobs[index].Stop();
+            }
+        }
+
         /// <summary>
         /// Liste les travailleurs existants
         /// </summary>

@@ -34,15 +34,29 @@
                         <Border Background="#2a2a3d" Margin="0,0,0,30" CornerRadius="20" Padding="35" BoxShadow="0 12 30 0 #50000000">
                             <Grid ColumnDefinitions="Auto, *, Auto">
                                 
-                                <Button Grid.Column="0" 
-                                        Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PlayPauseCommand}" 
-                                        CommandParameter="{Binding}"
-                                        Width="85" Height="85" CornerRadius="42" Background="#27ae60" 
-                                        VerticalAlignment="Center" Margin="0,0,40,0" Padding="0">
-                                    <Viewbox Width="30" Height="30">
-                                        <Path Data="M8,5.14V19.14L19,12.14L8,5.14Z" Fill="White" Stretch="Uniform"/>
-                                    </Viewbox>
-                                </Button>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,40,0" Spacing="15">
+                                    <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PlayCommand}" 
+                                            CommandParameter="{Binding}"
+                                            Width="50" Height="50" CornerRadius="25" Background="#27ae60" Padding="0">
+                                        <Viewbox Width="20" Height="20">
+                                            <Path Data="M8,5.14V19.14L19,12.14L8,5.14Z" Fill="White" Stretch="Uniform"/>
+                                        </Viewbox>
+                                    </Button>
+                                    <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PauseCommand}" 
+                                            CommandParameter="{Binding}"
+                                            Width="50" Height="50" CornerRadius="25" Background="#f39c12" Padding="0">
+                                        <Viewbox Width="20" Height="20">
+                                            <Path Data="M14,19H18V5H14M6,19H10V5H6V19Z" Fill="White" Stretch="Uniform"/>
+                                        </Viewbox>
+                                    </Button>
+                                    <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).StopCommand}" 
+                                            CommandParameter="{Binding}"
+                                            Width="50" Height="50" CornerRadius="25" Background="#e74c3c" Padding="0">
+                                        <Viewbox Width="20" Height="20">
+                                            <Path Data="M18,18H6V6H18V18Z" Fill="White" Stretch="Uniform"/>
+                                        </Viewbox>
+                                    </Button>
+                                </StackPanel>
 
                                 <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center" Margin="0,0,30,0">
                                     <StackPanel Orientation="Horizontal" Spacing="15">

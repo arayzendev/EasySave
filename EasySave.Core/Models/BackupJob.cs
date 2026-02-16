@@ -1,5 +1,6 @@
 using EasySave.Core.Interfaces;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace EasySave.Core.Models
 {
@@ -15,17 +16,21 @@ namespace EasySave.Core.Models
         [JsonIgnore]
         public IBackupStrategy backupStrategy { get; set; }
         public BackupProgress backupProgress { get; set; }
+        
+        [JsonIgnore]
+        public CancellationTokenSource CancellationTokenSource { get; set; }
 
         /// <summary>
-        /// Constructeur par d�faut
+        /// Constructeur par défaut
         /// </summary>
         public BackupJob()
         {
             strategyType = "full";
             backupProgress = new BackupProgress();
+            CancellationTokenSource = new CancellationTokenSource();
         }
         /// <summary>
-        /// Constructeur param�tr�
+        /// Constructeur paramétré
         /// </summary>
         /// <param name="name"></param>
         /// <param name="sourcePath"></param>
@@ -40,6 +45,7 @@ namespace EasySave.Core.Models
             this.backupStrategy = backupStrategy;
             this.strategyType = strategyType;
             backupProgress = new BackupProgress();
+            CancellationTokenSource = new CancellationTokenSource();
         }
 
         /// <summary>
@@ -48,8 +54,33 @@ namespace EasySave.Core.Models
         /// <param name="onProgressUpdate"></param>
         public void Execute(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
         {
-            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
+            CancellationTokenSource = new CancellationTokenSource();
+            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+        }
 
+        public void Pause()
+        {
+            if (backupProgress.State == BackupState.Active)
+            {
+                backupProgress.State = BackupState.Paused;
+                CancellationTokenSource.Cancel();
+            }
+        }
+
+        public void Stop()
+        {
+            backupProgress.State = BackupState.Stopped;
+            CancellationTokenSource.Cancel();
+        }
+
+        public void Resume(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
+        {
+            if (backupProgress.State == BackupState.Paused)
+            {
+                CancellationTokenSource = new CancellationTokenSource();
+                backupProgress.State = BackupState.Active;
+                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+            }
         }
 
         /// <summary>

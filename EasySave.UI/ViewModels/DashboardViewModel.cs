@@ -38,7 +38,9 @@ namespace EasySave.GUI.ViewModels
         public ICommand ExecuteAllCommand { get; }
         public ICommand EditJobCommand { get; }
         public ICommand DeleteJobCommand { get; }
-        public ICommand PlayPauseCommand { get; }
+        public ICommand PlayCommand { get; }
+        public ICommand PauseCommand { get; }
+        public ICommand StopCommand { get; }
 
         public DashboardViewModel(MainWindowViewModel navigation)
         {
@@ -68,11 +70,27 @@ namespace EasySave.GUI.ViewModels
                 Jobs.Remove(job);
             });
 
-            PlayPauseCommand = new RelayCommand<BackupJob>(async (job) => {
+            PlayCommand = new RelayCommand<BackupJob>(async (job) => {
                 int index = Jobs.IndexOf(job);
-                if (index != -1)
+                if (index != -1 && job.backupProgress.State != BackupState.Active)
                 {
                     await Task.Run(() => _backupManager.ExecuteJob(index));
+                }
+            });
+
+            PauseCommand = new RelayCommand<BackupJob>((job) => {
+                int index = Jobs.IndexOf(job);
+                if (index != -1 && job.backupProgress.State == BackupState.Active)
+                {
+                    _backupManager.PauseJob(index);
+                }
+            });
+
+            StopCommand = new RelayCommand<BackupJob>((job) => {
+                int index = Jobs.IndexOf(job);
+                if (index != -1 && job.backupProgress.State == BackupState.Active)
+                {
+                    _backupManager.StopJob(index);
                 }
             });
 
