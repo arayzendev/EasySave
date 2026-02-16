@@ -5,4 +5,5 @@
     <Project Path="EasySave.Core/EasySave.Core.csproj" />
     <Project Path="EasySave.UI/EasySave.GUI.csproj" />
   </Folder>
+  <Project Path="CryptoSoft/CryptoSoft.csproj" />
 </Solution>

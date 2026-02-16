@@ -18,6 +18,10 @@ namespace EasySave.Core.Strategies
             {
                 throw new ArgumentException("Source or target path cannot be null or empty.");
             }
+                var options = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = 3
+                };
 
             Directory.CreateDirectory(targetPath);
             string[] allFiles = Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);

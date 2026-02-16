@@ -46,6 +46,8 @@ namespace EasySave.Core.Strategies
                     OnProgressupdate?.Invoke();
                     return;
                 }
+                    MaxDegreeOfParallelism = 3 // maximum 4 threads en parallèle
+                };
 
                 if (backupProgress.State == BackupState.Paused)
                 {
