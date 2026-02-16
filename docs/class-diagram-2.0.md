@@ -17,7 +17,7 @@ classDiagram
             -BackupStrategyFactory backupStrategyFactory
             -Logger logger
             -ProcessMonitor processMonitor
-            +static BackupManager Instance { get; }
+            +static BackupManager Instance
             -BackupManager()
             +void SetLanguage(string language)
             +void SetLog(string logType)
@@ -66,7 +66,7 @@ classDiagram
             -static object _lock
             -Dictionary~string, string~ _translations
             +string CurrentLanguage
-            +static LanguageManager Instance { get; }
+            +static LanguageManager Instance
             -LanguageManager()
             +void SetLanguage(string langue)
             +string GetText(string key)
