@@ -12,6 +12,9 @@ namespace EasySave.Core.Managers
         public Language language { get; set; } = Language.EN;
         public LogType logType { get; set; } = LogType.JSON;
         public string forbiddenSoftwareName { get; set; } = "explorer";
+
+        //Liste des extensions prioritaires
+        public List<string> priorityExtensions { get; set; } = new List<string> ();
     }
 
     class ConfigManager

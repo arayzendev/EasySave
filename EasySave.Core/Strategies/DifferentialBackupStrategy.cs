@@ -1,8 +1,9 @@
+using System.Threading;
 using EasyLog;
 using EasySave.Core.Interfaces;
+using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
-using System.Threading;
 
 namespace EasySave.Core.Strategies
 {
@@ -84,14 +85,20 @@ namespace EasySave.Core.Strategies
                     Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    File.Copy(file, destPath, true);
-                    stopwatch.Stop();
-
                     int encryptionTime = 0;
-                    if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                    BackupManager.Instance.ExecuteWithPriorityControl(file, () =>
                     {
-                        encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
-                    }
+                        File.Copy(file, destPath, true);
+                        stopwatch.Stop();
+
+                        // Si tu as du chiffrement, il va ici aussi car il fait partie du transfert
+                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                        {
+                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                        }
+                    });
+
+                    
 
                     long fileSize = new FileInfo(file).Length;
 
