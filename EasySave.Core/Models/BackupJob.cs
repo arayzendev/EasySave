@@ -53,15 +53,11 @@ namespace EasySave.Core.Models
             get => _backupProgress;
             set { _backupProgress = value; OnPropertyChanged(nameof(backupProgress)); }
         }
-        
-        [JsonIgnore]
-        public CancellationTokenSource CancellationTokenSource { get; set; }
 
         public BackupJob()
         {
             strategyType = "full";
             backupProgress = new BackupProgress();
-            CancellationTokenSource = new CancellationTokenSource();
         }
 
         public BackupJob(string name, string sourcePath, string targetPath, IBackupStrategy backupStrategy, string strategyType)
@@ -72,13 +68,11 @@ namespace EasySave.Core.Models
             this.backupStrategy = backupStrategy;
             this.strategyType = strategyType;
             backupProgress = new BackupProgress();
-            CancellationTokenSource = new CancellationTokenSource();
         }
 
         public void Execute(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
         {
-            CancellationTokenSource = new CancellationTokenSource();
-            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
         }
 
         public void Pause()
@@ -92,7 +86,6 @@ namespace EasySave.Core.Models
         public void Stop()
         {
             backupProgress.State = BackupState.Stopped;
-            CancellationTokenSource.Cancel();
         }
 
         public void Resume(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
