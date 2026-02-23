@@ -86,7 +86,6 @@ namespace EasySave.Core.Models
             if (backupProgress.State == BackupState.Active)
             {
                 backupProgress.State = BackupState.Paused;
-                CancellationTokenSource.Cancel();
             }
         }
 
@@ -100,9 +99,7 @@ namespace EasySave.Core.Models
         {
             if (backupProgress.State == BackupState.Paused)
             {
-                CancellationTokenSource = new CancellationTokenSource();
                 backupProgress.State = BackupState.Active;
-                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
             }
         }
 
