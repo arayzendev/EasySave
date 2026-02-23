@@ -43,7 +43,13 @@ namespace EasySave.Core.Strategies
 
             backupProgress.TotalFiles = files.Count;
             backupProgress.RemainingFiles = files.Count;
-            backupProgress.State = BackupState.Active;
+            
+            // On ne force l'etat Active que si le BackupManager ne nous a pas deja mis en Pause
+            if (backupProgress.State != BackupState.Paused)
+            {
+                backupProgress.State = BackupState.Active;
+            }
+
             backupProgress.DateTime = DateTime.Now;
 
             long totalSize = 0;
