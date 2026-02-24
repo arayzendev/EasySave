@@ -6,22 +6,30 @@ using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasySave.Managers;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace EasySave.Core.Managers
-{ 
+{
     public class BackupManager
     {
         private static BackupManager _instance = null;
         private static readonly object _lock = new object();
 
-        //Attributs paramï¿½tre des sauvegardes
+        //Attributs paramètre des sauvegardes
         private Config config;
         private StateManager stateManager;
         private ConfigManager configManager;
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
         private ProcessMonitor processMonitor;
+
+        //Barrage passage des threads, True:ouvert, False:fermé
+        //Ouvert par defaut
+        private static ManualResetEventSlim _priorityBlocker = new ManualResetEventSlim(true);
+
+        //Compteur de fichiers prioritaires, tous jobs confondus
+        private static int _priorityFileCount = 0;
 
         private List<int> jobsPausedBySoftware = new List<int>();
 
@@ -43,7 +51,7 @@ namespace EasySave.Core.Managers
         /// <summary>
         /// Constructeur privé pour singleton
         /// </summary>
-        private BackupManager()
+        public BackupManager()
         {
             configManager = new ConfigManager();
             stateManager = new StateManager();
@@ -139,50 +147,34 @@ namespace EasySave.Core.Managers
             InitializeLogger();
         }
 
-        /// <summary>
-        /// Crï¿½ation d'un travailleur de sauvegarde
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="sourcePath"></param>
-        /// <param name="targetPath"></param>
-        /// <param name="backupStrategy"></param>
-        /// <returns></returns>
         public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy, string encryptionKey = null)
         {
-
             var stopwatch = Stopwatch.StartNew();
 
-            //Crï¿½ation du travailleur
             IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
             var job = new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy);
             job.encryptionKey = encryptionKey;
             config.backupJobs.Add(job);
 
-            //Sauvegarde de la configuration du travailleur
             configManager.Save(config);
             stopwatch.Stop();
 
-            //Ecrit les logs 
             logger.Write(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
                 data = new Dictionary<string, object>
-                                {
-                                    { "CreateBackupName", name },
-                                    { "SourceFile", sourcePath },
-                                    { "TargetFile", targetPath },
-                                    { "CreationTimeMs", stopwatch.ElapsedMilliseconds }
-                                }
+                {
+                    { "CreateBackupName", name },
+                    { "SourceFile", sourcePath },
+                    { "TargetFile", targetPath },
+                    { "CreationTimeMs", stopwatch.ElapsedMilliseconds }
+                }
             });
 
             return true;
         }
 
-        /// <summary>
-        /// Suppresion d'un travailleur de sauvegarde
-        /// </summary>
-        /// <param name="index"></param>
         public void DeleteJob(int index)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -190,78 +182,55 @@ namespace EasySave.Core.Managers
             configManager.Save(config);
             stopwatch.Stop();
 
-            //Ecrit les logs 
             logger.Write(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
                 data = new Dictionary<string, object>
-                                {
-                                    { "DeletedBackupIndex", index },
-                                    { "DeleteTimeMs", stopwatch.ElapsedMilliseconds }
-                                }
+                {
+                    { "DeletedBackupIndex", index },
+                    { "DeleteTimeMs", stopwatch.ElapsedMilliseconds }
+                }
             });
         }
 
-        /// <summary>
-        /// Modifie ses chemins
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="sourcePath"></param>
-        /// <param name="targetPath"></param>
         public void ModifyJob(int index, string sourcePath, string targetPath)
         {
             var stopwatch = Stopwatch.StartNew();
             config.backupJobs[index].UpdatePaths(sourcePath, targetPath);
             configManager.Save(config);
             stopwatch.Stop();
-            //Ecrit les logs 
+
             logger.Write(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
                 data = new Dictionary<string, object>
-                                {
-                                    { "ModifiedBackupIndex", index },
-                                    { "SourceFile", sourcePath },
-                                    { "TargetFile", targetPath },
-                                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
-                                }
+                {
+                    { "ModifiedBackupIndex", index },
+                    { "SourceFile", sourcePath },
+                    { "TargetFile", targetPath },
+                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                }
             });
         }
 
-        /// <summary>
-        /// Configure le nom du logiciel métier
-        /// </summary>
-        /// <param name="softwareName"></param>
         public void SetForbiddenSoftware(string softwareName)
         {
             config.forbiddenSoftwareName = softwareName;
             configManager.Save(config);
         }
 
-        /// <summary>
-        /// Recupere le nom du logiciel métier
-        /// </summary>
-        /// <returns></returns>
         public string GetForbiddenSoftware()
         {
             return config.forbiddenSoftwareName;
         }
 
-        /// <summary>
-        /// Verifie si le logiciel métier est en cours d'execution
-        /// </summary>
-        /// <returns></returns>
         public bool IsForbiddenSoftwareRunning()
         {
             return processMonitor.IsRunning(config.forbiddenSoftwareName);
         }
 
-        /// <summary>
-        /// Choix du travailleur ï¿½ executer
-        /// </summary>
-        /// <param name="index"></param>
         public void ExecuteJob(int index, string encryptionKey = null)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -295,21 +264,21 @@ namespace EasySave.Core.Managers
                     }
                     OnProgressUpdate();
                 }
+                
                 // Use job's encryption key if not provided
                 string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
                 config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
                 stopwatch.Stop();
 
-                //Ecrit les logs 
                 logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
                     Application = "EasySave",
                     data = new Dictionary<string, object>
-                                    {
-                                        { "ExecutedBackupIndex", index },
-                                        { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
-                                    }
+                    {
+                        { "ExecutedBackupIndex", index },
+                        { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                    }
                 });
             });
         }
@@ -339,21 +308,85 @@ namespace EasySave.Core.Managers
             }
         }
 
-        /// <summary>
-        /// Liste les travailleurs existants
-        /// </summary>
-        /// <returns></returns>
         public List<BackupJob> ListJobs()
         {
             return config.backupJobs;
         }
 
-        /// <summary>
-        /// Mise ï¿½ jour de l'ï¿½tat du travailleur
-        /// </summary>
         private void OnProgressUpdate()
         {
             stateManager.Write(config.backupJobs);
+        }
+
+        //Gestion des priorités
+
+        public bool IsPriority(string filePath)
+        {
+            string extension = Path.GetExtension(filePath).ToLower();
+            return config.priorityExtensions.Contains(extension);
+        }
+
+        public void PrepareTransfer(string filePath)
+        {
+            if (IsPriority(filePath))
+            {
+                Interlocked.Increment(ref _priorityFileCount);
+                _priorityBlocker.Reset();
+            }
+            else
+            {
+                _priorityBlocker.Wait();
+            }
+        }
+
+        public void CompleteTransfer(string filePath)
+        {
+            if (IsPriority(filePath))
+            {
+                if (Interlocked.Decrement(ref _priorityFileCount) <= 0)
+                {
+                    _priorityBlocker.Set();
+                }
+            }
+        }
+
+        private static ConcurrentDictionary<string, object> _fileLocks = new ConcurrentDictionary<string, object>();
+
+        public void ExecuteWithPriorityControl(string filePath, Action copyAction)
+        {
+            PrepareTransfer(filePath);
+
+            object fileLock = _fileLocks.GetOrAdd(filePath, new object());
+
+            //On entoure le try/finally avec le lock pour la sécurité
+            lock (fileLock)
+            {
+                try
+                {
+                    copyAction();
+                }
+                finally
+                {
+                    CompleteTransfer(filePath);
+                    _fileLocks.TryRemove(filePath, out _);
+                }
+            }
+        }
+
+        public void BlockNonPriorityFiles()
+        {
+            _priorityBlocker.Reset();
+        }
+
+        public List<string> GetPriorityExtensions()
+        {
+            return config.priorityExtensions;
+        }
+
+        public void UpdatePriorityExtensions(List<string> extensions)
+        {
+            config.priorityExtensions = extensions;
+            configManager.Save(config);
         }
     }
 }
