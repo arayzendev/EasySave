@@ -1,3 +1,4 @@
+using EasyLog;
 using EasySave.Core.Interfaces;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
@@ -75,10 +76,10 @@ namespace EasySave.Core.Models
             CancellationTokenSource = new CancellationTokenSource();
         }
 
-        public void Execute(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
+        public void Execute(Action onProgressUpdate, Logger logger, string user, string encryptionKey = null)
         {
             CancellationTokenSource = new CancellationTokenSource();
-            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
         }
 
         public void Pause()
@@ -96,13 +97,13 @@ namespace EasySave.Core.Models
             CancellationTokenSource.Cancel();
         }
 
-        public void Resume(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
+        public void Resume(Action onProgressUpdate, Logger logger, string user, string encryptionKey = null)
         {
             if (backupProgress.State == BackupState.Paused)
             {
                 CancellationTokenSource = new CancellationTokenSource();
                 backupProgress.State = BackupState.Active;
-                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
             }
         }
 

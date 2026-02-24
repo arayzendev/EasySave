@@ -4,10 +4,9 @@ using EasyLog.Interfaces;
 using EasyLog.Models;
 using Newtonsoft.Json;
 
-
-namespace EasyLog
+namespace EasyLog.Strategies
 {
-    public class Logger
+    public class LocalLoggerStrategy : ILogger
     {
         //Attribut du dossier log
         private readonly string _logDirectory;
@@ -19,7 +18,7 @@ namespace EasyLog
         /// Constructeur
         /// </summary>
         /// <param name="logDirectory"></param>
-        public Logger(string logDirectory, ILogFormatter formatter)
+        public LocalLoggerStrategy(string logDirectory, ILogFormatter formatter)
         {
             _logDirectory = logDirectory;
             _formatter = formatter;

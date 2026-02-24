@@ -7,6 +7,7 @@ using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasySave.Managers;
 using System.Diagnostics;
+using System.Security.Principal;
 
 namespace EasySave.Core.Managers
 { 
@@ -22,6 +23,7 @@ namespace EasySave.Core.Managers
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
         private ProcessMonitor processMonitor;
+        private string user = WindowsIdentity.GetCurrent().Name;
 
         public static BackupManager Instance
         {
@@ -119,6 +121,7 @@ namespace EasySave.Core.Managers
                 Application = "EasySave",
                 data = new Dictionary<string, object>
                                 {
+                                    { "User", user },
                                     { "CreateBackupName", name },
                                     { "SourceFile", sourcePath },
                                     { "TargetFile", targetPath },
@@ -172,6 +175,7 @@ namespace EasySave.Core.Managers
                 Application = "EasySave",
                 data = new Dictionary<string, object>
                                 {
+                                    { "User", user },
                                     { "ModifiedBackupIndex", index },
                                     { "SourceFile", sourcePath },
                                     { "TargetFile", targetPath },
@@ -225,6 +229,7 @@ namespace EasySave.Core.Managers
                     Application = config.backupJobs[index].name,
                     data = new Dictionary<string, object>
                     {
+                        { "User", user },
                         { "Status", "Blocked" },
                         { "Reason", "Forbidden software running" },
                         { "SoftwareName", config.forbiddenSoftwareName }
@@ -236,7 +241,7 @@ namespace EasySave.Core.Managers
             }
             // Use job's encryption key if not provided
             string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
-            config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
+            config.backupJobs[index].Execute(OnProgressUpdate, logger, user, key);
             stopwatch.Stop();
 
             //Ecrit les logs 
@@ -246,6 +251,7 @@ namespace EasySave.Core.Managers
                 Application = "EasySave",
                 data = new Dictionary<string, object>
                                 {
+                                    { "User", user },
                                     { "ExecutedBackupIndex", index },
                                     { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
                                 }
@@ -265,7 +271,7 @@ namespace EasySave.Core.Managers
             if (index >= 0 && index < config.backupJobs.Count)
             {
                 string key = config.backupJobs[index].encryptionKey;
-                config.backupJobs[index].Resume(OnProgressUpdate, logger, key);
+                config.backupJobs[index].Resume(OnProgressUpdate, logger, user, key);
             }
         }
 

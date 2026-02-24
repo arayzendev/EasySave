@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="EasyLog.Server/EasyLog.Server.csproj" Id="c3b1bfd3-bcee-489f-90c9-1ca0c180d979" />
     <Project Path="EasyLog/EasyLog.csproj" Id="da2cce97-5fcf-4c55-91cb-e32b800b49e5" />
     <Project Path="EasySave.CLI/EasySave.CLI.csproj" Id="67e2fb7f-4520-470a-9d4d-85685f2a126f" />
     <Project Path="EasySave.Core/EasySave.Core.csproj" />
