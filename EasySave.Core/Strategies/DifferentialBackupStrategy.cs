@@ -11,7 +11,7 @@ namespace EasySave.Core.Strategies
     {
         public DifferentialBackupStrategy() { }
 
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null, CancellationToken cancellationToken = default)
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null)
         {
             CryptoService cryptoService = new CryptoService();
 
@@ -44,7 +44,13 @@ namespace EasySave.Core.Strategies
 
             backupProgress.TotalFiles = files.Count;
             backupProgress.RemainingFiles = files.Count;
-            backupProgress.State = BackupState.Active;
+            
+            // On ne force l'etat Active que si le BackupManager ne nous a pas deja mis en Pause
+            if (backupProgress.State != BackupState.Paused)
+            {
+                backupProgress.State = BackupState.Active;
+            }
+
             backupProgress.DateTime = DateTime.Now;
 
             long totalSize = 0;
@@ -63,18 +69,18 @@ namespace EasySave.Core.Strategies
             {
                 Parallel.ForEach(files, options, (file, loopState) =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
                     }
 
-                    while (backupProgress.State == BackupState.Paused && !cancellationToken.IsCancellationRequested)
+                    while (backupProgress.State == BackupState.Paused && backupProgress.State != BackupState.Stopped)
                     {
                         Thread.Sleep(100);
                     }
 
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
@@ -130,7 +136,7 @@ namespace EasySave.Core.Strategies
                     });
                 });
 
-                if (cancellationToken.IsCancellationRequested)
+                if (backupProgress.State == BackupState.Stopped)
                 {
                     backupProgress.State = BackupState.Stopped;
                 }

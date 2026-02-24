@@ -24,13 +24,14 @@ namespace EasySave.Core.Managers
         private Logger logger;
         private ProcessMonitor processMonitor;
 
-
         //Barrage passage des threads, True:ouvert, False:fermé
         //Ouvert par defaut
         private static ManualResetEventSlim _priorityBlocker = new ManualResetEventSlim(true);
 
-        //Compteur de fchiers prioritaires, tous jobs confondus
+        //Compteur de fichiers prioritaires, tous jobs confondus
         private static int _priorityFileCount = 0;
+
+        private List<int> jobsPausedBySoftware = new List<int>();
 
         public static BackupManager Instance
         {
@@ -59,6 +60,54 @@ namespace EasySave.Core.Managers
             config = configManager.Load();
             LanguageManager.Instance.SetLanguage(config.language.ToString());
             InitializeLogger();
+
+            Task.Run(() => StartBackgroundMonitor());
+        }
+
+        private void StartBackgroundMonitor()
+        {
+            bool wasRunning = false;
+            
+            while (true)
+            {
+                if (!string.IsNullOrEmpty(config.forbiddenSoftwareName))
+                {
+                    bool isRunningNow = processMonitor.IsRunning(config.forbiddenSoftwareName);
+
+                    if (isRunningNow && !wasRunning)
+                    {
+                        wasRunning = true;
+                        lock (_lock)
+                        {
+                            for (int i = 0; i < config.backupJobs.Count; i++)
+                            {
+                                if (config.backupJobs[i].backupProgress.State == BackupState.Active)
+                                {
+                                    PauseJob(i);
+                                    if (!jobsPausedBySoftware.Contains(i)) jobsPausedBySoftware.Add(i);
+                                }
+                            }
+                        }
+                    }
+                    else if (!isRunningNow && wasRunning)
+                    {
+                        wasRunning = false;
+                        lock (_lock)
+                        {
+                            foreach (int index in jobsPausedBySoftware.ToList())
+                            {
+                                if (config.backupJobs[index].backupProgress.State == BackupState.Paused)
+                                {
+                                    ResumeJob(index);
+                                }
+                                jobsPausedBySoftware.Remove(index);
+                            }
+                        }
+                    }
+                }
+                
+                Thread.Sleep(1000);
+            }
         }
 
         private void InitializeLogger()
@@ -185,37 +234,52 @@ namespace EasySave.Core.Managers
         public void ExecuteJob(int index, string encryptionKey = null)
         {
             var stopwatch = Stopwatch.StartNew();
-            if (IsForbiddenSoftwareRunning())
+
+            // Lancement de la sauvegarde de maniere asynchrone (Task.Run) pour ne pas bloquer
+            // l'UI si on doit mettre en pause immediatement ou attendre
+            Task.Run(() => 
             {
+                if (IsForbiddenSoftwareRunning())
+                {
+                    logger.Write(new LogEntry
+                    {
+                        Timestamp = DateTime.Now,
+                        Application = config.backupJobs[index].name,
+                        data = new Dictionary<string, object>
+                        {
+                            { "Status", "Paused" },
+                            { "Reason", "Forbidden software running at startup" },
+                            { "SoftwareName", config.forbiddenSoftwareName }
+                        }
+                    });
+                    
+                    config.backupJobs[index].backupProgress.State = BackupState.Paused;
+                    
+                    lock (jobsPausedBySoftware)
+                    {
+                        if (!jobsPausedBySoftware.Contains(index))
+                        {
+                            jobsPausedBySoftware.Add(index);
+                        }
+                    }
+                    OnProgressUpdate();
+                }
+                
+                // Use job's encryption key if not provided
+                string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
+                config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
+                stopwatch.Stop();
+
                 logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
-                    Application = config.backupJobs[index].name,
+                    Application = "EasySave",
                     data = new Dictionary<string, object>
                     {
-                        { "Status", "Blocked" },
-                        { "Reason", "Forbidden software running" },
-                        { "SoftwareName", config.forbiddenSoftwareName }
+                        { "ExecutedBackupIndex", index },
+                        { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
                     }
                 });
-                config.backupJobs[index].backupProgress.State = BackupState.Failed;
-                OnProgressUpdate();
-                return;
-            }
-
-            string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
-            config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
-            stopwatch.Stop();
-
-            logger.Write(new LogEntry
-            {
-                Timestamp = DateTime.Now,
-                Application = "EasySave",
-                data = new Dictionary<string, object>
-                {
-                    { "ExecutedBackupIndex", index },
-                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
-                }
             });
         }
 
