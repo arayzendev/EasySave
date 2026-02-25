@@ -6,7 +6,7 @@ namespace EasySave.CLI
     {
         static void Main(string[] args)
         {
-            BackupManager manager = new BackupManager();
+            BackupManager manager = BackupManager.Instance;
             MainViewModel vm = new MainViewModel(manager);
             View view = new View(vm);
 

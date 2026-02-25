@@ -1,4 +1,5 @@
 using EasyLog;
+using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
@@ -54,7 +55,7 @@ namespace EasySave.Core.Strategies
                         return;
                     }
 
-                    while (backupProgress.State == BackupState.Paused && !cancellationToken.IsCancellationRequested)
+                    while (backupProgress.State == BackupState.Paused)
                     {
                         Thread.Sleep(100);
                     }
@@ -70,14 +71,14 @@ namespace EasySave.Core.Strategies
                     Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    File.Copy(file, destPath, true);
-                    stopwatch.Stop();
-
                     int encryptionTime = 0;
-                    if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
-                    {
-                        encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
-                    }
+                    BackupStrategyFactory.GlobalSemaphore.Wait(cancellationToken);
+                    try {
+                        File.Copy(file, destPath, true);
+                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                    } finally { BackupStrategyFactory.GlobalSemaphore.Release(); }
+                    stopwatch.Stop();
 
                     long fileSize = new FileInfo(file).Length;
 
