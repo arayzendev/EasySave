@@ -1,9 +1,10 @@
+using System.Threading;
 using EasyLog;
 using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
+using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
-using System.Threading;
 
 namespace EasySave.Core.Strategies
 {
@@ -44,7 +45,13 @@ namespace EasySave.Core.Strategies
 
             backupProgress.TotalFiles = files.Count;
             backupProgress.RemainingFiles = files.Count;
-            backupProgress.State = BackupState.Active;
+            
+            // On ne force l'etat Active que si le BackupManager ne nous a pas deja mis en Pause
+            if (backupProgress.State != BackupState.Paused)
+            {
+                backupProgress.State = BackupState.Active;
+            }
+
             backupProgress.DateTime = DateTime.Now;
 
             long totalSize = 0;
@@ -63,18 +70,18 @@ namespace EasySave.Core.Strategies
             {
                 Parallel.ForEach(files, options, (file, loopState) =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
                     }
 
-                    while (backupProgress.State == BackupState.Paused)
+                    while (backupProgress.State == BackupState.Paused && backupProgress.State != BackupState.Stopped)
                     {
                         Thread.Sleep(100);
                     }
 
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
@@ -88,11 +95,32 @@ namespace EasySave.Core.Strategies
                     int encryptionTime = 0;
                     BackupStrategyFactory.GlobalSemaphore.Wait(cancellationToken);
                     try {
-                        File.Copy(file, destPath, true);
-                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
-                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
-                    } finally { BackupStrategyFactory.GlobalSemaphore.Release(); }
-                    stopwatch.Stop();
+                        bool isLargeFile = new FileInfo(file).Length / 1024 > BackupManager.Instance.config.maxFileSizeKB;
+                        if (isLargeFile) {
+                            lock (BackupManager.largeFileLock) {
+                                while (BackupManager.largeFileInProgress) 
+                                    System.Threading.Monitor.Wait(BackupManager.largeFileLock);
+                                BackupManager.largeFileInProgress = true;
+                            }
+                        }
+                        try {
+                            BackupManager.Instance.ExecuteWithPriorityControl(file, () => {
+                                File.Copy(file, destPath, true);
+                                stopwatch.Stop();
+                                if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                                    encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                            });
+                        }
+                        finally {
+                            if (isLargeFile) {
+                                lock (BackupManager.largeFileLock) {
+                                    BackupManager.largeFileInProgress = false;
+                                    System.Threading.Monitor.PulseAll(BackupManager.largeFileLock);
+                                }
+                            }
+                        }
+                    }
+                    finally { BackupStrategyFactory.GlobalSemaphore.Release(); }
 
                     long fileSize = new FileInfo(file).Length;
 
@@ -124,7 +152,7 @@ namespace EasySave.Core.Strategies
                     });
                 });
 
-                if (cancellationToken.IsCancellationRequested)
+                if (backupProgress.State == BackupState.Stopped)
                 {
                     backupProgress.State = BackupState.Stopped;
                 }

@@ -1,7 +1,8 @@
-using EasySave.Core.Interfaces;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using System.Threading;
+using EasySave.Core.Interfaces;
+using EasySave.Core.Managers;
 
 namespace EasySave.Core.Models
 {
@@ -53,7 +54,6 @@ namespace EasySave.Core.Models
             get => _backupProgress;
             set { _backupProgress = value; OnPropertyChanged(nameof(backupProgress)); }
         }
-        
         [JsonIgnore]
         public CancellationTokenSource CancellationTokenSource { get; set; }
 
@@ -61,7 +61,6 @@ namespace EasySave.Core.Models
         {
             strategyType = "full";
             backupProgress = new BackupProgress();
-            CancellationTokenSource = new CancellationTokenSource();
         }
 
         public BackupJob(string name, string sourcePath, string targetPath, IBackupStrategy backupStrategy, string strategyType)
@@ -72,13 +71,39 @@ namespace EasySave.Core.Models
             this.backupStrategy = backupStrategy;
             this.strategyType = strategyType;
             backupProgress = new BackupProgress();
-            CancellationTokenSource = new CancellationTokenSource();
         }
 
+        private string[] GetFileList()
+        {
+            if (Directory.Exists(sourcePath))
+            {
+                return Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+            }
+            return Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Exécute le travail de sauvegarde
+        /// </summary>
         public void Execute(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
         {
             CancellationTokenSource = new CancellationTokenSource();
-            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+
+            string[] filesToBackup = GetFileList();
+
+            // Détection préventive
+            foreach (var file in filesToBackup)
+            {
+                if (BackupManager.Instance.IsPriority(file))
+                {
+                    // On ferme le barrage immédiatement pour les fichiers normaux
+                    // sans incrémenter le compteur de fichiers prioritaires prématurément.
+                    BackupManager.Instance.BlockNonPriorityFiles();
+                    break;
+                }
+            }
+
+            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
         }
 
         public void Pause()
@@ -92,16 +117,26 @@ namespace EasySave.Core.Models
         public void Stop()
         {
             backupProgress.State = BackupState.Stopped;
-            CancellationTokenSource.Cancel();
         }
 
         public void Resume(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
         {
             if (backupProgress.State == BackupState.Paused)
             {
-                CancellationTokenSource = new CancellationTokenSource();
                 backupProgress.State = BackupState.Active;
-                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey, CancellationTokenSource.Token);
+
+                // On réapplique la détection de priorité au cas où
+                string[] filesToBackup = GetFileList();
+                foreach (var file in filesToBackup)
+                {
+                    if (BackupManager.Instance.IsPriority(file))
+                    {
+                        BackupManager.Instance.BlockNonPriorityFiles();
+                        break;
+                    }
+                }
+
+                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
             }
         }
 
@@ -115,5 +150,5 @@ namespace EasySave.Core.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    } 
+    }
 }

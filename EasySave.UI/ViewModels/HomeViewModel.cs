@@ -1,4 +1,9 @@
+using System;
 using System.Windows.Input;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using EasySave.Core.Managers;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
@@ -6,126 +11,238 @@ namespace EasySave.GUI.ViewModels
 {
     public class HomeViewModel : ViewModelBase
     {
+        // Champs privés 
         private readonly MainWindowViewModel _navigation;
         private readonly LanguageManager _lang;
         private readonly BackupManager _backupManager;
 
-        // Propriétés pour l'interface (Bindings)
-
-        
-        public string StartButtonText => _lang.GetText("Btn_Start");
-        public string FrenchLabel => _lang.GetText("lang_FR");
-        public string EnglishLabel => _lang.GetText("lang_EN");
-        public string JsonLabel => "JSON";
-        public string XmlLabel => "XML";
-        public string SoftwareLabel => "Logiciel métier à bloquer :";
-        public string SoftwareWatermark => "ex: Calculator, chrome.exe...";
-
-    
-        public ICommand StartCommand { get; }
-        public ICommand SaveSoftwareCommand { get; }
-
+        private bool _isInputInvalid;
+        private string _priorityExtensions;
         private string _forbiddenSoftware;
+
+        // Propriétés publiques avec OnPropertyChanged 
+        public bool IsInputInvalid
+        {
+            get
+            {
+                return this._isInputInvalid;
+            }
+            set
+            {
+                this._isInputInvalid = value;
+                this.OnPropertyChanged(nameof(IsInputInvalid));
+            }
+        }
+
+        public string PriorityExtensions
+        {
+            get
+            {
+                return this._priorityExtensions;
+            }
+            set
+            {
+                this._priorityExtensions = value;
+                this.OnPropertyChanged(nameof(PriorityExtensions));
+                this.RefreshCommands();
+            }
+        }
+
         public string ForbiddenSoftware
         {
-            get => _forbiddenSoftware;
+            get
+            {
+                return this._forbiddenSoftware;
+            }
             set
             {
-                _forbiddenSoftware = value;
-                OnPropertyChanged();
+                this._forbiddenSoftware = value;
+                this.OnPropertyChanged(nameof(ForbiddenSoftware));
+                this.RefreshCommands();
             }
         }
 
-        private bool _isFrenchSelected = true;
-        public bool IsFrenchSelected
-        {
-            get => _isFrenchSelected;
-            set
-            {
-                if (_isFrenchSelected != value)
-                {
-                    _isFrenchSelected = value;
-                    if (value) _lang.SetLanguage("FR");
-                    OnPropertyChanged();
-                    RefreshTexts();
-                }
-            }
-        }
+        //  Commandes
+        public ICommand StartCommand { get; }
+        public ICommand SaveSoftwareCommand { get; }
+        public ICommand SavePriorityCommand { get; }
 
-        private bool _isEnglishSelected;
-        public bool IsEnglishSelected
-        {
-            get => _isEnglishSelected;
-            set
-            {
-                if (_isEnglishSelected != value)
-                {
-                    _isEnglishSelected = value;
-                    if (value) _lang.SetLanguage("EN");
-                    OnPropertyChanged();
-                    RefreshTexts();
-                }
-            }
-        }
-
-        private bool _isJsonSelected = true;
-        public bool IsJsonSelected
-        {
-            get => _isJsonSelected;
-            set
-            {
-                if (_isJsonSelected != value)
-                {
-                    _isJsonSelected = value;
-                    if (value) _backupManager.SetLog("JSON");
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private bool _isXmlSelected;
-        public bool IsXmlSelected
-        {
-            get => _isXmlSelected;
-            set
-            {
-                if (_isXmlSelected != value)
-                {
-                    _isXmlSelected = value;
-                    if (value) _backupManager.SetLog("XML");
-                    OnPropertyChanged();
-                }
-            }
-        }
-
+        // Constructeur
         public HomeViewModel(MainWindowViewModel navigation)
         {
-            _navigation = navigation;
-            _lang = LanguageManager.Instance;
-            _backupManager = BackupManager.Instance;
+            this._navigation = navigation;
+            this._lang = LanguageManager.Instance;
+            this._backupManager = BackupManager.Instance;
 
-            StartCommand = new RelayCommand(() =>
-            {
-                _navigation.CurrentPage = new DashboardViewModel(_navigation);
-            });
-
-            SaveSoftwareCommand = new RelayCommand(() =>
-            {
-                if (!string.IsNullOrWhiteSpace(ForbiddenSoftware))
+            // Initialisation des commandes avec délégués explicites
+            this.StartCommand = new RelayCommand(
+                execute: () =>
                 {
-                    _backupManager.SetForbiddenSoftware(ForbiddenSoftware);
+                    this._navigation.CurrentPage = new DashboardViewModel(this._navigation);
                 }
-            });
+            );
 
-            _lang.SetLanguage("FR");
+            this.SaveSoftwareCommand = new RelayCommand(
+                execute: async () =>
+                {
+                    this._backupManager.SetForbiddenSoftware(this.ForbiddenSoftware);
+                },
+                canExecute: () =>
+                {
+                    return this.IsSoftwareValid();
+                }
+            );
+
+            this.SavePriorityCommand = new RelayCommand(
+                execute: async () =>
+                {
+                    List<string> list = this.PriorityExtensions
+                        .Split(';')
+                        .Select(e => e.Trim().ToLower())
+                        .Where(e => !string.IsNullOrEmpty(e))
+                        .ToList();
+                    this._backupManager.UpdatePriorityExtensions(list);
+                },
+                canExecute: () =>
+                {
+                    return this.IsExtensionsValid();
+                }
+            );
+
+            // Initialisation des données par défaut
+            this._forbiddenSoftware = string.Empty;
+            List<string> currentExtensions = this._backupManager.GetPriorityExtensions() ?? new List<string>();
+            this._priorityExtensions = string.Join("; ", currentExtensions);
+
+            // Définition de la langue initiale
+            this._lang.SetLanguage("FR");
         }
 
-        
+        // Méthodes de validation
+        private bool IsSoftwareValid()
+        {
+            if (string.IsNullOrWhiteSpace(this.ForbiddenSoftware))
+            {
+                return true; // Champ optionnel
+            }
+            return this.ForbiddenSoftware.Trim().Length >= 2;
+        }
+
+        private bool IsExtensionsValid()
+        {
+            if (string.IsNullOrWhiteSpace(this.PriorityExtensions))
+            {
+                return false;
+            }
+
+            // Regex pour format exigé : .ext; .ext2
+            string pattern = @"^\.[a-zA-Z0-9]+(;\s?\.[a-zA-Z0-9]+)*$";
+            return Regex.IsMatch(this.PriorityExtensions.Trim(), pattern);
+        }
+
+        // Méthodes de rafraîchissement
+        private void RefreshCommands()
+        {
+            if (this.SaveSoftwareCommand is RelayCommand cmd2)
+            {
+                cmd2.RaiseCanExecuteChanged();
+            }
+            if (this.SavePriorityCommand is RelayCommand cmd3)
+            {
+                cmd3.RaiseCanExecuteChanged();
+            }
+        }
+
+        // Propriétés de Langue et format Logs 
+        public bool IsFrenchSelected
+        {
+            get
+            {
+                return this._lang.CurrentLanguage == "FR";
+            }
+            set
+            {
+                if (value)
+                {
+                    this._lang.SetLanguage("FR");
+                    this.RefreshTexts();
+                }
+            }
+        }
+
+        public bool IsEnglishSelected
+        {
+            get
+            {
+                return this._lang.CurrentLanguage == "EN";
+            }
+            set
+            {
+                if (value)
+                {
+                    this._lang.SetLanguage("EN");
+                    this.RefreshTexts();
+                }
+            }
+        }
+
+        public bool IsJsonSelected
+        {
+            get
+            {
+                return true;
+            }
+            set
+            {
+                if (value)
+                {
+                    this._backupManager.SetLog("JSON");
+                }
+            }
+        }
+
+        public bool IsXmlSelected
+        {
+            get
+            {
+                return false;
+            }
+            set
+            {
+                if (value)
+                {
+                    this._backupManager.SetLog("XML");
+                }
+            }
+        }
+
+        // Accesseurs de Textes traduits
+        public string StartButtonText { get { return this._lang.GetText("Btn_Start"); } }
+        public string FrenchLabel { get { return this._lang.GetText("lang_FR"); } }
+        public string EnglishLabel { get { return this._lang.GetText("lang_EN"); } }
+        public string VersionLabel { get { return this._lang.GetText("Home_Version"); } }
+        public string GeneralSettingsTitle { get { return this._lang.GetText("Home_GeneralTitle"); } }
+        public string LanguageSelectionLabel { get { return this._lang.GetText("Home_LangLabel"); } }
+        public string LogFormatLabel { get { return this._lang.GetText("Home_LogLabel"); } }
+        public string SecuritySettingsTitle { get { return this._lang.GetText("Home_SecurityTitle"); } }
+        public string BusinessSoftwareLabel { get { return this._lang.GetText("Home_SoftwareLabel"); } }
+        public string PriorityExtensionsLabel { get { return this._lang.GetText("Home_ExtensionsLabel"); } }
+        public string FooterLabel { get { return this._lang.GetText("Home_Footer"); } }
+        public string SoftwareWatermark { get { return "Ex: Calculator, chrome.exe"; } }
+        public string ExtensionsWatermark { get { return "Ex: .rar; .pdf; .xml"; } }
+
+        // Méthodes asynchrones et utilitaires
+        private async Task TriggerErrorAnimation()
+        {
+            this.IsInputInvalid = true;
+            await Task.Delay(500);
+            this.IsInputInvalid = false;
+        }
+
         private void RefreshTexts()
         {
-            OnPropertyChanged(nameof(StartButtonText));
-            OnPropertyChanged(nameof(FrenchLabel));
-            OnPropertyChanged(nameof(EnglishLabel));
+            //Rafraîchit l'intégralité des bindings de la vue
+            this.OnPropertyChanged(string.Empty);
         }
     }
 }
