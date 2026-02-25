@@ -10,10 +10,10 @@ namespace EasySave.Core.Managers
         private Dictionary<string, string> _translations = new Dictionary<string, string>();
         public string CurrentLanguage { get; private set; }
 
-        // 3. CONSTRUCTEUR PRIV� : Emp�che l'utilisation de "new LanguageManager()" � l'ext�rieur
+        // 3. CONSTRUCTEUR PRIVÉ
         private LanguageManager() { }
 
-        // 4. PROPRI�T� D'ACC�S : Le point d'entr�e unique
+        // 4. PROPRIÉTÉ D'ACCÈS
         public static LanguageManager Instance
         {
             get
@@ -29,10 +29,6 @@ namespace EasySave.Core.Managers
             }
         }
 
-        /// <summary>
-        /// Méthode de définition de langues
-        /// </summary>
-        /// <param name="langue"></param>
         public void SetLanguage(string langue)
         {
             CurrentLanguage = langue.ToUpper();
@@ -40,42 +36,43 @@ namespace EasySave.Core.Managers
 
             if (CurrentLanguage == "FR")
             {
+                
                 _translations.Add("lang_FR", "Français");
                 _translations.Add("lang_EN", "Anglais");
                 _translations.Add("Btn_Start", "Commencer");
                 _translations.Add("Btn_Cancel", "Annuler");
                 _translations.Add("Btn_Validate", "Valider");
                 _translations.Add("Menu_Titre", "--- Menu Principal ---");
-                _translations.Add("Travail_Numero", "Travail n�");
+                _translations.Add("Travail_Numero", "Travail n°");
                 _translations.Add("Saisie_Nom", "Nom du travail : ");
                 _translations.Add("Saisie_Source", "Répertoire Source : ");
                 _translations.Add("Saisie_Dest", "Répertoire Destination : ");
                 _translations.Add("Question_NbTravaux", "Combien de travaux voulez-vous faire ?");
                 _translations.Add("Question_Type", "Choisissez le type de sauvegarde :");
-                _translations.Add("Type_Complet", "1. Sauvegarde Compl�te");
-                _translations.Add("Type_Diff", "2. Sauvegarde Diff�rentielle");
+                _translations.Add("Type_Complet", "1. Sauvegarde Complète");
+                _translations.Add("Type_Diff", "2. Sauvegarde Différentielle");
                 _translations.Add("Msg_Execution", "Sauvegarde en cours...");
                 _translations.Add("Msg_Succes", "Le travail a été sauvegardé avec succès");
                 _translations.Add("Err_Job_Ou_Chemin", "ERREUR : Chemin invalide ou travail.");
-                _translations.Add("Question_NouvelleSession", "Voulez-vous cr�er une nouvelle session de sauvegarde ? (O/N)");
+                _translations.Add("Question_NouvelleSession", "Voulez-vous créer une nouvelle session de sauvegarde ? (O/N)");
                 _translations.Add("Fin_Prog", "Fin du programme.");
-                _translations.Add("Menu_Create", "1. Cr�er un travail de sauvegarde");
+                _translations.Add("Menu_Create", "1. Créer un travail de sauvegarde");
                 _translations.Add("Menu_List", "2. Lister les travaux");
-                _translations.Add("Menu_Execute", "3. Ex�cuter un travail");
-                _translations.Add("Menu_ExecuteAll", "4. Ex�cuter tous les travaux");
+                _translations.Add("Menu_Execute", "3. Exécuter un travail");
+                _translations.Add("Menu_ExecuteAll", "4. Exécuter tous les travaux");
                 _translations.Add("Menu_Modify", "5. Modifier un travail");
                 _translations.Add("Menu_Delete", "6. Supprimer un travail");
                 _translations.Add("Menu_ForbiddenSoftware", "7. Configurer le logiciel metier");
                 _translations.Add("Menu_Quit", "8. Quitter");
                 _translations.Add("Menu_Choice", "Votre choix : ");
                 _translations.Add("Menu_Invalid", "Choix invalide.");
-                _translations.Add("Msg_Execute_Succes", "Sauvegarde termin�e avec succ�s");
+                _translations.Add("Msg_Execute_Succes", "Sauvegarde terminée avec succès");
                 _translations.Add("Msg_Execute_Fail", "Erreur lors de la sauvegarde : ");
-                _translations.Add("Msg_Modify", "Travail modifié avec succ�s.");
-                _translations.Add("Msg_Deleted", "Travail supprim� avec succ�s.");
-                _translations.Add("Err_Chemin", "ERREUR : Le r�pertoire source n'existe pas.");
+                _translations.Add("Msg_Modify", "Travail modifié avec succès.");
+                _translations.Add("Msg_Deleted", "Travail supprimé avec succès.");
+                _translations.Add("Err_Chemin", "ERREUR : Le répertoire source n'existe pas.");
                 _translations.Add("Err_Create", "ERREUR : Le travail n'a pas pu etre cree");
-                _translations.Add("Err_Index", "ERREUR : Num�ro de travail invalide.");
+                _translations.Add("Err_Index", "ERREUR : Numéro de travail invalide.");
                 _translations.Add("Err_NoJobs", "Aucun travail de sauvegarde.");
                 _translations.Add("List_Header", "--- Liste des travaux ---");
                 _translations.Add("List_Name", "Nom : ");
@@ -85,17 +82,30 @@ namespace EasySave.Core.Managers
                 _translations.Add("Prompt_ForbiddenSoftware", "Nom du logiciel metier (ex: Calculator), actuel : ");
                 _translations.Add("Msg_ForbiddenSoftwareBlocked", "Sauvegarde bloquee - logiciel metier en cours d'execution : ");
                 _translations.Add("Msg_ForbiddenSoftwareSet", "Logiciel metier configure avec succes.");
-                _translations.Add("Encryption_Key_Input","Entrer une clé de chiffremenr (optionnel) : ");
+                _translations.Add("Encryption_Key_Input", "Entrer une clé de chiffremenr (optionnel) : ");
+
+                
+                _translations.Add("Home_Version", "INFRASTRUCTURE ENTREPRISE v3.0");
+                _translations.Add("Home_GeneralTitle", "PARAMÈTRES GÉNÉRAUX");
+                _translations.Add("Home_LangLabel", "Langue de l'interface");
+                _translations.Add("Home_LogLabel", "Format des logs de sortie");
+                _translations.Add("Home_SecurityTitle", "SÉCURITÉ DE SAUVEGARDE");
+                _translations.Add("Home_SoftwareLabel", "Détection logiciel métier");
+                _translations.Add("Home_ExtensionsLabel", "Extensions prioritaires");
+                _translations.Add("Home_Footer", "Prosoft Fevrier 2026 © ");
+                _translations.Add("Home_SoftwareWatermark", "ex: Calculator, chrome.exe...");
+                _translations.Add("Home_ExtensionsWatermark", ".pdf; .db; .rar");
             }
             else
             {
+                
                 _translations.Add("lang_EN", "English");
                 _translations.Add("lang_FR", "French");
                 _translations.Add("Btn_Start", "Start");
                 _translations.Add("Btn_Cancel", "Cancel");
                 _translations.Add("Btn_Validate", "Validate");
                 _translations.Add("Menu_Titre", "--- Main Menu ---");
-                _translations.Add("Travail_Numero", "Job n�");
+                _translations.Add("Travail_Numero", "Job n°");
                 _translations.Add("Saisie_Nom", "Job Name: ");
                 _translations.Add("Saisie_Source", "Source Directory: ");
                 _translations.Add("Saisie_Dest", "Destination Directory: ");
@@ -135,15 +145,22 @@ namespace EasySave.Core.Managers
                 _translations.Add("Prompt_ForbiddenSoftware", "Forbidden software name (e.g. Calculator), ");
                 _translations.Add("Msg_ForbiddenSoftwareBlocked", "Backup blocked - forbidden software running: ");
                 _translations.Add("Msg_ForbiddenSoftwareSet", "Forbidden software configured successfully.");
-                _translations.Add("Encryption_Key_Input","Enter encryption key (leave empty to skip): ");
+                _translations.Add("Encryption_Key_Input", "Enter encryption key (leave empty to skip): ");
+
+               
+                _translations.Add("Home_Version", "ENTERPRISE INFRASTRUCTURE v3.0");
+                _translations.Add("Home_GeneralTitle", "GENERAL SETTINGS");
+                _translations.Add("Home_LangLabel", "Interface Language");
+                _translations.Add("Home_LogLabel", "Log Output Format");
+                _translations.Add("Home_SecurityTitle", "BACKUP SECURITY");
+                _translations.Add("Home_SoftwareLabel", "Business Software Detection");
+                _translations.Add("Home_ExtensionsLabel", "High Priority Extensions");
+                _translations.Add("Home_Footer", "Prosoft February 2026 © ");
+                _translations.Add("Home_SoftwareWatermark", "e.g. Calculator, chrome.exe...");
+                _translations.Add("Home_ExtensionsWatermark", ".pdf; .db; .rar");
             }
         }
 
-        /// <summary>
-        /// Récupère le texte
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public string GetText(string key)
         {
             return _translations.ContainsKey(key) ? _translations[key] : key;
