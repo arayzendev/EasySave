@@ -2,6 +2,7 @@ using EasyLog;
 using EasyLog.Factory;
 using EasyLog.Interfaces;
 using EasyLog.Models;
+using EasyLog.Strategies;
 using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
@@ -24,6 +25,7 @@ namespace EasySave.Core.Managers
         private Logger logger;
         private ProcessMonitor processMonitor;
         private string user = WindowsIdentity.GetCurrent().Name;
+        private ClientSocket clientSocket;
 
         public static BackupManager Instance
         {
@@ -41,9 +43,9 @@ namespace EasySave.Core.Managers
         }
 
         /// <summary>
-        /// Constructeur privé pour singleton
+        /// Constructeur
         /// </summary>
-        private BackupManager()
+        public BackupManager()
         {
             configManager = new ConfigManager();
             stateManager = new StateManager();
@@ -56,9 +58,23 @@ namespace EasySave.Core.Managers
 
         private void InitializeLogger()
         {
-            string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs");
+            string logDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "EasySaveData",
+                "Logs");
+
+            // Création du formatter JSON/XML selon config
             ILogFormatter formatter = LogFormatterFactory.Create(config.logType.ToString());
-            logger = new Logger(logDirectory, formatter);
+
+            // Création du Logger via la Factory
+            logger = LoggerFactory.CreateLogger(config.logMode, logDirectory, formatter);
+        }
+
+        public void ShutdownLogger()
+        {
+            // Si Docker était utilisé, fermer la connexion persistante
+            clientSocket?.Disconnect();
+            clientSocket = null;
         }
 
         public void SetLanguage(string language)
@@ -85,6 +101,24 @@ namespace EasySave.Core.Managers
                     break;
                 default:
                     config.logType = LogType.JSON;
+                    break;
+            }
+            configManager.Save(config);
+            InitializeLogger();
+        }
+
+        public void SetLogMode(string logMode)
+        {
+            switch (logMode.ToLower())
+            {
+                case "docker":
+                    config.logMode = LogMode.Docker;
+                    break;
+                case "all":
+                    config.logMode = LogMode.Composite;
+                    break;
+                default:
+                    config.logMode = LogMode.Local;
                     break;
             }
             configManager.Save(config);
@@ -119,9 +153,9 @@ namespace EasySave.Core.Managers
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
                                 {
-                                    { "User", user },
                                     { "CreateBackupName", name },
                                     { "SourceFile", sourcePath },
                                     { "TargetFile", targetPath },
@@ -148,6 +182,7 @@ namespace EasySave.Core.Managers
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
                                 {
                                     { "DeletedBackupIndex", index },
@@ -173,9 +208,9 @@ namespace EasySave.Core.Managers
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
                                 {
-                                    { "User", user },
                                     { "ModifiedBackupIndex", index },
                                     { "SourceFile", sourcePath },
                                     { "TargetFile", targetPath },
@@ -227,9 +262,9 @@ namespace EasySave.Core.Managers
                 {
                     Timestamp = DateTime.Now,
                     Application = config.backupJobs[index].name,
+                    User = user,
                     data = new Dictionary<string, object>
                     {
-                        { "User", user },
                         { "Status", "Blocked" },
                         { "Reason", "Forbidden software running" },
                         { "SoftwareName", config.forbiddenSoftwareName }
@@ -249,9 +284,9 @@ namespace EasySave.Core.Managers
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
                                 {
-                                    { "User", user },
                                     { "ExecutedBackupIndex", index },
                                     { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
                                 }

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace EasyLog.Strategies
 {
-    public class LocalLoggerStrategy : ILogger
+    public class LocalLoggerStrategy : ILogDestination
     {
         //Attribut du dossier log
         private readonly string _logDirectory;
@@ -37,7 +37,7 @@ namespace EasyLog.Strategies
         /// Ecrit les logs
         /// </summary>
         /// <param name="entry"></param>
-        public void Write(LogEntry entry)
+        public void Send(string formattedLog, LogEntry entry)
         {
             lock (stateFileLock)
             {
@@ -48,10 +48,7 @@ namespace EasyLog.Strategies
 
                 entry.Timestamp = DateTime.Now;
 
-                // Sérialisation selon le formatter
-                string formatted = _formatter.Format(entry);
-
-                File.AppendAllText(filePath, formatted + Environment.NewLine);
+                File.AppendAllText(filePath, formattedLog + Environment.NewLine);
 
             }
         }

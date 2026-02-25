@@ -8,6 +8,6 @@ namespace EasyLog.Models
     {
         Local,
         Docker,
-        LocalAndDocker
+        Composite
     }
 }

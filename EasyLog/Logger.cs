@@ -12,6 +12,7 @@ namespace EasyLog
         //Attribut du dossier log
         private readonly string _logDirectory;
         private ILogFormatter _formatter;
+        private ILogDestination _destination;
         private static readonly object stateFileLock = new object();
 
 
@@ -19,11 +20,10 @@ namespace EasyLog
         /// Constructeur
         /// </summary>
         /// <param name="logDirectory"></param>
-        public Logger(string logDirectory, ILogFormatter formatter)
+        public Logger(ILogFormatter formatter, ILogDestination destination)
         {
-            _logDirectory = logDirectory;
+            _destination = destination;
             _formatter = formatter;
-            Directory.CreateDirectory(_logDirectory);
         }
 
         /// <summary>
@@ -33,6 +33,10 @@ namespace EasyLog
         {
             _formatter = formatter;
         }
+        public void SetDestination(ILogDestination destination)
+        {
+            _destination = destination;
+        }
 
         /// <summary>
         /// Ecrit les logs
@@ -41,20 +45,15 @@ namespace EasyLog
         public void Write(LogEntry entry)
         {
             lock (stateFileLock)
-            {
-                //Ajout de la date
-                string filePath = Path.Combine(
-                _logDirectory,
-                $"{DateTime.Now:yyyy-MM-dd}.{_formatter.FileExtension}");
 
                 entry.Timestamp = DateTime.Now;
 
                 // Sérialisation selon le formatter
                 string formatted = _formatter.Format(entry);
 
-                File.AppendAllText(filePath, formatted + Environment.NewLine);
+            _destination.Send(formatted, entry);
 
-            }
         }
     }
 }
+
