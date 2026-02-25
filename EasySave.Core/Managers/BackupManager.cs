@@ -263,6 +263,8 @@ namespace EasySave.Core.Managers
                         }
                     }
                     OnProgressUpdate();
+
+                    //return;
                 }
                 
                 // Use job's encryption key if not provided
