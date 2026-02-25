@@ -4,106 +4,136 @@
              x:Class="EasySave.GUI.Views.HomeView"
              x:DataType="vm:HomeViewModel">
 
+	<UserControl.Styles>
+		<Style Selector="TextBox">
+			<Setter Property="Foreground" Value="#2c3e50"/>
+			<Setter Property="CaretBrush" Value="#2c3e50"/>
+			<Setter Property="Background" Value="#E6FFFFFF"/>
+			<Setter Property="BorderBrush" Value="#30FFFFFF"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="FontSize" Value="14"/>
+			<Setter Property="RenderTransform">
+				<TranslateTransform X="0" Y="0"/>
+			</Setter>
+		</Style>
+
+		<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+			<Setter Property="Background" Value="White"/>
+			<Setter Property="BorderBrush" Value="#3498db"/>
+			<Setter Property="BorderThickness" Value="2"/>
+		</Style>
+
+		<Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#15FFFFFF"/>
+			<Setter Property="Opacity" Value="0.4"/>
+			<Setter Property="TextBlock.Foreground" Value="#60FFFFFF"/>
+		</Style>
+
+		<Style Selector="TextBox.shake">
+			<Style.Animations>
+				<Animation Duration="0:0:0.4" IterationCount="1">
+					<KeyFrame Cue="0%">
+						<Setter Property="TranslateTransform.X" Value="0"/>
+					</KeyFrame>
+					<KeyFrame Cue="25%">
+						<Setter Property="TranslateTransform.X" Value="-10"/>
+					</KeyFrame>
+					<KeyFrame Cue="50%">
+						<Setter Property="TranslateTransform.X" Value="10"/>
+					</KeyFrame>
+					<KeyFrame Cue="75%">
+						<Setter Property="TranslateTransform.X" Value="-10"/>
+					</KeyFrame>
+					<KeyFrame Cue="100%">
+						<Setter Property="TranslateTransform.X" Value="0"/>
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+	</UserControl.Styles>
+
 	<Grid>
 		<Grid.Background>
-			<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-				<GradientStop Color="#1a2a44" Offset="0.0" />
-				<GradientStop Color="#2c1a45" Offset="1.0" />
-			</LinearGradientBrush>
+			<RadialGradientBrush Center="50%,50%" Radius="1.2">
+				<GradientStop Color="#2c3e50" Offset="0" />
+				<GradientStop Color="#161625" Offset="1" />
+			</RadialGradientBrush>
 		</Grid.Background>
 
-		<StackPanel VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Spacing="25">
+		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="25" MaxWidth="850">
+			<StackPanel Spacing="10">
+				<Border Width="90" Height="90" Background="White" CornerRadius="22" BoxShadow="0 8 25 0 #80000000" HorizontalAlignment="Center">
+					<Image Source="avares://EasySave.GUI/Assets/Easysave.png" Margin="15"/>
+				</Border>
+				<TextBlock Text="EASY SAVE" FontSize="32" FontWeight="Black" Foreground="White" HorizontalAlignment="Center" LetterSpacing="6"/>
+				<TextBlock Text="{Binding VersionLabel}" FontSize="11" Foreground="#50FFFFFF" HorizontalAlignment="Center" Margin="0,-5,0,0" LetterSpacing="2"/>
+			</StackPanel>
 
-			<Border Background="White"
-                    CornerRadius="15"
-                    Padding="10"
-                    HorizontalAlignment="Center">
-				<Image Source="avares://EasySave.GUI/Assets/Easysave.png"
-                       Width="180"
-                       Height="180"/>
+			<Grid ColumnDefinitions="*, *" HorizontalAlignment="Center">
+				<Border Grid.Column="0" Margin="10" Width="360" Height="220" Background="#12FFFFFF" CornerRadius="18" Padding="20" BorderBrush="#20FFFFFF" BorderThickness="1.2">
+					<StackPanel Spacing="15">
+						<TextBlock Text="{Binding GeneralSettingsTitle}" FontWeight="Bold" FontSize="11" Foreground="#3498db" LetterSpacing="1.5"/>
+						<StackPanel Spacing="10">
+							<TextBlock Text="{Binding LanguageSelectionLabel}" FontSize="13" Foreground="#A0FFFFFF" FontWeight="SemiBold"/>
+							<StackPanel Orientation="Horizontal" Spacing="15">
+								<RadioButton Content="{Binding FrenchLabel}" IsChecked="{Binding IsFrenchSelected}" GroupName="Lang" Foreground="White"/>
+								<RadioButton Content="{Binding EnglishLabel}" IsChecked="{Binding IsEnglishSelected}" GroupName="Lang" Foreground="White"/>
+							</StackPanel>
+						</StackPanel>
+						<Separator Background="#15FFFFFF" Height="1" Margin="0,5"/>
+						<StackPanel Spacing="10">
+							<TextBlock Text="{Binding LogFormatLabel}" FontSize="13" Foreground="#A0FFFFFF" FontWeight="SemiBold"/>
+							<StackPanel Orientation="Horizontal" Spacing="15">
+								<RadioButton Content="JSON" IsChecked="{Binding IsJsonSelected}" GroupName="Log" Foreground="White"/>
+								<RadioButton Content="XML" IsChecked="{Binding IsXmlSelected}" GroupName="Log" Foreground="White"/>
+							</StackPanel>
+						</StackPanel>
+					</StackPanel>
+				</Border>
+
+				<Border Grid.Column="1" Margin="10" Width="360" Height="220" Background="#12FFFFFF" CornerRadius="18" Padding="20" BorderBrush="#25FFFFFF" BorderThickness="1.2">
+					<StackPanel Spacing="12">
+						<TextBlock Text="{Binding SecuritySettingsTitle}" FontWeight="Bold" FontSize="11" Foreground="#e74c3c" LetterSpacing="1.5"/>
+						<StackPanel Spacing="5">
+							<TextBlock Text="{Binding BusinessSoftwareLabel}" FontSize="13" Foreground="#A0FFFFFF" FontWeight="SemiBold"/>
+							<Grid ColumnDefinitions="*, Auto">
+								<TextBox Text="{Binding ForbiddenSoftware, UpdateSourceTrigger=PropertyChanged}"
+                                         Watermark="{Binding SoftwareWatermark}"
+                                         Classes.shake="{Binding IsInputInvalid}"
+                                         Height="38" CornerRadius="8,0,0,8"/>
+								<Button Grid.Column="1" Content="✓" Command="{Binding SaveSoftwareCommand}" Width="40" Background="#27ae60" Foreground="White" CornerRadius="0,8,8,0" FontWeight="Bold"/>
+							</Grid>
+						</StackPanel>
+						<StackPanel Spacing="5">
+							<TextBlock Text="{Binding PriorityExtensionsLabel}" FontSize="13" Foreground="#A0FFFFFF" FontWeight="SemiBold"/>
+							<Grid ColumnDefinitions="*, Auto">
+								<TextBox Text="{Binding PriorityExtensions, UpdateSourceTrigger=PropertyChanged}"
+                                         Watermark="{Binding ExtensionsWatermark}"
+                                         Classes.shake="{Binding IsInputInvalid}"
+                                         Height="38" CornerRadius="8,0,0,8"/>
+								<Button Grid.Column="1" Content="✓" Command="{Binding SavePriorityCommand}" Width="40" Background="#727cf5" Foreground="White" CornerRadius="0,8,8,0" FontWeight="Bold"/>
+							</Grid>
+						</StackPanel>
+					</StackPanel>
+				</Border>
+			</Grid>
+
+			<Border CornerRadius="25" BoxShadow="0 10 30 0 #60000000" HorizontalAlignment="Center" Margin="0,10,0,0">
+				<Button Command="{Binding StartCommand}" Width="320" Height="65" CornerRadius="25" BorderThickness="0">
+					<Button.Background>
+						<LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+							<GradientStop Color="#1e3c72" Offset="0" />
+							<GradientStop Color="#2a5298" Offset="1" />
+						</LinearGradientBrush>
+					</Button.Background>
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="15">
+						<TextBlock Text="{Binding StartButtonText}" Foreground="White" FontSize="22" FontWeight="Black" VerticalAlignment="Center" LetterSpacing="2"/>
+						<TextBlock Text="➜" Foreground="White" FontSize="26" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Button>
 			</Border>
 
-			<TextBlock Text="EASY SAVE"
-                       FontSize="40"
-                       FontWeight="ExtraBold"
-                       Foreground="White"
-                       HorizontalAlignment="Center"/>
-
-			<StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="30">
-				<RadioButton Content="{Binding FrenchLabel}"
-                             IsChecked="{Binding IsFrenchSelected}"
-                             GroupName="Lang"
-                             Foreground="White"/>
-				<RadioButton Content="{Binding EnglishLabel}"
-                             IsChecked="{Binding IsEnglishSelected}"
-                             GroupName="Lang"
-                             Foreground="White"/>
-			</StackPanel>
-
-			<StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="30">
-				<RadioButton Content="{Binding JsonLabel}"
-                             IsChecked="{Binding IsJsonSelected}"
-                             GroupName="Log"
-                             Foreground="White"/>
-				<RadioButton Content="{Binding XmlLabel}"
-                             IsChecked="{Binding IsXmlSelected}"
-                             GroupName="Log"
-                             Foreground="White"/>
-			</StackPanel>
-
-			<StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="10">
-				<TextBox Text="{Binding ForbiddenSoftware}" 
-                         Watermark="{Binding SoftwareWatermark}" 
-                         Width="250" Height="40" 
-                         Background="#1Affffff" 
-                         Foreground="White"/>
-				<Button Content="✓" Command="{Binding SaveSoftwareCommand}" 
-                        Width="40" Height="40" 
-                        Background="#27ae60" Foreground="White"/>
-			</StackPanel>
-
-			<StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Spacing="10">
-				<TextBox Text="{Binding PriorityExtensions}"
-						 Watermark="Extensions: .pdf;.db..."
-						 Width="250" Height="40"
-						 Background="#1Affffff"
-						 Foreground="White"/>
-				<Button Content="✓" Command="{Binding SavePriorityCommand}"
-						Width="40" Height="40"
-						Background="#727cf5" Foreground="White"/>
-			</StackPanel>
-
-			<Button Content="{Binding StartButtonText}"
-                    Command="{Binding StartCommand}"
-                    Width="240"
-                    Height="55"
-                    Background="#2196F3"
-                    Foreground="White"
-                    FontSize="20"
-                    FontWeight="Bold"
-                    CornerRadius="12"
-                    HorizontalAlignment="Center"
-                    HorizontalContentAlignment="Center"
-                    VerticalContentAlignment="Center"/>
-
+			<TextBlock Text="{Binding FooterLabel}" FontSize="10" Foreground="#20FFFFFF" HorizontalAlignment="Center" LetterSpacing="1"/>
 		</StackPanel>
-		<TextBlock Text="EasySave 2.0 ®"
-                   VerticalAlignment="Bottom"
-                   HorizontalAlignment="Center"
-                   Margin="0,0,0,20"
-                   Foreground="White"
-                   FontSize="13"
-                   FontWeight="SemiLight"
-                   Opacity="0.5"/>
 	</Grid>
 </UserControl>
