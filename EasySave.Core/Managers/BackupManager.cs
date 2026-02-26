@@ -186,6 +186,11 @@ namespace EasySave.Core.Managers
             InitializeLogger();
         }
 
+        public LogMode GetLogMode()
+        {
+            return config.logMode;
+        }
+
         /// <summary>
         /// Crï¿½ation d'un travailleur de sauvegarde
         /// </summary>

@@ -88,6 +88,14 @@
 								<RadioButton Content="XML" IsChecked="{Binding IsXmlSelected}" GroupName="Log" Foreground="White"/>
 							</StackPanel>
 						</StackPanel>
+						<Separator Background="#15FFFFFF" Height="1" Margin="0,5"/>
+						<StackPanel Spacing="10">
+							<TextBlock Text="{Binding LogModeLabel}" FontSize="13" Foreground="#A0FFFFFF" FontWeight="SemiBold"/>
+							<StackPanel Orientation="Horizontal" Spacing="15">
+								<CheckBox Content="Local" IsChecked="{Binding IsLocalLogEnabled}" Foreground="White"/>
+								<CheckBox Content="Docker" IsChecked="{Binding IsDockerLogEnabled}" Foreground="White"/>
+							</StackPanel>
+						</StackPanel>
 					</StackPanel>
 				</Border>
 

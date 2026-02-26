@@ -95,6 +95,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Home_GeneralTitle", "PARAMÈTRES GÉNÉRAUX");
                 _translations.Add("Home_LangLabel", "Langue de l'interface");
                 _translations.Add("Home_LogLabel", "Format des logs de sortie");
+                _translations.Add("Home_LogModeLabel", "Emplacement des logs");
                 _translations.Add("Home_SecurityTitle", "SÉCURITÉ DE SAUVEGARDE");
                 _translations.Add("Home_SoftwareLabel", "Détection logiciel métier");
                 _translations.Add("Home_ExtensionsLabel", "Extensions prioritaires");
@@ -160,6 +161,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Home_GeneralTitle", "GENERAL SETTINGS");
                 _translations.Add("Home_LangLabel", "Interface Language");
                 _translations.Add("Home_LogLabel", "Log Output Format");
+                _translations.Add("Home_LogModeLabel", "Log Location");
                 _translations.Add("Home_SecurityTitle", "BACKUP SECURITY");
                 _translations.Add("Home_SoftwareLabel", "Business Software Detection");
                 _translations.Add("Home_ExtensionsLabel", "High Priority Extensions");
