@@ -24,6 +24,8 @@ namespace EasySave.GUI.ViewModels
         private string _forbiddenSoftware;
         private bool _isLocalLogEnabled;
         private bool _isDockerLogEnabled;
+        private bool _isJsonSelected;
+        private bool _isXmlSelected;
 
         // Propriétés publiques avec OnPropertyChanged 
         public bool IsInputInvalid
@@ -124,6 +126,11 @@ namespace EasySave.GUI.ViewModels
             this._isLocalLogEnabled = currentLogMode == LogMode.Local || currentLogMode == LogMode.Composite;
             this._isDockerLogEnabled = currentLogMode == LogMode.Docker || currentLogMode == LogMode.Composite;
 
+            // Initialisation du format de log depuis la config
+            var currentLogType = this._backupManager.GetLogType();
+            this._isJsonSelected = currentLogType == LogType.JSON;
+            this._isXmlSelected = currentLogType == LogType.XML;
+
             // Définition de la langue initiale
             this._lang.SetLanguage("FR");
         }
@@ -200,10 +207,12 @@ namespace EasySave.GUI.ViewModels
         {
             get
             {
-                return true;
+                return this._isJsonSelected;
             }
             set
             {
+                this._isJsonSelected = value;
+                this.OnPropertyChanged(nameof(IsJsonSelected));
                 if (value)
                 {
                     this._backupManager.SetLog("JSON");
@@ -215,10 +224,12 @@ namespace EasySave.GUI.ViewModels
         {
             get
             {
-                return false;
+                return this._isXmlSelected;
             }
             set
             {
+                this._isXmlSelected = value;
+                this.OnPropertyChanged(nameof(IsXmlSelected));
                 if (value)
                 {
                     this._backupManager.SetLog("XML");

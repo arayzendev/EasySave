@@ -168,6 +168,11 @@ namespace EasySave.Core.Managers
             InitializeLogger();
         }
 
+        public LogType GetLogType()
+        {
+            return config.logType;
+        }
+
         public void SetLogMode(string logMode)
         {
             switch (logMode.ToLower())
