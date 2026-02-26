@@ -44,13 +44,15 @@ namespace EasyLog
         /// <param name="entry"></param>
         public void Write(LogEntry entry)
         {
+            string formatted;
             lock (stateFileLock)
+            {
 
                 entry.Timestamp = DateTime.Now;
 
                 // Sérialisation selon le formatter
-                string formatted = _formatter.Format(entry);
-
+                formatted = _formatter.Format(entry);
+            }
             _destination.Send(formatted, entry);
 
         }

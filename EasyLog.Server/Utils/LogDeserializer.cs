@@ -1,6 +1,7 @@
 ﻿using EasyLog.Models;
 using System.IO;
 using System.Text.Json;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace EasyLog.Server.Utils
@@ -24,21 +25,40 @@ namespace EasyLog.Server.Utils
             }
         }
 
-        public static LogEntry DeserializeXml(string xmlLog)
+        public  static LogEntry DeserializeXml(string xmlLog)
         {
-            if (string.IsNullOrWhiteSpace(xmlLog)) return null;
-
-            try
-            {
-                using var stringReader = new StringReader(xmlLog);
-                var serializer = new XmlSerializer(typeof(LogEntry));
-                return (LogEntry)serializer.Deserialize(stringReader);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"XML deserialization error: {ex.Message}");
+            if (string.IsNullOrWhiteSpace(xmlLog))
                 return null;
+
+            var root = XElement.Parse(xmlLog);
+
+            var entry = new LogEntry();
+
+            // Timestamp
+            var timestampElement = root.Element("Timestamp");
+            if (timestampElement != null &&
+                DateTime.TryParse(timestampElement.Value, out var ts))
+            {
+                entry.Timestamp = ts;
             }
+
+            // Application
+            entry.Application = root.Element("Application")?.Value;
+
+            // Data
+            var dataElement = root.Element("Data");
+            if (dataElement != null)
+            {
+                // ⚠️ IMPORTANT : on s'assure que le dictionnaire est instancié
+                entry.data ??= new Dictionary<string, object>();
+
+                foreach (var element in dataElement.Elements())
+                {
+                    entry.data[element.Name.LocalName] = element.Value;
+                }
+            }
+
+            return entry;
         }
 
         public static LogEntry Deserialize(string format, string payload)

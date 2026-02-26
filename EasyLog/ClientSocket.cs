@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Xml.Linq;
 
 namespace EasyLog
 {
@@ -59,10 +60,23 @@ namespace EasyLog
 
         private string SerializeXml(LogEntry entry)
         {
-            using var sw = new StringWriter();
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(LogEntry));
-            serializer.Serialize(sw, entry);
-            return sw.ToString();
+            var root = new XElement("LogEntry");
+
+            root.Add(new XElement("Timestamp", entry.Timestamp?.ToString("O")));
+            root.Add(new XElement("Application", entry.Application));
+
+            var dataElement = new XElement("Data");
+            if (entry.data != null)
+            {
+                foreach (var kvp in entry.data)
+                {
+                    dataElement.Add(new XElement(kvp.Key, kvp.Value?.ToString()));
+                }
+            }
+            root.Add(dataElement);
+
+            // ToString avec DisableFormatting → tout sur une seule ligne
+            return root.ToString(SaveOptions.DisableFormatting);
         }
 
         /// <summary>
