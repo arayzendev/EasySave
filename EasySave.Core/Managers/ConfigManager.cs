@@ -5,13 +5,19 @@ using EasyLog.Models;
 
 namespace EasySave.Core.Managers
 {
-    class Config
+    public class Config
     {
 
         public List<BackupJob> backupJobs { get; set; } = new List<BackupJob>();
         public Language language { get; set; } = Language.EN;
         public LogType logType { get; set; } = LogType.JSON;
+        public LogMode logMode {  get; set; } = LogMode.Local;
         public string forbiddenSoftwareName { get; set; } = "explorer";
+
+        //Liste des extensions prioritaires
+        public List<string> priorityExtensions { get; set; } = new List<string> ();
+
+        public int maxFileSizeKB { get; set; } = 102400;
     }
 
     class ConfigManager

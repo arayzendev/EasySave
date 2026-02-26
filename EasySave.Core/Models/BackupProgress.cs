@@ -1,10 +1,33 @@
+using System;
 using System.ComponentModel;
+using EasySave.Core.Managers;
 
 namespace EasySave.Core.Models
 {
     public class BackupProgress : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        // --- PROPRIÉTÉS CALCULÉES POUR L'UI ---
+
+        public string StateTranslated => LanguageManager.Instance.GetText("State_" + State.ToString());
+
+        // Play : Possible tant que ce n'est pas fini
+        public bool CanPlay => State != BackupState.Ended;
+
+        // Pause / Stop : Possible SEULEMENT si en cours ou déjà en pause
+        public bool CanPauseOrStop => State == BackupState.Active || State == BackupState.Paused;
+
+        // Modifier : SEULEMENT si Inactif ou Failed
+        public bool CanEdit => State == BackupState.Inactive || State == BackupState.Failed;
+
+        // Supprimer : Si fini, échec, jamais lancé ou arrêté
+        public bool CanDelete => State == BackupState.Ended ||
+                                 State == BackupState.Failed ||
+                                 State == BackupState.Inactive ||
+                                 State == BackupState.Stopped;
+
+        // --- ATTRIBUTS ET NOTIFICATIONS ---
 
         private DateTime? _dateTime;
         public DateTime? DateTime
@@ -17,7 +40,20 @@ namespace EasySave.Core.Models
         public BackupState State
         {
             get => _state;
-            set { _state = value; OnPropertyChanged(nameof(State)); }
+            set
+            {
+                if (_state != value)
+                {
+                    _state = value;
+                    OnPropertyChanged(nameof(State));
+                    OnPropertyChanged(nameof(StateTranslated));
+                    // Mise à jour de tous les états de boutons
+                    OnPropertyChanged(nameof(CanPlay));
+                    OnPropertyChanged(nameof(CanPauseOrStop));
+                    OnPropertyChanged(nameof(CanEdit));
+                    OnPropertyChanged(nameof(CanDelete));
+                }
+            }
         }
 
         private int _totalFiles;

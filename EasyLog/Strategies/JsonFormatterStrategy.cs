@@ -1,4 +1,5 @@
 using EasyLog.Interfaces;
+using EasyLog.Models;
 using Newtonsoft.Json;
 
 namespace EasyLog.Strategies

@@ -7,6 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.5" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\EasyLog\EasyLog.csproj" />
 	</ItemGroup>
 
