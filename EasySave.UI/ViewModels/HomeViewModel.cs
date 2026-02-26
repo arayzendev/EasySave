@@ -49,7 +49,7 @@ namespace EasySave.GUI.ViewModels
                 this.RefreshCommands();
             }
         }
-
+        //logiciel interdit
         public string ForbiddenSoftware
         {
             get
