@@ -43,7 +43,7 @@ namespace EasySave.Core.Managers
 
             if (CurrentLanguage == "FR")
             {
-                // --- INTERFACE GENERALE ---
+                //  INTERFACE GENERALe
                 _translations.Add("lang_FR", "Français");
                 _translations.Add("lang_EN", "Anglais");
                 _translations.Add("Btn_Start", "Commencer");
@@ -51,18 +51,18 @@ namespace EasySave.Core.Managers
                 _translations.Add("Btn_Validate", "VALIDER");
                 _translations.Add("Menu_Titre", "--- TABLEAU DE BORD ---");
 
-                // --- ACTIONS DASHBOARD ---
+                // ACTIONS DASHBOARD
                 _translations.Add("Menu_Create", "Créer un travail de sauvegarde");
                 _translations.Add("Menu_ExecuteAll", "Tout Exécuter");
                 _translations.Add("Btn_Edit", "ÉDITER");
                 _translations.Add("Btn_Delete", "SUPPRIMER");
                 _translations.Add("Label_Progress", "PROGRESSION SAUVEGARDE");
 
-                // --- PARTITIONNEMENT DASHBOARD ---
+                // PARTITIONNEMENT DASHBOARD
                 _translations.Add("Label_ActiveMissions", "MISSIONS ACTIVES & EN ATTENTE");
                 _translations.Add("Label_History", "HISTORIQUE & ARCHIVES");
 
-                // --- ETATS DE SAUVEGARDE ---
+                // ETATS DE SAUVEGARDE
                 _translations.Add("State_Inactive", "INACTIF");
                 _translations.Add("State_Active", "EN COURS");
                 _translations.Add("State_Paused", "EN PAUSE");
@@ -71,25 +71,25 @@ namespace EasySave.Core.Managers
                 _translations.Add("State_Failed", "ÉCHEC");
                 _translations.Add("State_Success", "RÉUSSI");
 
-                // --- JOB EDITOR LABELS ---
+                // JOB EDITOR LABELS
                 _translations.Add("Label_Name", "NOM DU TRAVAIL");
                 _translations.Add("Label_Source", "RÉPERTOIRE SOURCE");
                 _translations.Add("Label_Target", "RÉPERTOIRE CIBLE");
                 _translations.Add("Label_Crypto", "CLÉ CRYPTOSOFT");
                 _translations.Add("Label_Strategy", "STRATÉGIE");
 
-                // --- JOB EDITOR DESCRIPTIONS ---
+                //  JOB EDITOR DESCRIPTIONS
                 _translations.Add("Desc_JobName", "Identifiant unique du profil de sauvegarde");
                 _translations.Add("Desc_Source", "Répertoire d'origine des fichiers à copier");
                 _translations.Add("Desc_Target", "Emplacement de stockage final sécurisé");
                 _translations.Add("Desc_Crypto", "Clé AES pour le chiffrement CryptoSoft");
                 _translations.Add("Desc_Strategy", "Méthode de transfert des données");
 
-                // --- STRATEGIES ---
+                //STRATEGIES 
                 _translations.Add("Strategy_Full", "Sauvegarde Complète");
                 _translations.Add("Strategy_Diff", "Sauvegarde Différentielle");
 
-                // --- HOME & SETTINGS ---
+                // HOME & SETTINGS
                 _translations.Add("Home_Version", "INFRASTRUCTURE ENTREPRISE v3.0");
                 _translations.Add("Home_GeneralTitle", "PARAMÈTRES GÉNÉRAUX");
                 _translations.Add("Home_LangLabel", "Langue de l'interface");

@@ -17,7 +17,9 @@ namespace EasySave.GUI.ViewModels
         private readonly BackupManager _backupManager;
         private readonly LanguageManager _lang = LanguageManager.Instance;
         private readonly DispatcherTimer _refreshTimer;
-        private static string _lastModifiedJobName = null;
+
+        // Liste pour protéger les jobs du rafraîchissement immédiat de l'état
+        private readonly Dictionary<string, DateTime> _protectedJobs = new Dictionary<string, DateTime>();
 
         private ObservableCollection<BackupJob> _jobs;
         public ObservableCollection<BackupJob> Jobs
@@ -26,27 +28,33 @@ namespace EasySave.GUI.ViewModels
             set { _jobs = value; OnPropertyChanged(); UpdateSections(); }
         }
 
-        // Listes filtrées pour le XAML
-        public IEnumerable<BackupJob> ActiveJobs => Jobs.Where(j =>
-            j.backupProgress.State == BackupState.Active || j.backupProgress.State == BackupState.Paused || j.backupProgress.State == BackupState.Inactive);
-
-        public IEnumerable<BackupJob> FinishedJobs => Jobs.Where(j =>
-            j.backupProgress.State == BackupState.Ended || j.backupProgress.State == BackupState.Failed || j.backupProgress.State == BackupState.Stopped);
-
-        // Propriétés de traduction et compteurs
-        public int ActiveCount => ActiveJobs.Count();
-        public int FinishedCount => FinishedJobs.Count();
-        public string TitleText => _lang.GetText("Menu_Titre") ?? "DASHBOARD";
+        //PROPRIÉTÉS DE TRADUCTION POUR LE XAML
+        public string TitleText => _lang.GetText("Menu_Titre") ?? "--- TABLEAU DE BORD ---";
         public string ActiveSectionText => _lang.GetText("Label_ActiveMissions") ?? "MISSIONS ACTIVES";
         public string HistorySectionText => _lang.GetText("Label_History") ?? "HISTORIQUE";
-        public string ExecuteAllBtnText => _lang.GetText("Menu_ExecuteAll") ?? "EXECUTE ALL";
-        public string ProgressLabelText => _lang.GetText("Label_Progress") ?? "PROGRESS";
+        public string ExecuteAllBtnText => _lang.GetText("Menu_ExecuteAll") ?? "TOUT EXÉCUTER";
+        public string ProgressLabelText => _lang.GetText("Label_Progress") ?? "PROGRESSION";
 
+        // LISTES FILTRÉES ET COMPTEURS
+        public IEnumerable<BackupJob> ActiveJobs => Jobs.Where(j =>
+            j.backupProgress.State == BackupState.Active ||
+            j.backupProgress.State == BackupState.Paused ||
+            j.backupProgress.State == BackupState.Inactive).ToList();
+
+        public IEnumerable<BackupJob> FinishedJobs => Jobs.Where(j =>
+            j.backupProgress.State == BackupState.Ended ||
+            j.backupProgress.State == BackupState.Failed ||
+            j.backupProgress.State == BackupState.Stopped).ToList();
+
+        public int ActiveCount => ActiveJobs.Count();
+        public int FinishedCount => FinishedJobs.Count();
+
+        // COMMANDES
         public ICommand CreateCommand { get; }
-        public ICommand ExecuteAllCommand { get; }
+        public IAsyncRelayCommand ExecuteAllCommand { get; }
         public ICommand EditJobCommand { get; }
         public ICommand DeleteJobCommand { get; }
-        public ICommand PlayCommand { get; }
+        public IAsyncRelayCommand PlayCommand { get; }
         public ICommand PauseCommand { get; }
         public ICommand StopCommand { get; }
 
@@ -54,27 +62,33 @@ namespace EasySave.GUI.ViewModels
         {
             _navigation = navigation;
             _backupManager = BackupManager.Instance;
-            LoadAndSortJobs();
+
+            LoadInitialJobs();
 
             CreateCommand = new RelayCommand(() => _navigation.CurrentPage = new JobEditorViewModel(_navigation));
 
+            // Commande Tout Exécuter en PARALLÈLE
             ExecuteAllCommand = new AsyncRelayCommand(async () => {
-                await Task.Run(() => {
-                    foreach (var job in Jobs.ToList())
-                    {
-                        if (job.backupProgress.State != BackupState.Ended)
-                        {
-                            int idx = _backupManager.ListJobs().FindIndex(j => j.name == job.name);
-                            if (idx != -1) _backupManager.ExecuteJob(idx);
-                        }
-                    }
-                });
-            });
+                var targetJobs = Jobs.Where(j => j.backupProgress.State != BackupState.Ended).ToList();
+
+                // On crée toutes les tâches de lancement
+                var launchTasks = targetJobs.Select(job => ExecuteJobWithProtection(job));
+
+                // On les lance toutes en même temps
+                await Task.WhenAll(launchTasks);
+
+            }, AsyncRelayCommandOptions.AllowConcurrentExecutions);
+
+            // Commande Play individuelle
+            PlayCommand = new AsyncRelayCommand<BackupJob>(async j => {
+                if (j == null) return;
+                await ExecuteJobWithProtection(j);
+            }, AsyncRelayCommandOptions.AllowConcurrentExecutions);
 
             EditJobCommand = new RelayCommand<BackupJob>(j => {
                 if (j == null) return;
-                _lastModifiedJobName = j.name;
-                _navigation.CurrentPage = new JobEditorViewModel(_navigation, j, _backupManager.ListJobs().FindIndex(x => x.name == j.name));
+                int idx = _backupManager.ListJobs().FindIndex(x => x.name == j.name);
+                _navigation.CurrentPage = new JobEditorViewModel(_navigation, j, idx);
             });
 
             DeleteJobCommand = new RelayCommand<BackupJob>(j => {
@@ -84,69 +98,101 @@ namespace EasySave.GUI.ViewModels
                 UpdateSections();
             });
 
-            PlayCommand = new AsyncRelayCommand<BackupJob>(async j => {
+            PauseCommand = new RelayCommand<BackupJob>(j => {
                 int idx = _backupManager.ListJobs().FindIndex(x => x.name == j?.name);
-                if (idx == -1) return;
-                if (j.backupProgress.State == BackupState.Paused) await Task.Run(() => _backupManager.ResumeJob(idx));
-                else await Task.Run(() => _backupManager.ExecuteJob(idx));
+                if (idx != -1) _backupManager.PauseJob(idx);
             });
 
-            PauseCommand = new RelayCommand<BackupJob>(j => _backupManager.PauseJob(_backupManager.ListJobs().FindIndex(x => x.name == j?.name)));
-            StopCommand = new RelayCommand<BackupJob>(j => _backupManager.StopJob(_backupManager.ListJobs().IndexOf(j)));
+            StopCommand = new RelayCommand<BackupJob>(j => {
+                int idx = _backupManager.ListJobs().FindIndex(x => x.name == j?.name);
+                if (idx != -1) _backupManager.StopJob(idx);
+            });
 
-            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             _refreshTimer.Tick += (s, e) => RefreshUI();
             _refreshTimer.Start();
         }
 
-        public static void SetLastModified(string name) => _lastModifiedJobName = name;
-
-        private void LoadAndSortJobs()
+        // Méthode pour protéger l'état du job lors du lancement
+        private async Task ExecuteJobWithProtection(BackupJob job)
         {
-            var list = _backupManager.ListJobs() ?? new List<BackupJob>();
-            Jobs = new ObservableCollection<BackupJob>(list.OrderBy(GetJobPriority));
-        }
+            int idx = _backupManager.ListJobs().FindIndex(x => x.name == job.name);
+            if (idx == -1) return;
 
-        private int GetJobPriority(BackupJob j)
-        {
-            if (j.backupProgress.State == BackupState.Ended || j.backupProgress.State == BackupState.Failed || j.backupProgress.State == BackupState.Stopped) return 3;
-            if (j.name == _lastModifiedJobName) return 0;
-            if (j.backupProgress.State == BackupState.Active || j.backupProgress.State == BackupState.Paused) return 1;
-            return 2;
+            // Si le logiciel métier n'est pas lancé, on force l'état visuel et on le protège
+            if (!_backupManager.IsForbiddenSoftwareRunning())
+            {
+                lock (_protectedJobs)
+                {
+                    _protectedJobs[job.name] = DateTime.Now.AddSeconds(3);
+                }
+                job.backupProgress.State = BackupState.Active;
+                UpdateSections();
+            }
+
+            // Lancement effectif dans le Core
+            if (job.backupProgress.State == BackupState.Paused)
+                await Task.Run(() => _backupManager.ResumeJob(idx));
+            else
+                await Task.Run(() => _backupManager.ExecuteJob(idx));
         }
 
         private void RefreshUI()
         {
             var fresh = _backupManager.ListJobs();
             if (fresh == null) return;
-            bool needsSort = false;
+
+            bool needsUpdate = false;
+            DateTime now = DateTime.Now;
+
             foreach (var f in fresh)
             {
                 var ex = Jobs.FirstOrDefault(j => j.name == f.name);
                 if (ex != null)
                 {
-                    if (ex.backupProgress.State != f.backupProgress.State) { ex.backupProgress.State = f.backupProgress.State; needsSort = true; }
+                    bool isProtected = false;
+                    lock (_protectedJobs)
+                    {
+                        if (_protectedJobs.ContainsKey(ex.name))
+                        {
+                            if (now < _protectedJobs[ex.name]) isProtected = true;
+                            else _protectedJobs.Remove(ex.name);
+                        }
+                    }
+
+                    // On ne synchronise l'état que si le job n'est pas protégé
+                    if (!isProtected && ex.backupProgress.State != f.backupProgress.State)
+                    {
+                        ex.backupProgress.State = f.backupProgress.State;
+                        needsUpdate = true;
+                    }
+
+                    // Mise à jour des données (progression, date)
                     ex.backupProgress.Progress = f.backupProgress.Progress;
                     ex.backupProgress.DateTime = f.backupProgress.DateTime;
                 }
-                else { LoadAndSortJobs(); return; }
             }
-            if (needsSort) Dispatcher.UIThread.Post(() => {
-                var sorted = Jobs.OrderBy(GetJobPriority).ToList();
-                for (int i = 0; i < sorted.Count; i++)
-                {
-                    int old = Jobs.IndexOf(sorted[i]);
-                    if (old != i && old != -1) Jobs.Move(old, i);
-                }
-                UpdateSections();
-            }, DispatcherPriority.Background);
-            OnPropertyChanged(nameof(TitleText)); OnPropertyChanged(nameof(ActiveSectionText)); OnPropertyChanged(nameof(HistorySectionText));
+
+            if (needsUpdate) UpdateSections();
+
+            // Rafraîchissement des textes (Langue)
+            OnPropertyChanged(nameof(TitleText));
+            OnPropertyChanged(nameof(ActiveSectionText));
+            OnPropertyChanged(nameof(HistorySectionText));
+        }
+
+        private void LoadInitialJobs()
+        {
+            var list = _backupManager.ListJobs() ?? new List<BackupJob>();
+            Jobs = new ObservableCollection<BackupJob>(list);
         }
 
         private void UpdateSections()
         {
-            OnPropertyChanged(nameof(ActiveJobs)); OnPropertyChanged(nameof(FinishedJobs));
-            OnPropertyChanged(nameof(ActiveCount)); OnPropertyChanged(nameof(FinishedCount));
+            OnPropertyChanged(nameof(ActiveJobs));
+            OnPropertyChanged(nameof(FinishedJobs));
+            OnPropertyChanged(nameof(ActiveCount));
+            OnPropertyChanged(nameof(FinishedCount));
         }
     }
 }
