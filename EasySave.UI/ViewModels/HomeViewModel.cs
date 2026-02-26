@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using EasySave.Core.Managers;
-using EasyLog.Models;
+using EasySave.Core.Models;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
 namespace EasySave.GUI.ViewModels
