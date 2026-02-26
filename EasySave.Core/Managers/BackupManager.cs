@@ -419,7 +419,6 @@ namespace EasySave.Core.Managers
         {
             if (IsPriority(filePath))
             {
-                Interlocked.Increment(ref _priorityFileCount);
                 _priorityBlocker.Reset();
             }
             else
@@ -462,9 +461,14 @@ namespace EasySave.Core.Managers
             }
         }
 
-        public void BlockNonPriorityFiles()
+        public void BlockNonPriorityFiles(IEnumerable<string> files)
         {
-            _priorityBlocker.Reset();
+            int priorityCount = files.Count(f => IsPriority(f));
+            if (priorityCount > 0)
+            {
+                Interlocked.Exchange(ref _priorityFileCount, priorityCount);
+                _priorityBlocker.Reset();
+            }
         }
 
         public List<string> GetPriorityExtensions()

@@ -21,6 +21,12 @@ namespace EasySave.CLI
 
         public void Run(string[] args)
         {
+            if (args.Length > 0)
+            {
+                ExecuteFromArgs(args[0]);
+                return;
+            }
+
             bool langue = true;
             bool logActive = true;
             bool logModeActive = true;
@@ -65,12 +71,6 @@ namespace EasySave.CLI
                 }
                 else
                     view.Write("Veuillez Réessayez.");
-            }
-
-            if (args.Length > 0)
-            {
-                ExecuteFromArgs(args[0]);
-                return;
             }
 
             bool running = true;

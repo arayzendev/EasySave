@@ -1,55 +1,190 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:EasySave.GUI.ViewModels"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
              x:Class="EasySave.GUI.Views.JobEditorView"
-             x:DataType="vm:JobEditorViewModel">
-    
-    <Grid RowDefinitions="Auto, Auto, *">
-        <Grid.Background>
-            <RadialGradientBrush Center="50%,50%" Radius="0.8">
-                <GradientStop Color="#1e1e2d" Offset="0" />
-                <GradientStop Color="#14141b" Offset="1" />
-            </RadialGradientBrush>
-        </Grid.Background>
+             x:DataType="vm:JobEditorViewModel"
+             Name="Root">
 
-        <Border Grid.Row="0" IsVisible="{Binding IsNotifyVisible}" Background="{Binding NotifyColor}" Height="40">
-            <TextBlock Text="{Binding NotifyMsg}" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
-        </Border>
+	<UserControl.Resources>
+		<Geometry x:Key="IconSource">M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z</Geometry>
+		<Geometry x:Key="IconDest">M19,9V3H5V9H3V21H21V9H19M12,18L8,14H11V11H13V14H16L12,18Z</Geometry>
+		<Geometry x:Key="IconSave">M17,3H5C3.89,3 3,3.9 3,5V19C3,20.1 3.89,21 5,21H19C20.1,21 21,20.1 21,19V7L17,3M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M15,9H5V5H15V9Z</Geometry>
+		<Geometry x:Key="IconBack">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</Geometry>
+	</UserControl.Resources>
 
-        <Border Grid.Row="1" Padding="20" Background="#1Affffff" BorderBrush="#22ffffff" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Spacing="20">
-                <Button Command="{Binding BackCommand}" Background="Transparent">
-                    <Path Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" Fill="#727cf5" Width="20" Height="20" Stretch="Uniform"/>
-                </Button>
-                <TextBlock Text="{Binding TitleText}" FontSize="22" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-            </StackPanel>
-        </Border>
+	<UserControl.Styles>
+		<Style Selector="Border.formSection">
+			<Setter Property="Background" Value="#12FFFFFF"/>
+			<Setter Property="BorderBrush" Value="#10FFFFFF"/>
+			<Setter Property="BorderThickness" Value="0,0,0,1"/>
+			<Setter Property="Padding" Value="35,25"/>
+		</Style>
 
-        <ScrollViewer Grid.Row="2" Padding="25" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="20" MinHeight="600">
-                <Border IsVisible="{Binding IsQuotaAlertVisible}" Background="#e74c3c" CornerRadius="8" Padding="10">
-                    <TextBlock Text="{Binding QuotaMessage}" Foreground="White" HorizontalAlignment="Center"/>
-                </Border>
-                <Border Background="#2a2a3d" CornerRadius="12" Padding="25">
-                    <StackPanel Spacing="20">
-                        <TextBox Text="{Binding JobName}" Watermark="{Binding NameLabel}" IsEnabled="{Binding IsCreationMode}" Foreground="White" Background="#14141b"/>
-                        <Grid ColumnDefinitions="*, Auto">
-                            <TextBox Text="{Binding SourcePath}" Watermark="{Binding SourceWatermark}" Foreground="White" IsReadOnly="True" Background="#14141b"/>
-                            <Button Grid.Column="1" Command="{Binding BrowseSourceCommand}" Content="📁" Background="#3a3a4d"/>
-                        </Grid>
-                        <Grid ColumnDefinitions="*, Auto">
-                            <TextBox Text="{Binding DestinationPath}" Watermark="{Binding TargetWatermark}" Foreground="White" IsReadOnly="True" Background="#14141b"/>
-                            <Button Grid.Column="1" Command="{Binding BrowseDestinationCommand}" Content="📁" Background="#3a3a4d"/>
-                        </Grid>
-                        <TextBox Text="{Binding EncryptionKey}" Watermark="Mot de passe (optionnel)" Foreground="White" Background="#14141b"/>
-                        <StackPanel Orientation="Horizontal" Spacing="30" IsVisible="{Binding IsCreationMode}">
-                            <RadioButton Content="Full" Foreground="White" IsChecked="{Binding IsFullBackup}"/>
-                            <RadioButton Content="Differential" Foreground="White" IsChecked="{Binding !IsFullBackup}"/>
-                        </StackPanel>
-                        <Button Content="{Binding SaveBtnText}" Command="{Binding SaveCommand}" IsEnabled="{Binding CanExecuteSave}" Background="#727cf5" Foreground="White" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Height="45"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
-    </Grid>
+		<Style Selector="TextBlock.labelHeader">
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="FontWeight" Value="Black"/>
+			<Setter Property="Foreground" Value="#727cf5"/>
+			<Setter Property="Width" Value="200"/>
+			<Setter Property="VerticalAlignment" Value="Center"/>
+			<Setter Property="LetterSpacing" Value="1"/>
+		</Style>
+
+		<Style Selector="TextBlock.labelDesc">
+			<Setter Property="FontSize" Value="9"/>
+			<Setter Property="Foreground" Value="#50FFFFFF"/>
+			<Setter Property="Margin" Value="0,4,0,0"/>
+			<Setter Property="TextWrapping" Value="Wrap"/>
+			<Setter Property="Width" Value="180"/>
+		</Style>
+
+		<Style Selector="TextBox">
+			<Setter Property="Background" Value="#252533"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderBrush" Value="#3E3E4D"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="15,12"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+
+		<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+			<Setter Property="BorderBrush" Value="#727cf5"/>
+			<Setter Property="Background" Value="#2A2A3D"/>
+		</Style>
+
+		<Style Selector="Button.cancelBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="#e74c3c"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Foreground" Value="#e74c3c"/>
+			<Setter Property="Padding" Value="40,12"/>
+			<Setter Property="CornerRadius" Value="8"/>
+		</Style>
+
+		<Style Selector="Button.cancelBtn:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="#e74c3c"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+	</UserControl.Styles>
+
+	<Grid RowDefinitions="Auto, *">
+		<Grid.Background>
+			<RadialGradientBrush Center="50%,50%" Radius="1.2">
+				<GradientStop Color="#1e1e2d" Offset="0" />
+				<GradientStop Color="#0c0c12" Offset="1" />
+			</RadialGradientBrush>
+		</Grid.Background>
+
+		<Border Grid.Row="0" Padding="40,20" Background="#15FFFFFF" BorderBrush="#20FFFFFF" BorderThickness="0,0,0,1">
+			<Grid ColumnDefinitions="Auto, *, Auto">
+				<Button Command="{Binding BackCommand}" Background="Transparent">
+					<Path Data="{StaticResource IconBack}" Fill="#727cf5" Width="20" Stretch="Uniform"/>
+				</Button>
+				<TextBlock Grid.Column="1" Text="{Binding TitleText}" Margin="20,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" VerticalAlignment="Center"/>
+
+				<Button Grid.Column="2" Command="{Binding SaveCommand}" IsEnabled="{Binding CanExecuteSave}" Background="#27ae60" Padding="25,12" CornerRadius="8">
+					<StackPanel Orientation="Horizontal" Spacing="10">
+						<Path Data="{StaticResource IconSave}" Fill="White" Width="14" Stretch="Uniform"/>
+						<TextBlock Text="{Binding SaveBtnText}" Foreground="White" FontWeight="Bold"/>
+					</StackPanel>
+				</Button>
+			</Grid>
+		</Border>
+
+		<ScrollViewer Grid.Row="1">
+			<StackPanel HorizontalAlignment="Center" Width="850" Margin="0,50">
+
+				<Border IsVisible="{Binding IsNotifyVisible}" Background="{Binding NotifyColor}" CornerRadius="8" Margin="0,0,0,25" Padding="15">
+					<TextBlock Text="{Binding NotifyMsg}" Foreground="White" HorizontalAlignment="Center" FontWeight="Bold"/>
+				</Border>
+
+				<Border Background="#1A1A27" CornerRadius="12" BorderBrush="#252535" BorderThickness="1" BoxShadow="0 15 45 0 #50000000">
+					<StackPanel>
+						<Border Classes="formSection">
+							<StackPanel Orientation="Horizontal">
+								<StackPanel Width="200">
+									<TextBlock Text="{Binding NameLabel}" Classes="labelHeader"/>
+									<TextBlock Text="{Binding DescName}" Classes="labelDesc"/>
+								</StackPanel>
+								<TextBox Text="{Binding JobName}" IsEnabled="{Binding IsCreationMode}" Width="550"/>
+							</StackPanel>
+						</Border>
+
+						<Border Classes="formSection">
+							<StackPanel Orientation="Horizontal">
+								<StackPanel Width="200">
+									<TextBlock Text="{Binding LabelSource}" Classes="labelHeader"/>
+									<TextBlock Text="{Binding DescSource}" Classes="labelDesc"/>
+								</StackPanel>
+								<Grid ColumnDefinitions="500, Auto">
+									<TextBox Text="{Binding SourcePath}" IsReadOnly="True" Width="500" Cursor="Hand" VerticalContentAlignment="Center">
+										<i:Interaction.Behaviors>
+											<ia:EventTriggerBehavior EventName="PointerPressed">
+												<ia:InvokeCommandAction Command="{Binding BrowseSourceCommand}" />
+											</ia:EventTriggerBehavior>
+										</i:Interaction.Behaviors>
+									</TextBox>
+									<Button Grid.Column="1" Command="{Binding BrowseSourceCommand}" Background="#727cf5" Margin="10,0,0,0" Width="45" Height="45" VerticalAlignment="Center">
+										<Path Data="{StaticResource IconSource}" Fill="White" Width="18" Stretch="Uniform" VerticalAlignment="Center"/>
+									</Button>
+								</Grid>
+							</StackPanel>
+						</Border>
+
+						<Border Classes="formSection">
+							<StackPanel Orientation="Horizontal">
+								<StackPanel Width="200">
+									<TextBlock Text="{Binding LabelTarget}" Classes="labelHeader" Foreground="#2ecc71"/>
+									<TextBlock Text="{Binding DescTarget}" Classes="labelDesc"/>
+								</StackPanel>
+								<Grid ColumnDefinitions="500, Auto">
+									<TextBox Text="{Binding DestinationPath}" IsReadOnly="True" Width="500" Cursor="Hand" VerticalContentAlignment="Center">
+										<i:Interaction.Behaviors>
+											<ia:EventTriggerBehavior EventName="PointerPressed">
+												<ia:InvokeCommandAction Command="{Binding BrowseDestinationCommand}" />
+											</ia:EventTriggerBehavior>
+										</i:Interaction.Behaviors>
+									</TextBox>
+									<Button Grid.Column="1" Command="{Binding BrowseDestinationCommand}" Background="#2ecc71" Margin="10,0,0,0" Width="45" Height="45" VerticalAlignment="Center">
+										<Path Data="{StaticResource IconDest}" Fill="White" Width="18" Stretch="Uniform" VerticalAlignment="Center"/>
+									</Button>
+								</Grid>
+							</StackPanel>
+						</Border>
+
+						<Border Classes="formSection">
+							<StackPanel Orientation="Horizontal">
+								<StackPanel Width="200">
+									<TextBlock Text="{Binding LabelCrypto}" Classes="labelHeader" Foreground="#f39c12"/>
+									<TextBlock Text="{Binding DescCrypto}" Classes="labelDesc"/>
+								</StackPanel>
+								<TextBox Text="{Binding EncryptionKey}" PasswordChar="●" Width="550"/>
+							</StackPanel>
+						</Border>
+
+						<Border Classes="formSection" BorderThickness="0" IsVisible="{Binding IsCreationMode}">
+							<StackPanel Orientation="Horizontal">
+								<StackPanel Width="200">
+									<TextBlock Text="{Binding LabelStrategy}" Classes="labelHeader"/>
+									<TextBlock Text="{Binding DescStrategy}" Classes="labelDesc"/>
+								</StackPanel>
+								<StackPanel Orientation="Horizontal" Spacing="50" VerticalAlignment="Center">
+									<RadioButton Content="{Binding StrategyFull}" IsChecked="{Binding IsFullBackup}" Foreground="White"/>
+									<RadioButton Content="{Binding StrategyDiff}" IsChecked="{Binding !IsFullBackup}" Foreground="White"/>
+								</StackPanel>
+							</StackPanel>
+						</Border>
+					</StackPanel>
+				</Border>
+
+				<Button Command="{Binding BackCommand}"
+						Classes="cancelBtn"
+						Content="{Binding BtnCancel}"
+						HorizontalAlignment="Center"
+						Margin="0,35,0,0"/>
+			</StackPanel>
+		</ScrollViewer>
+	</Grid>
 </UserControl>

@@ -1,5 +1,6 @@
 using EasyLog;
 using EasyLog.Models;
+using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
@@ -79,30 +80,34 @@ namespace EasySave.Core.Strategies
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     int encryptionTime = 0;
-                    bool isLargeFile = new FileInfo(file).Length / 1024 > BackupManager.Instance.config.maxFileSizeKB;
-                    if (isLargeFile) {
-                        lock (BackupManager.largeFileLock) {
-                            while (BackupManager.largeFileInProgress) 
-                                System.Threading.Monitor.Wait(BackupManager.largeFileLock);
-                            BackupManager.largeFileInProgress = true;
-                        }
-                    }
+                    BackupStrategyFactory.GlobalSemaphore.Wait(cancellationToken);
                     try {
-                        BackupManager.Instance.ExecuteWithPriorityControl(file, () => {
-                            File.Copy(file, destPath, true);
-                            stopwatch.Stop();
-                            if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
-                                encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
-                        });
-                    }
-                    finally {
+                        bool isLargeFile = new FileInfo(file).Length / 1024 > BackupManager.Instance.config.maxFileSizeKB;
                         if (isLargeFile) {
                             lock (BackupManager.largeFileLock) {
-                                BackupManager.largeFileInProgress = false;
-                                System.Threading.Monitor.PulseAll(BackupManager.largeFileLock);
+                                while (BackupManager.largeFileInProgress) 
+                                    System.Threading.Monitor.Wait(BackupManager.largeFileLock);
+                                BackupManager.largeFileInProgress = true;
+                            }
+                        }
+                        try {
+                            BackupManager.Instance.ExecuteWithPriorityControl(file, () => {
+                                File.Copy(file, destPath, true);
+                                stopwatch.Stop();
+                                if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                                    encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                            });
+                        }
+                        finally {
+                            if (isLargeFile) {
+                                lock (BackupManager.largeFileLock) {
+                                    BackupManager.largeFileInProgress = false;
+                                    System.Threading.Monitor.PulseAll(BackupManager.largeFileLock);
+                                }
                             }
                         }
                     }
+                    finally { BackupStrategyFactory.GlobalSemaphore.Release(); }
 
                     long fileSize = new FileInfo(file).Length;
 

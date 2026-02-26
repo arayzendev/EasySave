@@ -90,14 +90,7 @@ namespace EasySave.Core.Models
 
             string[] filesToBackup = GetFileList();
 
-            foreach (var file in filesToBackup)
-            {
-                if (BackupManager.Instance.IsPriority(file))
-                {
-                    BackupManager.Instance.BlockNonPriorityFiles();
-                    break;
-                }
-            }
+            BackupManager.Instance.BlockNonPriorityFiles(filesToBackup);
 
             backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
         }
@@ -122,14 +115,7 @@ namespace EasySave.Core.Models
                 backupProgress.State = BackupState.Active;
 
                 string[] filesToBackup = GetFileList();
-                foreach (var file in filesToBackup)
-                {
-                    if (BackupManager.Instance.IsPriority(file))
-                    {
-                        BackupManager.Instance.BlockNonPriorityFiles();
-                        break;
-                    }
-                }
+                BackupManager.Instance.BlockNonPriorityFiles(filesToBackup);
 
                 backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
             }
