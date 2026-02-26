@@ -90,18 +90,7 @@ namespace EasySave.Core.Models
             CancellationTokenSource = new CancellationTokenSource();
 
             string[] filesToBackup = GetFileList();
-
-            // Détection préventive
-            foreach (var file in filesToBackup)
-            {
-                if (BackupManager.Instance.IsPriority(file))
-                {
-                    // On ferme le barrage immédiatement pour les fichiers normaux
-                    // sans incrémenter le compteur de fichiers prioritaires prématurément.
-                    BackupManager.Instance.BlockNonPriorityFiles();
-                    break;
-                }
-            }
+            BackupManager.Instance.BlockNonPriorityFiles(filesToBackup);
 
             backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
         }
@@ -124,18 +113,8 @@ namespace EasySave.Core.Models
             if (backupProgress.State == BackupState.Paused)
             {
                 backupProgress.State = BackupState.Active;
-
-                // On réapplique la détection de priorité au cas où
                 string[] filesToBackup = GetFileList();
-                foreach (var file in filesToBackup)
-                {
-                    if (BackupManager.Instance.IsPriority(file))
-                    {
-                        BackupManager.Instance.BlockNonPriorityFiles();
-                        break;
-                    }
-                }
-
+                BackupManager.Instance.BlockNonPriorityFiles(filesToBackup);
                 backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
             }
         }

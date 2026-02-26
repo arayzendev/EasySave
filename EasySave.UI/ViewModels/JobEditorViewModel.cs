@@ -1,13 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.Input;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
-using EasySave.GUI.Commands;
 
 namespace EasySave.GUI.ViewModels
 {
@@ -22,15 +23,33 @@ namespace EasySave.GUI.ViewModels
         private string _jobName, _sourcePath, _destinationPath, _encryptionKey, _notifyMsg, _notifyColor;
         private bool _isFullBackup = true, _canSaveQuota = true, _isQuotaAlertVisible, _isNotifyVisible;
 
-        public string TitleText => _isModification ? _lang.GetText("Menu_Modify") : _lang.GetText("Menu_Create");
-        public string NameLabel => _lang.GetText("Saisie_Nom");
-        public string SourceWatermark => _lang.GetText("Saisie_Source");
-        public string TargetWatermark => _lang.GetText("Saisie_Dest");
-        public string SaveBtnText => _lang.GetText("Btn_Validate");
-        public string QuotaMessage => _lang.GetText("Msg_QuotaFull") ?? "Quota 5/5 atteint";
-        public string EncryptionLabel => "Clé de chiffrement (optionnel) :";
+        // --- PROPRIÉTÉS DE TRADUCTION ---
+       
+        public string TitleText => _isModification ? _lang.GetText("Btn_Edit") : _lang.GetText("Menu_Create");
+        public string NameLabel => _lang.GetText("Label_Name");
+        public string LabelSource => _lang.GetText("Label_Source");
+        public string LabelTarget => _lang.GetText("Label_Target");
+        public string LabelCrypto => _lang.GetText("Label_Crypto");
+        public string LabelStrategy => _lang.GetText("Label_Strategy");
 
-        public bool CanExecuteSave => !string.IsNullOrWhiteSpace(JobName) && !string.IsNullOrWhiteSpace(SourcePath) && !string.IsNullOrWhiteSpace(DestinationPath) && _canSaveQuota;
+        public string DescName => _lang.GetText("Desc_JobName");
+        public string DescSource => _lang.GetText("Desc_Source");
+        public string DescTarget => _lang.GetText("Desc_Target");
+        public string DescCrypto => _lang.GetText("Desc_Crypto");
+        public string DescStrategy => _lang.GetText("Desc_Strategy");
+
+        public string StrategyFull => _lang.GetText("Strategy_Full");
+        public string StrategyDiff => _lang.GetText("Strategy_Diff");
+        public string SaveBtnText => _lang.GetText("Btn_Validate");
+        public string BtnCancel => _lang.GetText("Btn_Cancel");
+        public string QuotaMessage => _lang.GetText("Msg_QuotaFull");
+
+        // --- LOGIQUE ET BINDINGS ---
+        public bool CanExecuteSave => !string.IsNullOrWhiteSpace(JobName) &&
+                                     !string.IsNullOrWhiteSpace(SourcePath) &&
+                                     !string.IsNullOrWhiteSpace(DestinationPath) &&
+                                     _canSaveQuota;
+
         public string JobName { get => _jobName; set { _jobName = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanExecuteSave)); } }
         public string SourcePath { get => _sourcePath; set { _sourcePath = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanExecuteSave)); } }
         public string DestinationPath { get => _destinationPath; set { _destinationPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanExecuteSave)); } }
@@ -56,53 +75,63 @@ namespace EasySave.GUI.ViewModels
 
             if (_isModification && job != null)
             {
-                JobName = job.name; SourcePath = job.sourcePath; DestinationPath = job.targetPath;
-                IsFullBackup = job.strategyType.ToLower() == "full";
+                JobName = job.name;
+                SourcePath = job.sourcePath;
+                DestinationPath = job.targetPath;
+                IsFullBackup = job.strategyType.ToLower().Contains("full") || job.strategyType.ToLower().Contains("complète");
                 EncryptionKey = job.encryptionKey;
             }
             else if (_backupManager.ListJobs().Count >= 5)
             {
-                _canSaveQuota = false; IsQuotaAlertVisible = true;
+                _canSaveQuota = false;
+                IsQuotaAlertVisible = true;
             }
 
-            // CORRECTION 1 : Retour direct au Dashboard
             BackCommand = new RelayCommand(() => _navigation.CurrentPage = new DashboardViewModel(_navigation));
 
-            SaveCommand = new RelayCommand(async () => {
+            SaveCommand = new AsyncRelayCommand(async () => {
                 if (_isModification)
                 {
                     _backupManager.ModifyJob(_index, SourcePath, DestinationPath);
-                    NotifyMsg = _lang.GetText("Msg_Modified") ?? "Travail modifié !";
+                    
+                    NotifyMsg = _lang.GetText("Msg_Succes");
                     NotifyColor = "#3498db";
                 }
                 else
                 {
-                    _backupManager.CreateJob(JobName, SourcePath, DestinationPath, IsFullBackup ? "full" : "differential", EncryptionKey);
-                    NotifyMsg = _lang.GetText("Msg_Created") ?? "Travail créé !";
+                    string strategy = IsFullBackup ? "full" : "differential";
+                    _backupManager.CreateJob(JobName, SourcePath, DestinationPath, strategy, EncryptionKey);
+                    
+                    NotifyMsg = _lang.GetText("Msg_Succes");
                     NotifyColor = "#27ae60";
                 }
 
                 IsNotifyVisible = true;
-                await Task.Delay(1500);
-
-                // CORRECTION 2 : Après sauvegarde, retour au Dashboard
+                await Task.Delay(1200);
                 _navigation.CurrentPage = new DashboardViewModel(_navigation);
             });
 
-            BrowseSourceCommand = new RelayCommand(async () => await BrowseFolder(true));
-            BrowseDestinationCommand = new RelayCommand(async () => await BrowseFolder(false));
+            BrowseSourceCommand = new AsyncRelayCommand(async () => await BrowseFolder(true));
+            BrowseDestinationCommand = new AsyncRelayCommand(async () => await BrowseFolder(false));
         }
 
         private async Task BrowseFolder(bool isSource)
         {
-            var topLevel = TopLevel.GetTopLevel((Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow);
-            if (topLevel != null)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { AllowMultiple = false });
-                if (folders?.Count > 0)
+                var storage = desktop.MainWindow?.StorageProvider;
+                if (storage == null) return;
+
+                var result = await storage.OpenFolderPickerAsync(new FolderPickerOpenOptions
                 {
-                    if (isSource) SourcePath = folders[0].Path.LocalPath;
-                    else DestinationPath = folders[0].Path.LocalPath;
+                    Title = isSource ? LabelSource : LabelTarget,
+                    AllowMultiple = false
+                });
+
+                if (result != null && result.Count > 0)
+                {
+                    if (isSource) SourcePath = result[0].Path.LocalPath;
+                    else DestinationPath = result[0].Path.LocalPath;
                 }
             }
         }
