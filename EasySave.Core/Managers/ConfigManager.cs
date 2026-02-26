@@ -5,7 +5,7 @@ using EasyLog.Models;
 
 namespace EasySave.Core.Managers
 {
-    class Config
+    public class Config
     {
 
         public List<BackupJob> backupJobs { get; set; } = new List<BackupJob>();
@@ -16,6 +16,8 @@ namespace EasySave.Core.Managers
 
         //Liste des extensions prioritaires
         public List<string> priorityExtensions { get; set; } = new List<string> ();
+
+        public int maxFileSizeKB { get; set; } = 102400;
     }
 
     class ConfigManager

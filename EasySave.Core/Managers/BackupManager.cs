@@ -19,7 +19,7 @@ namespace EasySave.Core.Managers
         private static readonly object _lock = new object();
 
         //Attributs paramètre des sauvegardes
-        private Config config;
+        public Config config;
         private StateManager stateManager;
         private ConfigManager configManager;
         private BackupStrategyFactory backupStrategyFactory;
@@ -34,6 +34,9 @@ namespace EasySave.Core.Managers
 
         //Compteur de fichiers prioritaires, tous jobs confondus
         private static int _priorityFileCount = 0;
+
+        public static bool largeFileInProgress = false;
+        public static readonly object largeFileLock = new object();
 
         private List<int> jobsPausedBySoftware = new List<int>();
 

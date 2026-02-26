@@ -93,17 +93,30 @@ namespace EasySave.Core.Strategies
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     int encryptionTime = 0;
-                    BackupManager.Instance.ExecuteWithPriorityControl(file, () =>
-                    {
-                        File.Copy(file, destPath, true);
-                        stopwatch.Stop();
-
-                        // Si tu as du chiffrement, il va ici aussi car il fait partie du transfert
-                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
-                        {
-                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                    bool isLargeFile = new FileInfo(file).Length / 1024 > BackupManager.Instance.config.maxFileSizeKB;
+                    if (isLargeFile) {
+                        lock (BackupManager.largeFileLock) {
+                            while (BackupManager.largeFileInProgress) 
+                                System.Threading.Monitor.Wait(BackupManager.largeFileLock);
+                            BackupManager.largeFileInProgress = true;
                         }
-                    });
+                    }
+                    try {
+                        BackupManager.Instance.ExecuteWithPriorityControl(file, () => {
+                            File.Copy(file, destPath, true);
+                            stopwatch.Stop();
+                            if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                                encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                        });
+                    }
+                    finally {
+                        if (isLargeFile) {
+                            lock (BackupManager.largeFileLock) {
+                                BackupManager.largeFileInProgress = false;
+                                System.Threading.Monitor.PulseAll(BackupManager.largeFileLock);
+                            }
+                        }
+                    }
 
                     
 
