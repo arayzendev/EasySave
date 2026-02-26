@@ -79,10 +79,6 @@ namespace EasySave.GUI.ViewModels
                 execute: () =>
                 {
                     this._navigation.CurrentPage = new DashboardViewModel(this._navigation);
-                },
-                canExecute: () =>
-                {
-                    return this.IsSoftwareValid() && this.IsExtensionsValid();
                 }
             );
 
@@ -125,9 +121,11 @@ namespace EasySave.GUI.ViewModels
         // Méthodes de validation
         private bool IsSoftwareValid()
         {
-            bool isNotEmpty = !string.IsNullOrWhiteSpace(this.ForbiddenSoftware);
-            bool isLongEnough = isNotEmpty && this.ForbiddenSoftware.Trim().Length >= 2;
-            return isLongEnough;
+            if (string.IsNullOrWhiteSpace(this.ForbiddenSoftware))
+            {
+                return true; // Champ optionnel
+            }
+            return this.ForbiddenSoftware.Trim().Length >= 2;
         }
 
         private bool IsExtensionsValid()
@@ -145,10 +143,6 @@ namespace EasySave.GUI.ViewModels
         // Méthodes de rafraîchissement
         private void RefreshCommands()
         {
-            if (this.StartCommand is RelayCommand cmd1)
-            {
-                cmd1.RaiseCanExecuteChanged();
-            }
             if (this.SaveSoftwareCommand is RelayCommand cmd2)
             {
                 cmd2.RaiseCanExecuteChanged();
