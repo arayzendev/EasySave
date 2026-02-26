@@ -1,6 +1,6 @@
 ﻿namespace EasySave.Core.Models
 {
-    internal enum Language
+    public enum Language
     {
         FR,
         EN

@@ -51,7 +51,7 @@ namespace EasySave.GUI.ViewModels
 
             foreach (var job in list)
             {
-                int index = _backupManager.ListJobs().FindIndex(j => j.name == job.name);
+                int index = Jobs.IndexOf(job);
                 if (index != -1) await Task.Run(() => _backupManager.ExecuteJob(index));
             }
             _isExecuting = false;

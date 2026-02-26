@@ -1,5 +1,8 @@
 using EasyLog;
+using EasyLog.Models;
+using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
+using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
 using System.Threading;
@@ -10,7 +13,7 @@ namespace EasySave.Core.Strategies
     {
         public FullBackupStrategy() { }
 
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null, CancellationToken cancellationToken = default)
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string user, string encryptionKey = null, CancellationToken cancellationToken = default)
         {
             CryptoService cryptoService = new CryptoService();
 
@@ -30,7 +33,13 @@ namespace EasySave.Core.Strategies
             backupProgress.Progress = 0;
             backupProgress.TotalFiles = files.Length;
             backupProgress.RemainingFiles = files.Length;
-            backupProgress.State = BackupState.Active;
+            
+            // On ne force l'etat Active que si le BackupManager ne nous a pas deja mis en Pause
+            if (backupProgress.State != BackupState.Paused)
+            {
+                backupProgress.State = BackupState.Active;
+            }
+
             backupProgress.DateTime = DateTime.Now;
 
             long totalSize = 0;
@@ -49,18 +58,18 @@ namespace EasySave.Core.Strategies
             {
                 Parallel.ForEach(files, options, (file, loopState) =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
                     }
 
-                    while (backupProgress.State == BackupState.Paused && !cancellationToken.IsCancellationRequested)
+                    while (backupProgress.State == BackupState.Paused && backupProgress.State != BackupState.Stopped)
                     {
                         Thread.Sleep(100);
                     }
 
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
@@ -71,14 +80,35 @@ namespace EasySave.Core.Strategies
                     Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    File.Copy(file, destPath, true);
-                    stopwatch.Stop();
-
                     int encryptionTime = 0;
-                    if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
-                    {
-                        encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                    BackupStrategyFactory.GlobalSemaphore.Wait(cancellationToken);
+                    try {
+                        bool isLargeFile = new FileInfo(file).Length / 1024 > BackupManager.Instance.config.maxFileSizeKB;
+                        if (isLargeFile) {
+                            lock (BackupManager.largeFileLock) {
+                                while (BackupManager.largeFileInProgress) 
+                                    System.Threading.Monitor.Wait(BackupManager.largeFileLock);
+                                BackupManager.largeFileInProgress = true;
+                            }
+                        }
+                        try {
+                            BackupManager.Instance.ExecuteWithPriorityControl(file, () => {
+                                File.Copy(file, destPath, true);
+                                stopwatch.Stop();
+                                if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                                    encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                            });
+                        }
+                        finally {
+                            if (isLargeFile) {
+                                lock (BackupManager.largeFileLock) {
+                                    BackupManager.largeFileInProgress = false;
+                                    System.Threading.Monitor.PulseAll(BackupManager.largeFileLock);
+                                }
+                            }
+                        }
                     }
+                    finally { BackupStrategyFactory.GlobalSemaphore.Release(); }
 
                     long fileSize = new FileInfo(file).Length;
 
@@ -102,6 +132,7 @@ namespace EasySave.Core.Strategies
                         Application = "EasySave",
                         data = new Dictionary<string, object>
                         {
+                            { "User", user },
                             { "SourceFile", file },
                             { "TargetFile", destPath },
                             { "FileSize", fileSize },
@@ -111,7 +142,7 @@ namespace EasySave.Core.Strategies
                     });
                 });
 
-                if (cancellationToken.IsCancellationRequested)
+                if (backupProgress.State == BackupState.Stopped)
                 {
                     backupProgress.State = BackupState.Stopped;
                 }
@@ -129,6 +160,7 @@ namespace EasySave.Core.Strategies
                     Application = "EasySave",
                     data = new Dictionary<string, object>
                     {
+                        { "User", user },
                         { "Error FullBackup", ex.Message.ToString() }
                     }
                 });

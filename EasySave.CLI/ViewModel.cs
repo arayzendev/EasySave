@@ -1,4 +1,5 @@
-﻿using EasySave.CLI;
+﻿using EasyLog;
+using EasySave.CLI;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
 
@@ -21,8 +22,17 @@ namespace EasySave.CLI
 
         public void Run(string[] args)
         {
+            if (args.Length > 0)
+            {
+                ExecuteFromArgs(args[0]);
+                return;
+            }
+
             bool langue = true;
             bool logActive = true;
+            bool logModeActive = true;
+
+            ShowBanner();
 
             while (langue)
             {
@@ -52,10 +62,18 @@ namespace EasySave.CLI
                     view.Write("Veuillez Réessayez.");
             }
 
-            if (args.Length > 0)
+            while (logModeActive)
             {
-                ExecuteFromArgs(args[0]);
-                return;
+                view.Write("Choisir le mode de logs (Local/Docker/All) :");
+                string logModeChoice = view.Read().ToUpper();
+
+                if (logModeChoice == "LOCAL" || logModeChoice == "DOCKER" || logModeChoice == "ALL")
+                {
+                    backupManager.SetLogMode(logModeChoice);
+                    logModeActive = false;
+                }
+                else
+                    view.Write("Veuillez Réessayez.");
             }
 
             bool running = true;
@@ -75,7 +93,7 @@ namespace EasySave.CLI
                     case "5": Modify(); break;
                     case "6": DeleteJob(); break;
                     case "7": ConfigureForbiddenSoftware(); break;
-                    case "8": running = false; break;
+                    case "8": backupManager.ShutdownLogger(); running = false; break;
 
                     default:
                         view.Write(LanguageManager.Instance.GetText("Menu_Invalid"));
@@ -98,6 +116,26 @@ namespace EasySave.CLI
             view.Write(LanguageManager.Instance.GetText("Menu_ForbiddenSoftware"));
             view.Write(LanguageManager.Instance.GetText("Menu_Quit"));
             view.Write(LanguageManager.Instance.GetText("Menu_Choice"));
+        }
+
+        public static void ShowBanner()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
+            Console.WriteLine("  ███████╗ █████╗ ███████╗██╗   ██╗ ██████╗ █████╗ ██╗   ██╗███████╗");
+            Console.WriteLine("  ██╔════╝██╔══██╗██╔════╝╚██╗ ██╔╝██╔════╝██╔══██╗██║   ██║██╔════╝");
+            Console.WriteLine("  █████╗  ███████║███████╗ ╚████╔╝ ███████╗███████║██║   ██║█████╗  ");
+            Console.WriteLine("  ██╔══╝  ██╔══██║╚════██║  ╚██╔╝  ╚════██║██╔══██║╚██╗ ██╔╝██╔══╝  ");
+            Console.WriteLine("  ███████╗██║  ██║███████║   ██║   ███████║██║  ██║ ╚████╔╝ ███████╗");
+            Console.WriteLine("  ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝");
+            Console.WriteLine();
+            Console.WriteLine("                  ░░░ EASYSAVE V3.0 ░░░");
+            Console.WriteLine();
+            Console.WriteLine();
+
+            Console.ResetColor();
+
         }
 
         private void CreateJob()

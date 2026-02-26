@@ -1,4 +1,5 @@
 using EasyLog.Interfaces;
+using EasyLog.Models;
 using System.Xml.Linq;
 
 namespace EasyLog.Strategies

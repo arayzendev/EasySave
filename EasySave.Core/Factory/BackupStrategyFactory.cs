@@ -1,13 +1,13 @@
 using EasySave.Core.Interfaces;
 using EasySave.Core.Strategies;
+using System.Threading;
 
 namespace EasySave.Core.Factory
 {
     internal class BackupStrategyFactory
     {
-        /// <summary>
-        /// Constructeur
-        /// </summary>
+        public static readonly SemaphoreSlim GlobalSemaphore = new SemaphoreSlim(4);
+
         public BackupStrategyFactory() { }
 
         /// <summary>

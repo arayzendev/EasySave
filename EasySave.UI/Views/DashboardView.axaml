@@ -5,110 +5,249 @@
              x:DataType="vm:DashboardViewModel"
              Name="Root">
 
-    <Grid RowDefinitions="Auto, *">
-        <Grid.Background>
-            <RadialGradientBrush Center="50%,50%" Radius="0.8">
-                <GradientStop Color="#1e1e2d" Offset="0" />
-                <GradientStop Color="#14141b" Offset="1" />
-            </RadialGradientBrush>
-        </Grid.Background>
+	<UserControl.Resources>
+		<Geometry x:Key="IconClock">M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.53 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z</Geometry>
+		<Geometry x:Key="IconPlus">M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z</Geometry>
+		<Geometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</Geometry>
+		<Geometry x:Key="IconPause">M14,19H18V5H14M6,19H10V5H6V19Z</Geometry>
+		<Geometry x:Key="IconStop">M18,18H6V6H18V18Z</Geometry>
+		<Geometry x:Key="IconEdit">M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z</Geometry>
+		<Geometry x:Key="IconDelete">M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19V4M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z</Geometry>
+		<Geometry x:Key="IconSource">M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z</Geometry>
+		<Geometry x:Key="IconDest">M19,9V3H5V9H3V21H21V9H19M12,18L8,14H11V11H13V14H16L12,18Z</Geometry>
+		<Geometry x:Key="IconDoublePlay">M12,12L12,5L21,12L12,19L12,12M3,12L3,5L12,12L3,19L3,12Z</Geometry>
+	</UserControl.Resources>
 
-        <Border Grid.Row="0" Padding="40,30" Background="#1Affffff" BorderBrush="#22ffffff" BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="*, Auto">
-                <StackPanel Orientation="Horizontal" Spacing="25">
-                    <TextBlock Text="{Binding TitleText}" FontSize="26" FontWeight="Black" Foreground="White" VerticalAlignment="Center"/>
-                    <Button Command="{Binding CreateCommand}" Background="#727cf5" Foreground="White" CornerRadius="10" Padding="20,10">
-                        <TextBlock Text="{Binding CreateBtnText}" FontWeight="Bold"/>
-                    </Button>
-                </StackPanel>
-                <Button Grid.Column="1" Command="{Binding ExecuteAllCommand}" Background="#27ae60" Foreground="White" CornerRadius="10" Padding="25,10">
-                    <TextBlock Text="{Binding ExecuteAllBtnText}" FontWeight="Bold"/>
-                </Button>
-            </Grid>
-        </Border>
+	<UserControl.Styles>
+		<Style Selector="Button.controlBtn">
+			<Setter Property="Width" Value="34"/>
+			<Setter Property="Height" Value="34"/>
+			<Setter Property="CornerRadius" Value="17"/>
+			<Setter Property="Padding" Value="0"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="BorderThickness" Value="0"/>
+		</Style>
+		<Style Selector="Button.actionBtn">
+			<Setter Property="Background" Value="#1AFFFFFF"/>
+			<Setter Property="BorderBrush" Value="#20FFFFFF"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="8"/>
+			<Setter Property="Width" Value="38"/>
+			<Setter Property="Height" Value="38"/>
+		</Style>
+		<Style Selector="Button:disabled">
+			<Setter Property="Opacity" Value="0.2"/>
+		</Style>
+	</UserControl.Styles>
 
-        <ScrollViewer Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding Jobs}" Margin="40,25">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="#2a2a3d" Margin="0,0,0,30" CornerRadius="20" Padding="35" BoxShadow="0 12 30 0 #50000000">
-                            <Grid ColumnDefinitions="Auto, *, Auto">
-                                
-                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,40,0" Spacing="15">
-                                    <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PlayCommand}" 
-                                            CommandParameter="{Binding}"
-                                            Width="50" Height="50" CornerRadius="25" Background="#27ae60" Padding="0">
-                                        <Viewbox Width="20" Height="20">
-                                            <Path Data="M8,5.14V19.14L19,12.14L8,5.14Z" Fill="White" Stretch="Uniform"/>
-                                        </Viewbox>
-                                    </Button>
-                                    <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PauseCommand}" 
-                                            CommandParameter="{Binding}"
-                                            Width="50" Height="50" CornerRadius="25" Background="#f39c12" Padding="0">
-                                        <Viewbox Width="20" Height="20">
-                                            <Path Data="M14,19H18V5H14M6,19H10V5H6V19Z" Fill="White" Stretch="Uniform"/>
-                                        </Viewbox>
-                                    </Button>
-                                    <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).StopCommand}" 
-                                            CommandParameter="{Binding}"
-                                            Width="50" Height="50" CornerRadius="25" Background="#e74c3c" Padding="0">
-                                        <Viewbox Width="20" Height="20">
-                                            <Path Data="M18,18H6V6H18V18Z" Fill="White" Stretch="Uniform"/>
-                                        </Viewbox>
-                                    </Button>
-                                </StackPanel>
+	<Grid RowDefinitions="Auto, *">
+		<Grid.Background>
+			<RadialGradientBrush Center="50%,50%" Radius="1.2">
+				<GradientStop Color="#2c3e50" Offset="0" />
+				<GradientStop Color="#161625" Offset="1" />
+			</RadialGradientBrush>
+		</Grid.Background>
 
-                                <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center" Margin="0,0,30,0">
-                                    <StackPanel Orientation="Horizontal" Spacing="15">
-                                        <TextBlock Text="{Binding name}" Foreground="White" FontSize="22" FontWeight="Heavy" 
-                                                   MaxWidth="400" TextTrimming="CharacterEllipsis"/>
-                                        <Border Padding="10,4" Background="#14141b" CornerRadius="6">
-                                            <TextBlock Text="{Binding strategyType}" Foreground="#727cf5" FontSize="11" FontWeight="Bold"/>
-                                        </Border>
-                                    </StackPanel>
-                                    
-                                    <StackPanel Spacing="10">
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                            <Path Data="M20,18H4V8H20M20,6H12L10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6Z" Fill="#727cf5" Width="18" Stretch="Uniform"/>
-                                            <TextBlock Text="{Binding sourcePath}" Foreground="#888c9b" FontSize="13" MaxWidth="450" TextTrimming="CharacterEllipsis"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                            <Path Data="M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2Z" Fill="#27ae60" Width="18" Stretch="Uniform"/>
-                                            <TextBlock Text="{Binding targetPath}" Foreground="#888c9b" FontSize="13" MaxWidth="450" TextTrimming="CharacterEllipsis"/>
-                                        </StackPanel>
-                                    </StackPanel>
+		<Border Grid.Row="0" Padding="40,25" Background="#15FFFFFF" BorderBrush="#20FFFFFF" BorderThickness="0,0,0,1">
+			<Grid ColumnDefinitions="*, Auto, Auto">
+				<TextBlock Text="{Binding TitleText}" FontSize="24" FontWeight="Black" Foreground="White" VerticalAlignment="Center" LetterSpacing="1"/>
 
-                                    <StackPanel Spacing="8" Margin="0,15,0,0">
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <TextBlock Text="Progression" Foreground="#55596a" FontSize="11" FontWeight="Bold"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding backupProgress.Progress, StringFormat={}{0:0}%}" Foreground="White" FontSize="14" FontWeight="Black"/>
-                                        </Grid>
-                                        <ProgressBar Value="{Binding backupProgress.Progress}" Height="10" CornerRadius="5" Foreground="#727cf5" Background="#14141b"/>
-                                    </StackPanel>
-                                </StackPanel>
+				<Button Grid.Column="1" Classes="controlBtn" Command="{Binding CreateCommand}" Background="#727cf5" Margin="0,0,20,0">
+					<Path Data="{StaticResource IconPlus}" Fill="White" Width="16" Height="16" Stretch="Uniform"/>
+				</Button>
 
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="20" MinWidth="160">
-                                    <Border Padding="15,8" Background="#1A27ae60" BorderBrush="#27ae60" BorderThickness="1" CornerRadius="20">
-                                        <TextBlock Text="{Binding backupProgress.State}" 
-                                                   Foreground="#27ae60" FontSize="11" FontWeight="Black" HorizontalAlignment="Center"/>
-                                    </Border>
+				<Border Grid.Column="2" CornerRadius="10" BoxShadow="0 0 15 2 #402ecc71">
+					<Button Command="{Binding ExecuteAllCommand}" Height="42" Padding="25,0" BorderThickness="0" CornerRadius="10">
+						<Button.Background>
+							<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+								<GradientStop Color="#27ae60" Offset="0" />
+								<GradientStop Color="#2ecc71" Offset="1" />
+							</LinearGradientBrush>
+						</Button.Background>
+						<StackPanel Orientation="Horizontal" Spacing="12">
+							<Path Data="{StaticResource IconDoublePlay}" Fill="White" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center"/>
+							<TextBlock Text="{Binding ExecuteAllBtnText}" Foreground="White" FontSize="13" FontWeight="Black" VerticalAlignment="Center" LetterSpacing="1"/>
+						</StackPanel>
+					</Button>
+				</Border>
+			</Grid>
+		</Border>
 
-                                    <StackPanel Spacing="10">
-                                        <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).EditJobCommand}" CommandParameter="{Binding}" 
-                                                Background="#3498db" Foreground="White" CornerRadius="8" HorizontalContentAlignment="Center">
-                                            <TextBlock Text="{Binding #Root.((vm:DashboardViewModel)DataContext).EditBtnText}" FontWeight="Bold" Padding="5"/>
-                                        </Button>
-                                        <Button Command="{Binding #Root.((vm:DashboardViewModel)DataContext).DeleteJobCommand}" CommandParameter="{Binding}" 
-                                                Background="#e74c3c" Foreground="White" CornerRadius="8" HorizontalContentAlignment="Center">
-                                            <TextBlock Text="{Binding #Root.((vm:DashboardViewModel)DataContext).DeleteBtnText}" FontWeight="Bold" Padding="5"/>
-                                        </Button>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-    </Grid>
+		<ScrollViewer Grid.Row="1">
+			<StackPanel Margin="40,25" Spacing="40">
+
+				<StackPanel Spacing="15">
+					<Border BorderBrush="#727cf5" BorderThickness="0,0,0,2" Padding="0,0,0,10">
+						<StackPanel Orientation="Horizontal" Spacing="15">
+							<Path Data="{StaticResource IconPlay}" Fill="#727cf5" Width="14" Stretch="Uniform" VerticalAlignment="Center"/>
+							<TextBlock Text="{Binding ActiveSectionText}" Foreground="#727cf5" FontSize="14" FontWeight="Black" LetterSpacing="2"/>
+							<Border Background="#20727cf5" CornerRadius="10" Padding="10,2">
+								<TextBlock Text="{Binding ActiveCount}" Foreground="#727cf5" FontSize="11" FontWeight="Bold"/>
+							</Border>
+						</StackPanel>
+					</Border>
+
+					<ItemsControl ItemsSource="{Binding ActiveJobs}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Border Background="#12FFFFFF" Margin="0,0,0,18" CornerRadius="15" Padding="20" BorderBrush="#15FFFFFF" BorderThickness="1.2">
+									<Grid ColumnDefinitions="50, *, 170">
+										<StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Center">
+											<Button Classes="controlBtn" Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PlayCommand}" CommandParameter="{Binding}" IsEnabled="{Binding backupProgress.CanPlay}" Background="#27ae60">
+												<Path Data="{StaticResource IconPlay}" Fill="White" Width="10" Stretch="Uniform"/>
+											</Button>
+											<Button Classes="controlBtn" Command="{Binding #Root.((vm:DashboardViewModel)DataContext).PauseCommand}" CommandParameter="{Binding}" IsEnabled="{Binding backupProgress.CanPauseOrStop}" Background="#f39c12">
+												<Path Data="{StaticResource IconPause}" Fill="White" Width="10" Stretch="Uniform"/>
+											</Button>
+											<Button Classes="controlBtn" Command="{Binding #Root.((vm:DashboardViewModel)DataContext).StopCommand}" CommandParameter="{Binding}" IsEnabled="{Binding backupProgress.CanPauseOrStop}" Background="#e74c3c">
+												<Path Data="{StaticResource IconStop}" Fill="White" Width="10" Stretch="Uniform"/>
+											</Button>
+										</StackPanel>
+
+										<StackPanel Grid.Column="1" Spacing="12" Margin="15,0">
+											<StackPanel Orientation="Horizontal" Spacing="15">
+												<TextBlock Text="{Binding name}" Foreground="White" FontSize="20" FontWeight="Heavy" VerticalAlignment="Center"/>
+												<Border Padding="10,3" CornerRadius="6" BorderBrush="#727cf5" BorderThickness="1" Background="#15727cf5">
+													<TextBlock Text="{Binding strategyType}" Foreground="#727cf5" FontSize="9" FontWeight="Black" VerticalAlignment="Center"/>
+												</Border>
+											</StackPanel>
+
+											<StackPanel Spacing="6">
+												<StackPanel Orientation="Horizontal" Spacing="12">
+													<Path Data="{StaticResource IconSource}" Fill="#727cf5" Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center" Opacity="0.8"/>
+													<TextBlock Text="{Binding sourcePath}" Foreground="#A0FFFFFF" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+												</StackPanel>
+												<StackPanel Orientation="Horizontal" Spacing="12">
+													<Path Data="{StaticResource IconDest}" Fill="#27ae60" Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center" Opacity="0.8"/>
+													<TextBlock Text="{Binding targetPath}" Foreground="#A0FFFFFF" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+												</StackPanel>
+											</StackPanel>
+
+											<StackPanel Spacing="5" Margin="0,8,50,0">
+												<Grid ColumnDefinitions="*, Auto">
+													<TextBlock Text="{Binding #Root.((vm:DashboardViewModel)DataContext).ProgressLabelText}" Foreground="#40FFFFFF" FontSize="8" FontWeight="Black" LetterSpacing="1"/>
+													<TextBlock Grid.Column="1" Text="{Binding backupProgress.Progress, StringFormat={}{0:0}%}" Foreground="#727cf5" FontSize="12" FontWeight="Black"/>
+												</Grid>
+												<ProgressBar Height="5" CornerRadius="2.5" Value="{Binding backupProgress.Progress}" Foreground="#727cf5" Background="#10FFFFFF"/>
+											</StackPanel>
+										</StackPanel>
+
+										<StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Center">
+											<StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" Opacity="0.5">
+												<Path Data="{StaticResource IconClock}" Fill="White" Width="10" Stretch="Uniform"/>
+												<TextBlock Text="{Binding backupProgress.DateTime, StringFormat={}{0:dd/MM HH:mm}}" Foreground="White" FontSize="9" FontWeight="Bold"/>
+											</StackPanel>
+
+											<Border Padding="8,5" Background="#1027ae60" BorderBrush="#4027ae60" BorderThickness="1" CornerRadius="6">
+												<TextBlock Text="{Binding backupProgress.StateTranslated}" Foreground="#2ecc71" FontSize="9" FontWeight="Black" HorizontalAlignment="Center"/>
+											</Border>
+
+											<StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+												<Button Classes="actionBtn" Command="{Binding #Root.((vm:DashboardViewModel)DataContext).EditJobCommand}" CommandParameter="{Binding}" IsEnabled="{Binding backupProgress.CanEdit}">
+													<Path Data="{StaticResource IconEdit}" Fill="White" Width="16" Height="16" Stretch="Uniform"/>
+												</Button>
+												<Button Classes="actionBtn" Command="{Binding #Root.((vm:DashboardViewModel)DataContext).DeleteJobCommand}" CommandParameter="{Binding}" IsEnabled="{Binding backupProgress.CanDelete}">
+													<Path Data="{StaticResource IconDelete}" Fill="#ff7675" Width="16" Height="16" Stretch="Uniform"/>
+												</Button>
+											</StackPanel>
+										</StackPanel>
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+
+				<Grid ColumnDefinitions="*, Auto, *">
+					<Separator Grid.Column="0" Background="#15FFFFFF" Margin="20,0"/>
+					<Path Grid.Column="1" Data="{StaticResource IconDoublePlay}" Fill="#20FFFFFF" Width="12" Stretch="Uniform" Opacity="0.5"/>
+					<Separator Grid.Column="2" Background="#15FFFFFF" Margin="20,0"/>
+				</Grid>
+
+				<StackPanel Spacing="15" Opacity="0.65">
+					<Border BorderBrush="#95a5a6" BorderThickness="0,0,0,2" Padding="0,0,0,10">
+						<StackPanel Orientation="Horizontal" Spacing="15">
+							<Path Data="{StaticResource IconStop}" Fill="#95a5a6" Width="14" Stretch="Uniform" VerticalAlignment="Center"/>
+							<TextBlock Text="{Binding HistorySectionText}" Foreground="#95a5a6" FontSize="14" FontWeight="Black" LetterSpacing="2"/>
+							<Border Background="#2095a5a6" CornerRadius="10" Padding="10,2">
+								<TextBlock Text="{Binding FinishedCount}" Foreground="#95a5a6" FontSize="11" FontWeight="Bold"/>
+							</Border>
+						</StackPanel>
+					</Border>
+
+					<ItemsControl ItemsSource="{Binding FinishedJobs}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Border Background="#08FFFFFF" Margin="0,0,0,18" CornerRadius="15" Padding="20" BorderBrush="#10FFFFFF" BorderThickness="1.2">
+									<Grid ColumnDefinitions="50, *, 170">
+										<StackPanel Grid.Column="0" Spacing="8" VerticalAlignment="Center">
+											<Button Classes="controlBtn" IsEnabled="False" Background="#4027ae60">
+												<Path Data="{StaticResource IconPlay}" Fill="White" Width="10" Stretch="Uniform" Opacity="0.3"/>
+											</Button>
+											<Button Classes="controlBtn" IsEnabled="False" Background="#40f39c12">
+												<Path Data="{StaticResource IconPause}" Fill="White" Width="10" Stretch="Uniform" Opacity="0.3"/>
+											</Button>
+											<Button Classes="controlBtn" IsEnabled="False" Background="#40e74c3c">
+												<Path Data="{StaticResource IconStop}" Fill="White" Width="10" Stretch="Uniform" Opacity="0.3"/>
+											</Button>
+										</StackPanel>
+
+										<StackPanel Grid.Column="1" Spacing="12" Margin="15,0">
+											<StackPanel Orientation="Horizontal" Spacing="15">
+												<TextBlock Text="{Binding name}" Foreground="White" FontSize="20" FontWeight="Heavy" VerticalAlignment="Center"/>
+												<Border Padding="10,3" CornerRadius="6" BorderBrush="#95a5a6" BorderThickness="1" Background="#1595a5a6">
+													<TextBlock Text="{Binding strategyType}" Foreground="#95a5a6" FontSize="9" FontWeight="Black" VerticalAlignment="Center"/>
+												</Border>
+											</StackPanel>
+
+											<StackPanel Spacing="6">
+												<StackPanel Orientation="Horizontal" Spacing="12">
+													<Path Data="{StaticResource IconSource}" Fill="#95a5a6" Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center" Opacity="0.8"/>
+													<TextBlock Text="{Binding sourcePath}" Foreground="#A0FFFFFF" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+												</StackPanel>
+												<StackPanel Orientation="Horizontal" Spacing="12">
+													<Path Data="{StaticResource IconDest}" Fill="#27ae60" Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center" Opacity="0.8"/>
+													<TextBlock Text="{Binding targetPath}" Foreground="#A0FFFFFF" FontSize="11" VerticalAlignment="Center" Opacity="0.7"/>
+												</StackPanel>
+											</StackPanel>
+
+											<StackPanel Spacing="5" Margin="0,8,50,0">
+												<Grid ColumnDefinitions="*, Auto">
+													<TextBlock Text="{Binding #Root.((vm:DashboardViewModel)DataContext).ProgressLabelText}" Foreground="#40FFFFFF" FontSize="8" FontWeight="Black" LetterSpacing="1"/>
+													<TextBlock Grid.Column="1" Text="{Binding backupProgress.Progress, StringFormat={}{0:0}%}" Foreground="#95a5a6" FontSize="12" FontWeight="Black"/>
+												</Grid>
+												<ProgressBar Height="5" CornerRadius="2.5" Value="{Binding backupProgress.Progress}" Foreground="#95a5a6" Background="#10FFFFFF"/>
+											</StackPanel>
+										</StackPanel>
+
+										<StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Center">
+											<StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" Opacity="0.4">
+												<Path Data="{StaticResource IconClock}" Fill="White" Width="10" Stretch="Uniform"/>
+												<TextBlock Text="{Binding backupProgress.DateTime, StringFormat={}{0:dd/MM HH:mm}}" Foreground="White" FontSize="9" FontWeight="Bold"/>
+											</StackPanel>
+
+											<Border Padding="8,5" Background="#1095a5a6" BorderBrush="#4095a5a6" BorderThickness="1" CornerRadius="6">
+												<TextBlock Text="{Binding backupProgress.StateTranslated}" Foreground="#95a5a6" FontSize="9" FontWeight="Black" HorizontalAlignment="Center"/>
+											</Border>
+
+											<StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+												<Button Classes="actionBtn" IsEnabled="False">
+													<Path Data="{StaticResource IconEdit}" Fill="White" Width="16" Height="16" Stretch="Uniform" Opacity="0.3"/>
+												</Button>
+												<Button Classes="actionBtn" Command="{Binding #Root.((vm:DashboardViewModel)DataContext).DeleteJobCommand}" CommandParameter="{Binding}" IsEnabled="{Binding backupProgress.CanDelete}">
+													<Path Data="{StaticResource IconDelete}" Fill="#ff7675" Width="16" Height="16" Stretch="Uniform"/>
+												</Button>
+											</StackPanel>
+										</StackPanel>
+									</Grid>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</StackPanel>
+
+			</StackPanel>
+		</ScrollViewer>
+	</Grid>
 </UserControl>

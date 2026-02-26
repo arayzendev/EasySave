@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -26,6 +27,9 @@ namespace EasySave.GUI.ViewModels
         private bool _canCreate = true;
         private bool _isQuotaAlertVisible;
         private bool _isSuccessMessageVisible;
+        private string _notifyMsg;
+        private string _notifyColor;
+        private bool _isNotifyVisible;
 
         // --- Traductions (LanguageManager) ---
         public string TitleText => _lang.GetText("Menu_Create");
@@ -49,6 +53,9 @@ namespace EasySave.GUI.ViewModels
         public bool IsDifferentialBackup { get => _isDifferentialBackup; set { _isDifferentialBackup = value; OnPropertyChanged(); } }
         public bool CanCreate { get => _canCreate; set { _canCreate = value; OnPropertyChanged(); } }
         public bool IsQuotaAlertVisible { get => _isQuotaAlertVisible; set { _isQuotaAlertVisible = value; OnPropertyChanged(); } }
+        public bool IsNotifyVisible { get => _isNotifyVisible; set { _isNotifyVisible = value; OnPropertyChanged(); } }
+        public string NotifyMsg { get => _notifyMsg; set { _notifyMsg = value; OnPropertyChanged(); } }
+        public string NotifyColor { get => _notifyColor; set { _notifyColor = value; OnPropertyChanged(); } }
 
         // --- Commandes ---
         public ICommand SaveCommand { get; }
@@ -84,6 +91,13 @@ namespace EasySave.GUI.ViewModels
                 if (!CanCreate) return;
                 if (string.IsNullOrWhiteSpace(JobName) || string.IsNullOrWhiteSpace(SourcePath) || string.IsNullOrWhiteSpace(DestinationPath))
                 {
+                    return;
+                }
+                if (_backupManager.ListJobs().Any(j => j.name == JobName))
+                {
+                    NotifyMsg = _lang.GetText("Msg_ErrorDuplicateName") ?? "A backup with this name already exists";
+                    NotifyColor = "#e74c3c";
+                    IsNotifyVisible = true;
                     return;
                 }
                 string strategy = IsFullBackup ? "full" : "differential";
