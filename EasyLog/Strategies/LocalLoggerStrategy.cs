@@ -4,15 +4,13 @@ using EasyLog.Interfaces;
 using EasyLog.Models;
 using Newtonsoft.Json;
 
-
-namespace EasyLog
+namespace EasyLog.Strategies
 {
-    public class Logger
+    public class LocalLoggerStrategy : ILogDestination
     {
         //Attribut du dossier log
         private readonly string _logDirectory;
         private ILogFormatter _formatter;
-        private ILogDestination _destination;
         private static readonly object stateFileLock = new object();
 
 
@@ -20,10 +18,11 @@ namespace EasyLog
         /// Constructeur
         /// </summary>
         /// <param name="logDirectory"></param>
-        public Logger(ILogFormatter formatter, ILogDestination destination)
+        public LocalLoggerStrategy(string logDirectory, ILogFormatter formatter)
         {
-            _destination = destination;
+            _logDirectory = logDirectory;
             _formatter = formatter;
+            Directory.CreateDirectory(_logDirectory);
         }
 
         /// <summary>
@@ -33,29 +32,25 @@ namespace EasyLog
         {
             _formatter = formatter;
         }
-        public void SetDestination(ILogDestination destination)
-        {
-            _destination = destination;
-        }
 
         /// <summary>
         /// Ecrit les logs
         /// </summary>
         /// <param name="entry"></param>
-        public void Write(LogEntry entry)
+        public void Send(string formattedLog, LogEntry entry)
         {
-            string formatted;
             lock (stateFileLock)
             {
+                //Ajout de la date
+                string filePath = Path.Combine(
+                _logDirectory,
+                $"{DateTime.Now:yyyy-MM-dd}.{_formatter.FileExtension}");
 
                 entry.Timestamp = DateTime.Now;
 
-                // Sérialisation selon le formatter
-                formatted = _formatter.Format(entry);
-            }
-            _destination.Send(formatted, entry);
+                File.AppendAllText(filePath, formattedLog + Environment.NewLine);
 
+            }
         }
     }
 }
-

@@ -1,4 +1,5 @@
-﻿using EasySave.CLI;
+﻿using EasyLog;
+using EasySave.CLI;
 using EasySave.Core.Managers;
 
 namespace EasySave.CLI
@@ -28,6 +29,7 @@ namespace EasySave.CLI
 
             bool langue = true;
             bool logActive = true;
+            bool logModeActive = true;
 
             while (langue)
             {
@@ -57,6 +59,20 @@ namespace EasySave.CLI
                     view.Write("Veuillez Réessayez.");
             }
 
+            while (logModeActive)
+            {
+                view.Write("Choisir le mode de logs (Local/Docker/All) :");
+                string logModeChoice = view.Read().ToUpper();
+
+                if (logModeChoice == "LOCAL" || logModeChoice == "DOCKER" || logModeChoice == "ALL")
+                {
+                    backupManager.SetLogMode(logModeChoice);
+                    logModeActive = false;
+                }
+                else
+                    view.Write("Veuillez Réessayez.");
+            }
+
             bool running = true;
 
             while (running)
@@ -74,7 +90,7 @@ namespace EasySave.CLI
                     case "5": Modify(); break;
                     case "6": DeleteJob(); break;
                     case "7": ConfigureForbiddenSoftware(); break;
-                    case "8": running = false; break;
+                    case "8": backupManager.ShutdownLogger(); running = false; break;
 
                     default:
                         view.Write(LanguageManager.Instance.GetText("Menu_Invalid"));

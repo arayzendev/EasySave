@@ -2,12 +2,14 @@ using EasyLog;
 using EasyLog.Factory;
 using EasyLog.Interfaces;
 using EasyLog.Models;
+using EasyLog.Strategies;
 using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Models;
 using EasySave.Managers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Security.Principal;
 
 namespace EasySave.Core.Managers
 {
@@ -23,6 +25,8 @@ namespace EasySave.Core.Managers
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
         private ProcessMonitor processMonitor;
+        private string user = WindowsIdentity.GetCurrent().Name;
+        private ClientSocket clientSocket;
 
         //Barrage passage des threads, True:ouvert, False:fermé
         //Ouvert par defaut
@@ -52,7 +56,7 @@ namespace EasySave.Core.Managers
         }
 
         /// <summary>
-        /// Constructeur privé pour singleton
+        /// Constructeur
         /// </summary>
         public BackupManager()
         {
@@ -115,9 +119,23 @@ namespace EasySave.Core.Managers
 
         private void InitializeLogger()
         {
-            string logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EasySaveData", "Logs");
+            string logDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "EasySaveData",
+                "Logs");
+
+            // Création du formatter JSON/XML selon config
             ILogFormatter formatter = LogFormatterFactory.Create(config.logType.ToString());
-            logger = new Logger(logDirectory, formatter);
+
+            // Création du Logger via la Factory
+            logger = LoggerFactory.CreateLogger(config.logMode, logDirectory, formatter);
+        }
+
+        public void ShutdownLogger()
+        {
+            // Si Docker était utilisé, fermer la connexion persistante
+            clientSocket?.Disconnect();
+            clientSocket = null;
         }
 
         public void SetLanguage(string language)
@@ -150,34 +168,69 @@ namespace EasySave.Core.Managers
             InitializeLogger();
         }
 
+        public void SetLogMode(string logMode)
+        {
+            switch (logMode.ToLower())
+            {
+                case "docker":
+                    config.logMode = LogMode.Docker;
+                    break;
+                case "all":
+                    config.logMode = LogMode.Composite;
+                    break;
+                default:
+                    config.logMode = LogMode.Local;
+                    break;
+            }
+            configManager.Save(config);
+            InitializeLogger();
+        }
+
+        /// <summary>
+        /// Crï¿½ation d'un travailleur de sauvegarde
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="sourcePath"></param>
+        /// <param name="targetPath"></param>
+        /// <param name="backupStrategy"></param>
+        /// <returns></returns>
         public bool CreateJob(string name, string sourcePath, string targetPath, string backupStrategy, string encryptionKey = null)
         {
+
             var stopwatch = Stopwatch.StartNew();
 
+            //Crï¿½ation du travailleur
             IBackupStrategy strategy = backupStrategyFactory.Create(backupStrategy);
             var job = new BackupJob(name, sourcePath, targetPath, strategy, backupStrategy);
             job.encryptionKey = encryptionKey;
             config.backupJobs.Add(job);
 
+            //Sauvegarde de la configuration du travailleur
             configManager.Save(config);
             stopwatch.Stop();
 
+            //Ecrit les logs 
             logger.Write(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
-                {
-                    { "CreateBackupName", name },
-                    { "SourceFile", sourcePath },
-                    { "TargetFile", targetPath },
-                    { "CreationTimeMs", stopwatch.ElapsedMilliseconds }
-                }
+                                {
+                                    { "CreateBackupName", name },
+                                    { "SourceFile", sourcePath },
+                                    { "TargetFile", targetPath },
+                                    { "CreationTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
             });
 
             return true;
         }
 
+        /// <summary>
+        /// Suppresion d'un travailleur de sauvegarde
+        /// </summary>
+        /// <param name="index"></param>
         public void DeleteJob(int index)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -185,55 +238,80 @@ namespace EasySave.Core.Managers
             configManager.Save(config);
             stopwatch.Stop();
 
+            //Ecrit les logs 
             logger.Write(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
-                {
-                    { "DeletedBackupIndex", index },
-                    { "DeleteTimeMs", stopwatch.ElapsedMilliseconds }
-                }
+                                {
+                                    { "DeletedBackupIndex", index },
+                                    { "DeleteTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
             });
         }
 
+        /// <summary>
+        /// Modifie ses chemins
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="sourcePath"></param>
+        /// <param name="targetPath"></param>
         public void ModifyJob(int index, string sourcePath, string targetPath)
         {
             var stopwatch = Stopwatch.StartNew();
             config.backupJobs[index].UpdatePaths(sourcePath, targetPath);
             configManager.Save(config);
             stopwatch.Stop();
-
+            //Ecrit les logs 
             logger.Write(new LogEntry
             {
                 Timestamp = DateTime.Now,
                 Application = "EasySave",
+                User = user,
                 data = new Dictionary<string, object>
-                {
-                    { "ModifiedBackupIndex", index },
-                    { "SourceFile", sourcePath },
-                    { "TargetFile", targetPath },
-                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
-                }
+                                {
+                                    { "ModifiedBackupIndex", index },
+                                    { "SourceFile", sourcePath },
+                                    { "TargetFile", targetPath },
+                                    { "TransferTimeMs", stopwatch.ElapsedMilliseconds }
+                                }
             });
         }
 
+        /// <summary>
+        /// Configure le nom du logiciel métier
+        /// </summary>
+        /// <param name="softwareName"></param>
         public void SetForbiddenSoftware(string softwareName)
         {
             config.forbiddenSoftwareName = softwareName;
             configManager.Save(config);
         }
 
+        /// <summary>
+        /// Recupere le nom du logiciel métier
+        /// </summary>
+        /// <returns></returns>
         public string GetForbiddenSoftware()
         {
             return config.forbiddenSoftwareName;
         }
 
+        /// <summary>
+        /// Verifie si le logiciel métier est en cours d'execution
+        /// </summary>
+        /// <returns></returns>
         public bool IsForbiddenSoftwareRunning()
         {
             return processMonitor.IsRunning(config.forbiddenSoftwareName);
         }
 
+        /// <summary>
+        /// Choix du travailleur ï¿½ executer
+        /// </summary>
+        /// <param name="index"></param>
         public void ExecuteJob(int index, string encryptionKey = null)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -266,8 +344,6 @@ namespace EasySave.Core.Managers
                         }
                     }
                     OnProgressUpdate();
-
-                    
                 }
                 
                 // Use job's encryption key if not provided
@@ -278,7 +354,8 @@ namespace EasySave.Core.Managers
                 logger.Write(new LogEntry
                 {
                     Timestamp = DateTime.Now,
-                    Application = "EasySave",
+                    Application = config.backupJobs[index].name,
+                    User = user,
                     data = new Dictionary<string, object>
                     {
                         { "ExecutedBackupIndex", index },
@@ -301,7 +378,7 @@ namespace EasySave.Core.Managers
             if (index >= 0 && index < config.backupJobs.Count)
             {
                 string key = config.backupJobs[index].encryptionKey;
-                config.backupJobs[index].Resume(OnProgressUpdate, logger, key);
+                config.backupJobs[index].Resume(OnProgressUpdate, logger, user, key);
             }
         }
 
@@ -313,11 +390,18 @@ namespace EasySave.Core.Managers
             }
         }
 
+        /// <summary>
+        /// Liste les travailleurs existants
+        /// </summary>
+        /// <returns></returns>
         public List<BackupJob> ListJobs()
         {
             return config.backupJobs;
         }
 
+        /// <summary>
+        /// Mise ï¿½ jour de l'ï¿½tat du travailleur
+        /// </summary>
         private void OnProgressUpdate()
         {
             stateManager.Write(config.backupJobs);

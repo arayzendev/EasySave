@@ -1,0 +1,26 @@
+# -------- STAGE 1 : Build --------
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /app
+
+# Copier le csproj et restaurer les dépendances
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copier tout le projet
+COPY . ./
+
+# Build en Release
+RUN dotnet publish -c Release -o /out
+
+# -------- STAGE 2 : Runtime --------
+FROM mcr.microsoft.com/dotnet/runtime:10.0
+WORKDIR /app
+
+# Copier le build final
+COPY --from=build /out ./
+
+# Expose le port utilisé par ton serveur
+EXPOSE 5000
+
+# Lancer l'application
+ENTRYPOINT ["dotnet", "EasyLog.Server.dll"]

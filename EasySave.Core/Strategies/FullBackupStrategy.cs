@@ -1,10 +1,11 @@
-using System.Threading;
 using EasyLog;
+using EasyLog.Models;
 using EasySave.Core.Factory;
 using EasySave.Core.Interfaces;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
+using System.Threading;
 
 namespace EasySave.Core.Strategies
 {
@@ -12,7 +13,7 @@ namespace EasySave.Core.Strategies
     {
         public FullBackupStrategy() { }
 
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null, CancellationToken cancellationToken = default)
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string user, string encryptionKey = null, CancellationToken cancellationToken = default)
         {
             CryptoService cryptoService = new CryptoService();
 
@@ -129,6 +130,7 @@ namespace EasySave.Core.Strategies
                         Application = "EasySave",
                         data = new Dictionary<string, object>
                         {
+                            { "User", user },
                             { "SourceFile", file },
                             { "TargetFile", destPath },
                             { "FileSize", fileSize },
@@ -156,6 +158,7 @@ namespace EasySave.Core.Strategies
                     Application = "EasySave",
                     data = new Dictionary<string, object>
                     {
+                        { "User", user },
                         { "Error FullBackup", ex.Message.ToString() }
                     }
                 });

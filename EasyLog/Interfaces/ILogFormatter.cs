@@ -1,3 +1,5 @@
+using EasyLog.Models;
+
 namespace EasyLog.Interfaces
 {
     public interface ILogFormatter

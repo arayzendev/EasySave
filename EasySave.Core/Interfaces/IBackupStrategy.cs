@@ -16,6 +16,6 @@ namespace EasySave.Core.Interfaces
         /// <param name="logger"></param>
         /// <param name="encryptionKey"></param>
         /// <param name="cancellationToken"></param>
-        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string encryptionKey = null, CancellationToken cancellationToken = default);
+        public void Save(string sourcePath, string targetPath, BackupProgress backupProgress, Action OnProgressupdate, Logger logger, string user, string encryptionKey = null, CancellationToken cancellationToken = default);
     }
 }

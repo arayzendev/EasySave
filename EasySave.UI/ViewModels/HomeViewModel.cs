@@ -16,6 +16,8 @@ namespace EasySave.GUI.ViewModels
         private readonly LanguageManager _lang;
         private readonly BackupManager _backupManager;
 
+        // Propriétés pour l'interface (Bindings)
+
         private bool _isInputInvalid;
         private string _priorityExtensions;
         private string _forbiddenSoftware;

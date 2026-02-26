@@ -1,7 +1,8 @@
+using EasyLog;
+using EasySave.Core.Interfaces;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using System.Threading;
-using EasySave.Core.Interfaces;
 using EasySave.Core.Managers;
 
 namespace EasySave.Core.Models
@@ -54,6 +55,7 @@ namespace EasySave.Core.Models
             get => _backupProgress;
             set { _backupProgress = value; OnPropertyChanged(nameof(backupProgress)); }
         }
+        
         [JsonIgnore]
         public CancellationTokenSource CancellationTokenSource { get; set; }
 
@@ -82,17 +84,15 @@ namespace EasySave.Core.Models
             return Array.Empty<string>();
         }
 
-        /// <summary>
-        /// Exécute le travail de sauvegarde
-        /// </summary>
-        public void Execute(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
+        public void Execute(Action onProgressUpdate, Logger logger, string user, string encryptionKey = null)
         {
             CancellationTokenSource = new CancellationTokenSource();
 
             string[] filesToBackup = GetFileList();
+
             BackupManager.Instance.BlockNonPriorityFiles(filesToBackup);
 
-            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
+            backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
         }
 
         public void Pause()
@@ -108,14 +108,16 @@ namespace EasySave.Core.Models
             backupProgress.State = BackupState.Stopped;
         }
 
-        public void Resume(Action onProgressUpdate, EasyLog.Logger logger, string encryptionKey = null)
+        public void Resume(Action onProgressUpdate, Logger logger, string user, string encryptionKey = null)
         {
             if (backupProgress.State == BackupState.Paused)
             {
                 backupProgress.State = BackupState.Active;
+
                 string[] filesToBackup = GetFileList();
                 BackupManager.Instance.BlockNonPriorityFiles(filesToBackup);
-                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, encryptionKey);
+
+                backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
             }
         }
 
