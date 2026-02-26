@@ -1,0 +1,27 @@
+# Étape 1 : SDK pour build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Copier le csproj et restaurer
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copier tout le reste du code et publier
+COPY . ./
+RUN dotnet publish -c Release -o /app/publish
+
+# Étape 2 : runtime léger
+FROM mcr.microsoft.com/dotnet/runtime:10.0
+WORKDIR /app
+
+# Crée le dossier pour les logs
+RUN mkdir /logs
+
+# Copier l'application publiée
+COPY --from=build /app/publish .
+
+# Expose le port TCP pour les clients
+EXPOSE 5000
+
+# Point d'entrée
+ENTRYPOINT ["dotnet", "EasyLog.Server.dll"]

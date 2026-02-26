@@ -1,8 +1,10 @@
 ﻿using EasyLog.Models;
 using EasyLog.Server.Utils;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace EasyLog.Server.Services
 {
@@ -10,51 +12,55 @@ namespace EasyLog.Server.Services
     {
         private readonly int _port;
 
-        public LogServer(int port)
-        {
-            _port = port;
-        }
+        public LogServer(int port) => _port = port;
 
         /// <summary>
-        /// Gère un client TCP : lecture ligne par ligne, désérialisation et stockage
+        /// Gère un client TCP de manière synchrone
         /// </summary>
         private void HandleClient(TcpClient client)
         {
-            using NetworkStream stream = client.GetStream();
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-
-            string line;
-            while ((line = reader.ReadLine()) != null)
+            try
             {
-                try
+                using NetworkStream stream = client.GetStream();
+                using var reader = new StreamReader(stream, Encoding.UTF8);
+
+                string line;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    int separatorIndex = line.IndexOf('|');
-                    if (separatorIndex <= 0) continue;
-
-                    // Extraction de l'en-tête
-                    string format = line.Substring(0, separatorIndex);
-                    string payload = line.Substring(separatorIndex + 1); // <-- en-tête supprimée
-
-                    // Désérialisation selon format
-                    LogEntry entry = LogDeserializer.Deserialize(format, payload);
-                    if (entry != null)
+                    try
                     {
-                        LogStorage.Save(entry, format);
-                        Console.WriteLine($"Log saved: {entry.Application} at {entry.Timestamp}");
+                        int separatorIndex = line.IndexOf('|');
+                        if (separatorIndex <= 0) continue;
+
+                        string format = line.Substring(0, separatorIndex);
+                        string payload = line.Substring(separatorIndex + 1);
+
+                        LogEntry entry = LogDeserializer.Deserialize(format, payload);
+                        if (entry != null)
+                        {
+                            LogStorage.Save(entry, format);
+                            Console.WriteLine($"Log saved: {entry.Application} at {entry.Timestamp}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error processing log: {ex.Message}");
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error processing log: {ex.Message}");
-                }
             }
-
-            client.Close();
-            Console.WriteLine("Client disconnected.");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Client connection error: {ex.Message}");
+            }
+            finally
+            {
+                client.Close();
+                Console.WriteLine("Client disconnected.");
+            }
         }
 
         /// <summary>
-        /// Démarre le serveur TCP
+        /// Démarre le serveur TCP et accepte plusieurs clients
         /// </summary>
         public void Start()
         {
@@ -66,7 +72,13 @@ namespace EasyLog.Server.Services
             {
                 TcpClient client = server.AcceptTcpClient();
                 Console.WriteLine("Client connected.");
-                HandleClient(client);
+
+                // Crée un thread pour chaque client
+                Thread t = new Thread(() => HandleClient(client))
+                {
+                    IsBackground = true
+                };
+                t.Start();
             }
         }
     }
