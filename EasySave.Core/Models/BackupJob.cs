@@ -3,6 +3,7 @@ using EasySave.Core.Interfaces;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 using System.Threading;
+using EasySave.Core.Managers;
 
 namespace EasySave.Core.Models
 {
@@ -62,7 +63,6 @@ namespace EasySave.Core.Models
         {
             strategyType = "full";
             backupProgress = new BackupProgress();
-            CancellationTokenSource = new CancellationTokenSource();
         }
 
         public BackupJob(string name, string sourcePath, string targetPath, IBackupStrategy backupStrategy, string strategyType)
@@ -73,12 +73,32 @@ namespace EasySave.Core.Models
             this.backupStrategy = backupStrategy;
             this.strategyType = strategyType;
             backupProgress = new BackupProgress();
-            CancellationTokenSource = new CancellationTokenSource();
+        }
+
+        private string[] GetFileList()
+        {
+            if (Directory.Exists(sourcePath))
+            {
+                return Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
+            }
+            return Array.Empty<string>();
         }
 
         public void Execute(Action onProgressUpdate, Logger logger, string user, string encryptionKey = null)
         {
             CancellationTokenSource = new CancellationTokenSource();
+
+            string[] filesToBackup = GetFileList();
+
+            foreach (var file in filesToBackup)
+            {
+                if (BackupManager.Instance.IsPriority(file))
+                {
+                    BackupManager.Instance.BlockNonPriorityFiles();
+                    break;
+                }
+            }
+
             backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
         }
 
@@ -87,22 +107,30 @@ namespace EasySave.Core.Models
             if (backupProgress.State == BackupState.Active)
             {
                 backupProgress.State = BackupState.Paused;
-                CancellationTokenSource.Cancel();
             }
         }
 
         public void Stop()
         {
             backupProgress.State = BackupState.Stopped;
-            CancellationTokenSource.Cancel();
         }
 
         public void Resume(Action onProgressUpdate, Logger logger, string user, string encryptionKey = null)
         {
             if (backupProgress.State == BackupState.Paused)
             {
-                CancellationTokenSource = new CancellationTokenSource();
                 backupProgress.State = BackupState.Active;
+
+                string[] filesToBackup = GetFileList();
+                foreach (var file in filesToBackup)
+                {
+                    if (BackupManager.Instance.IsPriority(file))
+                    {
+                        BackupManager.Instance.BlockNonPriorityFiles();
+                        break;
+                    }
+                }
+
                 backupStrategy.Save(sourcePath, targetPath, backupProgress, onProgressUpdate, logger, user, encryptionKey, CancellationTokenSource.Token);
             }
         }
@@ -117,5 +145,5 @@ namespace EasySave.Core.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    } 
+    }
 }

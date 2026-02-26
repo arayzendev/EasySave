@@ -1,6 +1,7 @@
 using EasyLog;
 using EasyLog.Models;
 using EasySave.Core.Interfaces;
+using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using EasySave.Core.Services;
 using System.Threading;
@@ -44,7 +45,13 @@ namespace EasySave.Core.Strategies
 
             backupProgress.TotalFiles = files.Count;
             backupProgress.RemainingFiles = files.Count;
-            backupProgress.State = BackupState.Active;
+            
+            // On ne force l'etat Active que si le BackupManager ne nous a pas deja mis en Pause
+            if (backupProgress.State != BackupState.Paused)
+            {
+                backupProgress.State = BackupState.Active;
+            }
+
             backupProgress.DateTime = DateTime.Now;
 
             long totalSize = 0;
@@ -63,18 +70,18 @@ namespace EasySave.Core.Strategies
             {
                 Parallel.ForEach(files, options, (file, loopState) =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
                     }
 
-                    while (backupProgress.State == BackupState.Paused && !cancellationToken.IsCancellationRequested)
+                    while (backupProgress.State == BackupState.Paused && backupProgress.State != BackupState.Stopped)
                     {
                         Thread.Sleep(100);
                     }
 
-                    if (cancellationToken.IsCancellationRequested)
+                    if (backupProgress.State == BackupState.Stopped)
                     {
                         loopState.Stop();
                         return;
@@ -85,14 +92,20 @@ namespace EasySave.Core.Strategies
                     Directory.CreateDirectory(Path.GetDirectoryName(destPath));
 
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                    File.Copy(file, destPath, true);
-                    stopwatch.Stop();
-
                     int encryptionTime = 0;
-                    if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                    BackupManager.Instance.ExecuteWithPriorityControl(file, () =>
                     {
-                        encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
-                    }
+                        File.Copy(file, destPath, true);
+                        stopwatch.Stop();
+
+                        // Si tu as du chiffrement, il va ici aussi car il fait partie du transfert
+                        if (!string.IsNullOrEmpty(encryptionKey) && cryptoService.ShouldEncrypt(file))
+                        {
+                            encryptionTime = cryptoService.EncryptFile(destPath, encryptionKey);
+                        }
+                    });
+
+                    
 
                     long fileSize = new FileInfo(file).Length;
 
@@ -125,7 +138,7 @@ namespace EasySave.Core.Strategies
                     });
                 });
 
-                if (cancellationToken.IsCancellationRequested)
+                if (backupProgress.State == BackupState.Stopped)
                 {
                     backupProgress.State = BackupState.Stopped;
                 }

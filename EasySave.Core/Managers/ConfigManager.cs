@@ -13,6 +13,9 @@ namespace EasySave.Core.Managers
         public LogType logType { get; set; } = LogType.JSON;
         public LogMode logMode {  get; set; } = LogMode.Local;
         public string forbiddenSoftwareName { get; set; } = "explorer";
+
+        //Liste des extensions prioritaires
+        public List<string> priorityExtensions { get; set; } = new List<string> ();
     }
 
     class ConfigManager

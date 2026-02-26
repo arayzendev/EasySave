@@ -1,4 +1,6 @@
 using System.Windows.Input;
+using System.Linq; 
+using System.Collections.Generic; 
 using EasySave.Core.Managers;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
@@ -24,6 +26,21 @@ namespace EasySave.GUI.ViewModels
     
         public ICommand StartCommand { get; }
         public ICommand SaveSoftwareCommand { get; }
+
+        //Propriété et Commande pour les extensions
+        public ICommand SavePriorityCommand { get; }
+
+        private string _priorityExtensions;
+        public string PriorityExtensions
+        {
+            get => _priorityExtensions;
+            set
+            {
+                _priorityExtensions = value;
+                OnPropertyChanged();
+            }
+        }
+        // 
 
         private string _forbiddenSoftware;
         public string ForbiddenSoftware
@@ -104,6 +121,12 @@ namespace EasySave.GUI.ViewModels
             _lang = LanguageManager.Instance;
             _backupManager = BackupManager.Instance;
 
+            // Initialisation au démarrage
+            // On charge les extensions depuis le BackupManager
+            var currentExtensions = _backupManager.GetPriorityExtensions();
+            PriorityExtensions = string.Join(";", currentExtensions);
+            // 
+
             StartCommand = new RelayCommand(() =>
             {
                 _navigation.CurrentPage = new DashboardViewModel(_navigation);
@@ -117,10 +140,22 @@ namespace EasySave.GUI.ViewModels
                 }
             });
 
+            // Logique de sauvegarde des extensions
+            SavePriorityCommand = new RelayCommand(() =>
+            {
+                var list = PriorityExtensions?.Split(';')
+                    .Select(e => e.Trim().ToLower())
+                    .Where(e => !string.IsNullOrEmpty(e))
+                    .Select(e => e.StartsWith(".") ? e : "." + e)
+                    .ToList() ?? new List<string>();
+
+                _backupManager.UpdatePriorityExtensions(list);
+            });
+            
+
             _lang.SetLanguage("FR");
         }
 
-        
         private void RefreshTexts()
         {
             OnPropertyChanged(nameof(StartButtonText));

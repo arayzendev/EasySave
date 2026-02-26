@@ -70,6 +70,19 @@
                         Background="#27ae60" Foreground="White"/>
 			</StackPanel>
 
+			<StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="10">
+				<TextBox Text="{Binding PriorityExtensions}"
+						 Watermark="Extensions: .pdf;.db..."
+						 Width="250" Height="40"
+						 Background="#1Affffff"
+						 Foreground="White"/>
+				<Button Content="✓" Command="{Binding SavePriorityCommand}"
+						Width="40" Height="40"
+						Background="#727cf5" Foreground="White"/>
+			</StackPanel>
+
 			<Button Content="{Binding StartButtonText}"
                     Command="{Binding StartCommand}"
                     Width="240"
