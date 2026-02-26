@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using EasySave.Core.Managers;
+using EasyLog.Models;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
 
 namespace EasySave.GUI.ViewModels
@@ -21,6 +22,8 @@ namespace EasySave.GUI.ViewModels
         private bool _isInputInvalid;
         private string _priorityExtensions;
         private string _forbiddenSoftware;
+        private bool _isLocalLogEnabled;
+        private bool _isDockerLogEnabled;
 
         // Propriétés publiques avec OnPropertyChanged 
         public bool IsInputInvalid
@@ -49,7 +52,7 @@ namespace EasySave.GUI.ViewModels
                 this.RefreshCommands();
             }
         }
-
+        //logiciel interdit
         public string ForbiddenSoftware
         {
             get
@@ -115,6 +118,11 @@ namespace EasySave.GUI.ViewModels
             this._forbiddenSoftware = string.Empty;
             List<string> currentExtensions = this._backupManager.GetPriorityExtensions() ?? new List<string>();
             this._priorityExtensions = string.Join("; ", currentExtensions);
+
+            // Initialisation du mode de log depuis la config
+            var currentLogMode = this._backupManager.GetLogMode();
+            this._isLocalLogEnabled = currentLogMode == LogMode.Local || currentLogMode == LogMode.Composite;
+            this._isDockerLogEnabled = currentLogMode == LogMode.Docker || currentLogMode == LogMode.Composite;
 
             // Définition de la langue initiale
             this._lang.SetLanguage("FR");
@@ -218,6 +226,50 @@ namespace EasySave.GUI.ViewModels
             }
         }
 
+        public bool IsLocalLogEnabled
+        {
+            get
+            {
+                return this._isLocalLogEnabled;
+            }
+            set
+            {
+                this._isLocalLogEnabled = value;
+                this.OnPropertyChanged(nameof(IsLocalLogEnabled));
+                this.UpdateLogMode();
+            }
+        }
+
+        public bool IsDockerLogEnabled
+        {
+            get
+            {
+                return this._isDockerLogEnabled;
+            }
+            set
+            {
+                this._isDockerLogEnabled = value;
+                this.OnPropertyChanged(nameof(IsDockerLogEnabled));
+                this.UpdateLogMode();
+            }
+        }
+
+        private void UpdateLogMode()
+        {
+            if (this._isLocalLogEnabled && this._isDockerLogEnabled)
+            {
+                this._backupManager.SetLogMode("all");
+            }
+            else if (this._isDockerLogEnabled)
+            {
+                this._backupManager.SetLogMode("docker");
+            }
+            else
+            {
+                this._backupManager.SetLogMode("local");
+            }
+        }
+
         // Accesseurs de Textes traduits
         public string StartButtonText { get { return this._lang.GetText("Btn_Start"); } }
         public string FrenchLabel { get { return this._lang.GetText("lang_FR"); } }
@@ -226,6 +278,7 @@ namespace EasySave.GUI.ViewModels
         public string GeneralSettingsTitle { get { return this._lang.GetText("Home_GeneralTitle"); } }
         public string LanguageSelectionLabel { get { return this._lang.GetText("Home_LangLabel"); } }
         public string LogFormatLabel { get { return this._lang.GetText("Home_LogLabel"); } }
+        public string LogModeLabel { get { return this._lang.GetText("Home_LogModeLabel"); } }
         public string SecuritySettingsTitle { get { return this._lang.GetText("Home_SecurityTitle"); } }
         public string BusinessSoftwareLabel { get { return this._lang.GetText("Home_SoftwareLabel"); } }
         public string PriorityExtensionsLabel { get { return this._lang.GetText("Home_ExtensionsLabel"); } }
