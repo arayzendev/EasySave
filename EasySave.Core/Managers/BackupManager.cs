@@ -25,7 +25,7 @@ namespace EasySave.Core.Managers
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
         private ProcessMonitor processMonitor;
-        private string user = "sliiz";
+        private string user = WindowsIdentity.GetCurrent().Name;
         private ClientSocket clientSocket;
 
         //Barrage passage des threads, True:ouvert, False:fermé
