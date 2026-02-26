@@ -87,24 +87,24 @@ namespace EasySave.GUI.ViewModels
 
             EditJobCommand = new RelayCommand<BackupJob>(j => {
                 if (j == null) return;
-                int idx = _backupManager.ListJobs().FindIndex(x => x.name == j.name);
+                int idx = Jobs.IndexOf(j);
                 _navigation.CurrentPage = new JobEditorViewModel(_navigation, j, idx);
             });
 
             DeleteJobCommand = new RelayCommand<BackupJob>(j => {
-                int idx = _backupManager.ListJobs().FindIndex(x => x.name == j?.name);
+                int idx = Jobs.IndexOf(j);
                 if (idx != -1) _backupManager.DeleteJob(idx);
                 Jobs.Remove(j);
                 UpdateSections();
             });
 
             PauseCommand = new RelayCommand<BackupJob>(j => {
-                int idx = _backupManager.ListJobs().FindIndex(x => x.name == j?.name);
+                int idx = Jobs.IndexOf(j);
                 if (idx != -1) _backupManager.PauseJob(idx);
             });
 
             StopCommand = new RelayCommand<BackupJob>(j => {
-                int idx = _backupManager.ListJobs().FindIndex(x => x.name == j?.name);
+                int idx = Jobs.IndexOf(j);
                 if (idx != -1) _backupManager.StopJob(idx);
             });
 
@@ -116,7 +116,7 @@ namespace EasySave.GUI.ViewModels
         // Méthode pour protéger l'état du job lors du lancement
         private async Task ExecuteJobWithProtection(BackupJob job)
         {
-            int idx = _backupManager.ListJobs().FindIndex(x => x.name == job.name);
+            int idx = Jobs.IndexOf(job);
             if (idx == -1) return;
 
             // Si le logiciel métier n'est pas lancé, on force l'état visuel et on le protège
@@ -145,9 +145,10 @@ namespace EasySave.GUI.ViewModels
             bool needsUpdate = false;
             DateTime now = DateTime.Now;
 
-            foreach (var f in fresh)
+            for (int i = 0; i < fresh.Count && i < Jobs.Count; i++)
             {
-                var ex = Jobs.FirstOrDefault(j => j.name == f.name);
+                var f = fresh[i];
+                var ex = Jobs[i];
                 if (ex != null)
                 {
                     bool isProtected = false;
