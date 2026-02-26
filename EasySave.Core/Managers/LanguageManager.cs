@@ -53,7 +53,7 @@ namespace EasySave.Core.Managers
                 _translations.Add("Menu_Titre", "--- TABLEAU DE BORD ---");
 
                 // ACTIONS DASHBOARD
-                _translations.Add("Menu_Create", "Créer un travail de sauvegarde");
+                _translations.Add("Menu_Create", " 1.Créer un travail de sauvegarde");
                 _translations.Add("Menu_ExecuteAll", "Tout Exécuter");
                 _translations.Add("Btn_Edit", "ÉDITER");
                 _translations.Add("Btn_Delete", "SUPPRIMER");

@@ -31,6 +31,8 @@ namespace EasySave.CLI
             bool logActive = true;
             bool logModeActive = true;
 
+            ShowBanner();
+
             while (langue)
             {
                 view.Write("Choisir la Langue (FR/EN) :");
@@ -113,6 +115,26 @@ namespace EasySave.CLI
             view.Write(LanguageManager.Instance.GetText("Menu_ForbiddenSoftware"));
             view.Write(LanguageManager.Instance.GetText("Menu_Quit"));
             view.Write(LanguageManager.Instance.GetText("Menu_Choice"));
+        }
+
+        public static void ShowBanner()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
+            Console.WriteLine("  ███████╗ █████╗ ███████╗██╗   ██╗ ██████╗ █████╗ ██╗   ██╗███████╗");
+            Console.WriteLine("  ██╔════╝██╔══██╗██╔════╝╚██╗ ██╔╝██╔════╝██╔══██╗██║   ██║██╔════╝");
+            Console.WriteLine("  █████╗  ███████║███████╗ ╚████╔╝ ███████╗███████║██║   ██║█████╗  ");
+            Console.WriteLine("  ██╔══╝  ██╔══██║╚════██║  ╚██╔╝  ╚════██║██╔══██║╚██╗ ██╔╝██╔══╝  ");
+            Console.WriteLine("  ███████╗██║  ██║███████║   ██║   ███████║██║  ██║ ╚████╔╝ ███████╗");
+            Console.WriteLine("  ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚══════╝");
+            Console.WriteLine();
+            Console.WriteLine("                  ░░░ EASYSAVE V3.0 ░░░");
+            Console.WriteLine();
+            Console.WriteLine();
+
+            Console.ResetColor();
+
         }
 
         private void CreateJob()
