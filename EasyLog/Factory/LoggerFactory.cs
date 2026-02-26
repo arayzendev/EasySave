@@ -17,7 +17,7 @@ namespace EasyLog.Factory
             // Si Docker ou Composite, on crée le ClientSocket (connexion persistante)
             if (logMode == LogMode.Docker || logMode == LogMode.Composite)
             {
-                clientSocket = new ClientSocket("localhost", 5000);
+                clientSocket = new ClientSocket(5000);
                 clientSocket.Connect();
             }
 

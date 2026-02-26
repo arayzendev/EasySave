@@ -4,11 +4,11 @@ namespace EasyLog.Server
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            int port = 5000; // même que DockerLoggerStrategy
+            int port = 5000;
             LogServer server = new LogServer(port);
-            server.Start();
+            await server.StartAsync();
         }
     }
 }

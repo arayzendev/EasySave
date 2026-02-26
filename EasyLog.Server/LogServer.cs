@@ -1,10 +1,11 @@
 ﻿using EasyLog.Models;
 using EasyLog.Server.Utils;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace EasyLog.Server.Services
 {
@@ -15,17 +16,23 @@ namespace EasyLog.Server.Services
         public LogServer(int port) => _port = port;
 
         /// <summary>
-        /// Gère un client TCP de manière synchrone
+        /// Gère un client TCP en mode asynchrone
         /// </summary>
-        private void HandleClient(TcpClient client)
+        private async Task HandleClientAsync(TcpClient client)
         {
             try
             {
+                var remoteEndPoint = client.Client.RemoteEndPoint as IPEndPoint;
+                string clientIp = remoteEndPoint?.Address.ToString();
+                int clientPort = remoteEndPoint?.Port ?? 0;
+
+                Console.WriteLine($"Client connected: {clientIp}:{clientPort}");
+
                 using NetworkStream stream = client.GetStream();
                 using var reader = new StreamReader(stream, Encoding.UTF8);
 
                 string line;
-                while ((line = reader.ReadLine()) != null)
+                while ((line = await reader.ReadLineAsync()) != null)
                 {
                     try
                     {
@@ -60,25 +67,21 @@ namespace EasyLog.Server.Services
         }
 
         /// <summary>
-        /// Démarre le serveur TCP et accepte plusieurs clients
+        /// Démarre le serveur TCP en mode asynchrone
         /// </summary>
-        public void Start()
+        public async Task StartAsync()
         {
             TcpListener server = new TcpListener(IPAddress.Any, _port);
             server.Start();
+
             Console.WriteLine($"EasyLog.Server listening on port {_port}...");
 
             while (true)
             {
-                TcpClient client = server.AcceptTcpClient();
-                Console.WriteLine("Client connected.");
+                TcpClient client = await server.AcceptTcpClientAsync();
 
-                // Crée un thread pour chaque client
-                Thread t = new Thread(() => HandleClient(client))
-                {
-                    IsBackground = true
-                };
-                t.Start();
+                // 🔥 On ne bloque pas : on lance la tâche en arrière-plan
+                _ = HandleClientAsync(client);
             }
         }
     }
