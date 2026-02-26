@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia;
@@ -99,6 +100,13 @@ namespace EasySave.GUI.ViewModels
                 }
                 else
                 {
+                    if (_backupManager.ListJobs().Any(j => j.name == JobName))
+                    {
+                        NotifyMsg = _lang.GetText("Msg_ErrorDuplicateName") ?? "A backup with this name already exists";
+                        NotifyColor = "#e74c3c";
+                        IsNotifyVisible = true;
+                        return;
+                    }
                     string strategy = IsFullBackup ? "full" : "differential";
                     _backupManager.CreateJob(JobName, SourcePath, DestinationPath, strategy, EncryptionKey);
                     
