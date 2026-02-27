@@ -10,6 +10,8 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.Input;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
+using EasySave.GUI.Commands;
+using EasySave.Core.Models;
 
 namespace EasySave.GUI.ViewModels
 {
