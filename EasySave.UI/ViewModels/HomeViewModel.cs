@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using EasySave.Core.Managers;
 using EasySave.Core.Models;
 using RelayCommand = EasySave.GUI.Commands.RelayCommand;
+using EasyLog.Models;
 
 namespace EasySave.GUI.ViewModels
 {
