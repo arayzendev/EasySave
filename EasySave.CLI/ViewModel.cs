@@ -31,6 +31,7 @@ namespace EasySave.CLI
             bool langue = true;
             bool logActive = true;
             bool logModeActive = true;
+            bool extensionActive = true;
 
             ShowBanner();
 
@@ -71,6 +72,32 @@ namespace EasySave.CLI
                 {
                     backupManager.SetLogMode(logModeChoice);
                     logModeActive = false;
+                }
+                else
+                    view.Write("Veuillez Réessayez.");
+            }
+
+            while (extensionActive)
+            {
+                view.Write("Choisir une extension prioritaire (y/n) :");
+                string extChoice = view.Read().ToUpper();
+
+                if (extChoice == "Y")
+                {
+                    Console.WriteLine("Entrez les extensions prioritaires séparées par ';' (ex: .txt;.pdf;.docx) :");
+
+                    List<string> extensions = Console.ReadLine()
+                        .Split(';')
+                        .Select(e => e.Trim().ToLower())
+                        .Where(e => !string.IsNullOrWhiteSpace(e))
+                        .ToList();
+
+                    backupManager.UpdatePriorityExtensions(extensions);
+                    extensionActive = false;
+                }
+                else if (extChoice == "N")
+                {
+                    extensionActive = false;
                 }
                 else
                     view.Write("Veuillez Réessayez.");

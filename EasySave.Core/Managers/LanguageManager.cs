@@ -53,8 +53,8 @@ namespace EasySave.Core.Managers
                 _translations.Add("Menu_Titre", "--- TABLEAU DE BORD ---");
 
                 // ACTIONS DASHBOARD
-                _translations.Add("Menu_Create", " 1.Créer un travail de sauvegarde");
-                _translations.Add("Menu_ExecuteAll", "Tout Exécuter");
+                _translations.Add("Menu_Create", "1.Créer un travail de sauvegarde");
+                _translations.Add("Menu_ExecuteAll", "4.Tout Exécuter");
                 _translations.Add("Btn_Edit", "ÉDITER");
                 _translations.Add("Btn_Delete", "SUPPRIMER");
                 _translations.Add("Label_Progress", "PROGRESSION SAUVEGARDE");
@@ -158,8 +158,8 @@ namespace EasySave.Core.Managers
                 _translations.Add("Menu_Titre", "--- DASHBOARD ---");
 
                 // --- DASHBOARD ACTIONS ---
-                _translations.Add("Menu_Create", "Create a backup job");
-                _translations.Add("Menu_ExecuteAll", "Execute All");
+                _translations.Add("Menu_Create", "1. Create a backup job");
+                _translations.Add("Menu_ExecuteAll", "3. Execute All");
                 _translations.Add("Btn_Edit", "EDIT");
                 _translations.Add("Btn_Delete", "DELETE");
                 _translations.Add("Label_Progress", "BACKUP PROGRESS");

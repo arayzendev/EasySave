@@ -9,7 +9,7 @@ using EasySave.Core.Models;
 using EasySave.Managers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Security.Principal;
+using System.Runtime.InteropServices;
 
 namespace EasySave.Core.Managers
 {
@@ -25,7 +25,7 @@ namespace EasySave.Core.Managers
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
         private ProcessMonitor processMonitor;
-        private string user = WindowsIdentity.GetCurrent().Name;
+        private string user = Environment.UserName;
         private ClientSocket clientSocket;
 
         //Barrage passage des threads, True:ouvert, False:fermé
@@ -326,6 +326,8 @@ namespace EasySave.Core.Managers
         {
             var stopwatch = Stopwatch.StartNew();
 
+            string keyToUse = string.IsNullOrEmpty(encryptionKey) ? config.backupJobs[index].encryptionKey : encryptionKey;
+
             // Lancement de la sauvegarde de maniere asynchrone (Task.Run) pour ne pas bloquer
             // l'UI si on doit mettre en pause immediatement ou attendre
             Task.Run(() => 
@@ -356,9 +358,7 @@ namespace EasySave.Core.Managers
                     OnProgressUpdate();
                 }
                 
-                // Use job's encryption key if not provided
-                string key = encryptionKey ?? config.backupJobs[index].encryptionKey;
-                config.backupJobs[index].Execute(OnProgressUpdate, logger, key);
+                config.backupJobs[index].Execute(OnProgressUpdate, logger, null, keyToUse);
                 stopwatch.Stop();
 
                 logger.Write(new LogEntry

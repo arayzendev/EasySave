@@ -68,7 +68,7 @@ namespace EasySave.Core.Services
                     startInfo = new ProcessStartInfo
                     {
                         FileName = "dotnet",
-                        Arguments = $"\"{dllPath}\" \"{filePath}\" \"{key}\"",
+                        Arguments = $"exec \"{dllPath}\" \"{filePath}\" \"{key}\"",
                         UseShellExecute = false,
                         CreateNoWindow = true
                     };
