@@ -9,7 +9,7 @@ using EasySave.Core.Models;
 using EasySave.Managers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Security.Principal;
+using System.Runtime.InteropServices;
 
 namespace EasySave.Core.Managers
 {
@@ -25,7 +25,7 @@ namespace EasySave.Core.Managers
         private BackupStrategyFactory backupStrategyFactory;
         private Logger logger;
         private ProcessMonitor processMonitor;
-        private string user = WindowsIdentity.GetCurrent().Name;
+        private string user = Environment.UserName;
         private ClientSocket clientSocket;
 
         //Barrage passage des threads, True:ouvert, False:fermé
